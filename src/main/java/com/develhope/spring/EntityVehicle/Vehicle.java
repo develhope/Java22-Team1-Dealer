@@ -20,47 +20,47 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long vehicleId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Brand")
     private String brand;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Model")
     private String model;
 
-    @Column(nullable = false)
-    private int displacement;
+    @Column(nullable = false, name = "Displacement")
+    private Integer displacement;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Color")
     private String color;
 
-    @Column(nullable = false)
-    private int power;
+    @Column(nullable = false, name = "Power")
+    private Integer power;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Transmission")
     private String transmission;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Registration Year")
     private Integer registrationYear;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Power Supply")
     private String powerSupply;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Price")
     private BigDecimal price;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Discount")
     private BigDecimal discount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Accessories")
     private String accessories;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Is New")
     private Boolean isNew;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Vehicle Status")
     @Enumerated(EnumType.STRING)
     private VehicleStatus vehicleStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "Vehicle Type")
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
