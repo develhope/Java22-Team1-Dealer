@@ -1,4 +1,4 @@
-package com.develhope.spring.Users;
+package com.develhope.spring.EntityUser;
 
 import jakarta.persistence.*;
 import lombok.*;

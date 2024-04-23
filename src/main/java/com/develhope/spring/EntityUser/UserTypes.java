@@ -1,4 +1,4 @@
-package com.develhope.spring.Users;
+package com.develhope.spring.EntityUser;
 
 public enum UserTypes {
     BUYER,

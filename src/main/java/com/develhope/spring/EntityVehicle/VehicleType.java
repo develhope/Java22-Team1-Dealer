@@ -1,4 +1,4 @@
-package com.develhope.spring.Vehicle;
+package com.develhope.spring.EntityVehicle;
 
 public enum VehicleType {
 
