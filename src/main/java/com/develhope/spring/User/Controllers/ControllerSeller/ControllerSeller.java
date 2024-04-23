@@ -1,4 +1,4 @@
-package com.develhope.spring.ControllerSeller;
+package com.develhope.spring.User.Controllers.ControllerSeller;
 
 import com.develhope.spring.EntityVehicle.Vehicle;
 import com.develhope.spring.Repositories.VehicleRepository;
