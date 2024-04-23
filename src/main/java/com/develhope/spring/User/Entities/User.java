@@ -1,5 +1,6 @@
 package com.develhope.spring.User.Entities;
 
+import com.develhope.spring.User.Entities.Enum.UserTypes;
 import jakarta.persistence.*;
 import lombok.*;
 

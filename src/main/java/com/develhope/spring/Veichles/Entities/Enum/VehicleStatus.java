@@ -1,4 +1,4 @@
-package com.develhope.spring.Veichles.Entities;
+package com.develhope.spring.Veichles.Entities.Enum;
 
 public enum VehicleStatus {
 

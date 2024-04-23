@@ -1,5 +1,7 @@
 package com.develhope.spring.Veichles.Entities;
 
+import com.develhope.spring.Veichles.Entities.Enum.VehicleStatus;
+import com.develhope.spring.Veichles.Entities.Enum.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

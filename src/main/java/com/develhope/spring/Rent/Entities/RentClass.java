@@ -1,4 +1,4 @@
-package com.develhope.spring;
+package com.develhope.spring.Rent.Entities;
 
 //Per un noleggio avremo:
 //Data inizio noleggio
@@ -8,6 +8,8 @@ package com.develhope.spring;
 //Flag pagato
 //Veicolo noleggiato
 
+import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Veichles.Entities.Vehicle;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +22,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Noleggio {
+public class RentClass {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,9 +39,9 @@ public class Noleggio {
     @Column(nullable = false, name = "Pagato")
     private Boolean pagato;
     @Column(nullable = false, name = "Veicolo")
-    private Veicolo veicoloNoleggiato; //da unire con la sua classe
+    private Vehicle veicoloNoleggiato; //da unire con la sua classe
     @Column(nullable = false, name = "Cliente")
-    private Cliente cliente; //da unire con la sua classe
+    private User cliente; //da unire con la sua classe
 
 
     private void calcolaCostoTotale() {
