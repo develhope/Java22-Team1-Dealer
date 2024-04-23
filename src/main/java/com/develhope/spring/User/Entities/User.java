@@ -1,4 +1,4 @@
-package com.develhope.spring.EntityUser;
+package com.develhope.spring.User.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,7 +21,7 @@ public class User {
     private String surname;
     @Column(name = "User phoneNumber", unique = true)
     private String phoneNumber;
-    @Column(nullable = false,unique = true, name = "User email")
+    @Column(nullable = false, unique = true, name = "User email")
     private String email;
     @Column(nullable = false, name = "User password")
     private String password;
