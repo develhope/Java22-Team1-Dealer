@@ -1,7 +1,6 @@
 package com.develhope.spring.Rent.Serivices;
 
 import com.develhope.spring.EntityVehicle.Vehicle;
-import com.develhope.spring.Rent.DTO.ModifyRentDTO;
 import com.develhope.spring.Rent.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.Rent;
 import org.springframework.beans.factory.annotation.Autowired;
