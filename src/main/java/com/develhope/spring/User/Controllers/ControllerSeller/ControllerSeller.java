@@ -1,7 +1,8 @@
 package com.develhope.spring.User.Controllers.ControllerSeller;
 
-import com.develhope.spring.EntityVehicle.Vehicle;
-import com.develhope.spring.Repositories.VehicleRepository;
+
+import com.develhope.spring.Veichles.Entities.Vehicle;
+import com.develhope.spring.Veichles.Repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
