@@ -1,7 +1,7 @@
 package com.develhope.spring.Rent.Controllers;
 
-import com.develhope.spring.Rent.DTO.ModifyRentDTO;
-import com.develhope.spring.Rent.DTO.RentDTO;
+import com.develhope.spring.Rent.Entities.DTO.ModifyRentDTO;
+import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.Rent;
 import com.develhope.spring.Rent.Serivices.RentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController

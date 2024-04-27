@@ -1,6 +1,6 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.EntityVehicle.Vehicle;
+import com.develhope.spring.Veichles.Entities.Vehicle;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.develhope.spring.Rent.DTO;
+package com.develhope.spring.Rent.Entities.DTO;
 
 import lombok.Data;
 import java.time.LocalDate;

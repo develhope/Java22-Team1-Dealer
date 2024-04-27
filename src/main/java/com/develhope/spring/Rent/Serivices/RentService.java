@@ -1,8 +1,10 @@
 package com.develhope.spring.Rent.Serivices;
 
-import com.develhope.spring.EntityVehicle.Vehicle;
-import com.develhope.spring.Rent.DTO.RentDTO;
+import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.Rent;
+import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.Veichles.Entities.Vehicle;
+import com.develhope.spring.Veichles.Repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,12 @@ public class RentService {
 
     @Autowired
     private RentRepository rentRepository;
+    @Autowired
+    private VehicleRepository veichleRepository;
 
     //inserisci un nuovo noleggio
     public Rent createRent(RentDTO rentDTO) {
-        Vehicle vehicle = vehicleRepository.findById(rentDTO.getVehicleId()).orElse(null);
+        Vehicle vehicle = veichleRepository.findById(rentDTO.getVehicleId()).orElse(null);
         if (vehicle == null) {
             // veicolo non trovato, null
             return null;
