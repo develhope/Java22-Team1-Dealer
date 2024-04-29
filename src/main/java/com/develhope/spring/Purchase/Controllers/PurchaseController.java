@@ -22,6 +22,8 @@ public class PurchaseController {
         List<PurchaseDTO> result = purchaseService.getAllPurchases();
         if(result.isEmpty()) {
             return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok().body(result);
         }
     }
 
