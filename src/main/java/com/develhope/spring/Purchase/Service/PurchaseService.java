@@ -4,6 +4,8 @@ import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseEntity;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,29 +16,48 @@ public class PurchaseService {
     @Autowired
     PurchaseRepository purchaseRepository;
 
-   PurchaseDTO createPurchase(PurchaseEntity purchaseEntity) {
-      return purchaseRepository.save(purchaseEntity).toDTO();
-   }
+    public PurchaseDTO createPurchase(PurchaseDTO purchaseDTO) {
+        PurchaseEntity purchaseEntity = purchaseDTO.toModel().toEntity();
+        purchaseRepository.save(purchaseEntity);
+        return purchaseEntity.toModel().toDto();
+    }
 
-   PurchaseDTO getSinglePurchase(Long id) {
-       return purchaseRepository.findById(id).get().toDTO();
-   }
+    public ResponseEntity<?> getSinglePurchase(Long id) {
+        Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
+        if (purchaseOptional.isPresent()) {
+            purchaseRepository.deleteById(id);
+            return ResponseEntity.ok("Purchase with id " + id + " deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+        }
+    }
 
-   List<PurchaseDTO> getAllPurchases() {
-       return purchaseRepository.findAll().stream().map(PurchaseEntity::toDTO).toList();
-   }
+   public ResponseEntity<List<PurchaseDTO>> getAllPurchases() {
+      return  ResponseEntity.ok().body(purchaseRepository.findAll().stream().map(purchaseEntity -> {
+             return purchaseEntity.toModel().toDto();
+         }).toList());
+    }
 
-   PurchaseDTO updatePurchase(Long id, PurchaseEntity updatedPurchaseEntity) {
-       Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
-       if(purchaseOptional.isPresent()) {
-           purchaseOptional.get().setDeposit(updatedPurchaseEntity.getDeposit());
-           purchaseOptional.get().setStatus(updatedPurchaseEntity.getStatus());
-           purchaseOptional.get().setPaid(updatedPurchaseEntity.isPaid());
-           return purchaseOptional.get().toDTO();
-       } else {
-           return null;
-       }
+    public ResponseEntity<?> updatePurchase(Long id, PurchaseDTO updatedPurchaseDTO) {
+        Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
+        if (purchaseOptional.isPresent()) {
+            purchaseOptional.get().setDeposit(updatedPurchaseDTO.getDeposit());
+            purchaseOptional.get().setStatus(updatedPurchaseDTO.getStatus());
+            purchaseOptional.get().setPaid(updatedPurchaseDTO.isPaid());
+            return ResponseEntity.ok().body(purchaseOptional.get().toModel());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+        }
+    }
 
-
-   }
+    public ResponseEntity<String> deletePurchase(Long id) {
+        Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
+        if (purchaseOptional.isPresent()) {
+            purchaseRepository.deleteById(id);
+            return ResponseEntity.ok("Purchase with id " + id + " deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+        }
+    }
 }
+

@@ -29,7 +29,7 @@ public class PurchaseDTO {
         this.order = order;
     }
 
-    public PurchaseEntity toEntity() {
-        return new PurchaseEntity(this.id, this.deposit, this.isPaid, this.status, this.order);
+    public PurchaseModel toModel() {
+        return new PurchaseModel(this.deposit, this.isPaid, this.status, this.order);
     }
 }

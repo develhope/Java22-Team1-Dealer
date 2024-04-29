@@ -28,7 +28,15 @@ public class PurchaseEntity {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    public PurchaseDTO toDTO() {
-        return new PurchaseDTO(this.idPurchase, this.deposit, this.isPaid, this.status, this.order);
+    public PurchaseModel toModel() {
+        return new PurchaseModel(this.idPurchase,this.deposit, this.isPaid, this.status, this.order);
     }
+
+    public PurchaseEntity(int deposit, boolean isPaid, PurchaseStatus status, Order order) {
+        this.deposit = deposit;
+        this.isPaid = isPaid;
+        this.status = status;
+        this.order = order;
+    }
+
 }
