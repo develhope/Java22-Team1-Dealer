@@ -1,4 +1,4 @@
-package com.develhope.spring.order;
+package com.develhope.spring.order.Repositories;
 
 import jakarta.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;

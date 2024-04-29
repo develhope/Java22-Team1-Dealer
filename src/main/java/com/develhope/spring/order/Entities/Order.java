@@ -1,4 +1,4 @@
-package com.develhope.spring.order;
+package com.develhope.spring.order.Entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

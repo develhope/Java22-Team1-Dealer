@@ -1,5 +1,6 @@
-package com.develhope.spring.order;
+package com.develhope.spring.order.Services;
 
+import com.develhope.spring.order.Repositories.OrderRepository;
 import org.springframework.stereotype.Service;
 
 @Service
