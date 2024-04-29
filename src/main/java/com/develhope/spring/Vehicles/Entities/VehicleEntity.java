@@ -1,22 +1,16 @@
 package com.develhope.spring.Vehicles.Entities;
 
-import com.develhope.spring.Vehicles.Entities.VehicleStatus;
-import com.develhope.spring.Vehicles.Entities.VehicleType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
+@Data
 @Entity
 @Table
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vehicle {
+public class VehicleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,25 +59,4 @@ public class Vehicle {
     @Column(nullable = false, name = "Vehicle_Type")
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
-
-    @Override
-    public String toString() {
-        return "Vehicle{" +
-                "vehicleId=" + vehicleId +
-                ", brand='" + brand + '\'' +
-                ", model='" + model + '\'' +
-                ", displacement=" + displacement +
-                ", color='" + color + '\'' +
-                ", power=" + power +
-                ", transmission='" + transmission + '\'' +
-                ", registrationYear=" + registrationYear +
-                ", powerSupply='" + powerSupply + '\'' +
-                ", price=" + price +
-                ", discount=" + discount +
-                ", accessories='" + accessories + '\'' +
-                ", isNew=" + isNew +
-                ", vehicleStatus=" + vehicleStatus +
-                ", vehicleType=" + vehicleType +
-                '}';
-    }
 }
