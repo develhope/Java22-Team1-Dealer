@@ -1,11 +1,12 @@
 package com.develhope.spring.Purchase.Service;
 
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
-import com.develhope.spring.Purchase.Entities.DTO.PurchaseEntity;
+import com.develhope.spring.Purchase.Entities.Entity.PurchaseEntity;
+import com.develhope.spring.Purchase.Entities.Model.PurchaseModel;
+import com.develhope.spring.Purchase.Entities.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
+import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,45 +19,48 @@ public class PurchaseService {
 
     public PurchaseDTO createPurchase(PurchaseDTO purchaseDTO) {
         PurchaseEntity purchaseEntity = purchaseDTO.toModel().toEntity();
-        purchaseRepository.save(purchaseEntity);
-        return purchaseEntity.toModel().toDto();
+       return purchaseRepository.save(purchaseEntity).toModel().toDto();
     }
 
-    public ResponseEntity<?> getSinglePurchase(Long id) {
+    public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(Long id) {
         Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
         if (purchaseOptional.isPresent()) {
-            purchaseRepository.deleteById(id);
-            return ResponseEntity.ok("Purchase with id " + id + " deleted successfully");
+           return Either.right(purchaseRepository.findById(id).get().toModel().toDto());
+
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+            return Either.left(new PurchaseResponse(404, "Purchase with id " + id + " not found"));
         }
     }
 
-   public ResponseEntity<List<PurchaseDTO>> getAllPurchases() {
-      return  ResponseEntity.ok().body(purchaseRepository.findAll().stream().map(purchaseEntity -> {
+   public List<PurchaseDTO> getAllPurchases() {
+      return  purchaseRepository.findAll().stream().map(purchaseEntity -> {
              return purchaseEntity.toModel().toDto();
-         }).toList());
+         }).toList();
     }
 
-    public ResponseEntity<?> updatePurchase(Long id, PurchaseDTO updatedPurchaseDTO) {
+    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(Long id, PurchaseModel updatedPurchaseModel) {
         Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
         if (purchaseOptional.isPresent()) {
-            purchaseOptional.get().setDeposit(updatedPurchaseDTO.getDeposit());
-            purchaseOptional.get().setStatus(updatedPurchaseDTO.getStatus());
-            purchaseOptional.get().setPaid(updatedPurchaseDTO.isPaid());
-            return ResponseEntity.ok().body(purchaseOptional.get().toModel());
+            PurchaseModel purchaseModel = purchaseOptional.get().toModel();
+            purchaseModel.setDeposit(updatedPurchaseModel.getDeposit());
+            purchaseModel.setStatus(updatedPurchaseModel.getStatus());
+            purchaseModel.setPaid(updatedPurchaseModel.isPaid());
+            return Either.right(purchaseModel.toDto());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+            return Either.left(new PurchaseResponse(
+                    404,
+                    "Purchase with id" + id + "not found"
+            ));
         }
     }
 
-    public ResponseEntity<String> deletePurchase(Long id) {
+    public PurchaseResponse deletePurchase(Long id) {
         Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(id);
         if (purchaseOptional.isPresent()) {
             purchaseRepository.deleteById(id);
-            return ResponseEntity.ok("Purchase with id " + id + " deleted successfully");
+            return new PurchaseResponse(200, "Purchase with id " + id + " has been deletes successfully");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Purchase with id " + id + " not found");
+            return new PurchaseResponse(404,"Purchase with id " + id + " not found");
         }
     }
 }
