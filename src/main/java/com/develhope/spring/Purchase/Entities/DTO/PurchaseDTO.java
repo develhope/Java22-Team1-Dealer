@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PurchaseDTO {
 
-    private Long id;
-
     private int deposit;
 
     private boolean isPaid;
@@ -20,14 +18,6 @@ public class PurchaseDTO {
     private PurchaseStatus status;
 
     private Order order;
-
-
-    public PurchaseDTO(int deposit, boolean isPaid, PurchaseStatus status, Order order) {
-        this.deposit = deposit;
-        this.isPaid = isPaid;
-        this.status = status;
-        this.order = order;
-    }
 
     public PurchaseModel toModel() {
         return new PurchaseModel(this.deposit, this.isPaid, this.status, this.order);
