@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "rentals")
+@Table(name = "rentals")44
 @Data
 public class Rent {
 
