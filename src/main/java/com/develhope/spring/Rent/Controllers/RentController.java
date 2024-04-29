@@ -27,60 +27,108 @@ public class RentController {
     @PostMapping("/create/{userId}")
     public ResponseEntity<Rent> createRent(@PathVariable Long userId, @RequestBody RentDTO rentDTO) {
 
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElse(null);
 
-        if (user.getUserType() == UserTypes.ADMIN ||user.getUserType() == UserTypes.SELLER) {
-            Rent rent = rentService.createRent(rentDTO);
-            if (rent == null) {
-                // se il noleggio e' null, errore
-                return ResponseEntity.badRequest().build();
+        if (user != null) {
+            if (user.getUserType() == UserTypes.ADMIN) {
+                Rent rent = rentService.createRent(rentDTO);
+                if (rent == null) {
+                    // se il noleggio e' null, errore
+                    return ResponseEntity.badRequest().build();
+                }
+                return new ResponseEntity<>(rent, HttpStatus.CREATED);
+            } else if (user.getUserType() == UserTypes.SELLER) {
+                Rent rent = rentService.createRent(rentDTO);
+                if (rent == null) {
+                    // se il noleggio e' null, errore
+                    return ResponseEntity.badRequest().build();
+                }
+                return new ResponseEntity<>(rent, HttpStatus.CREATED);
             }
-            return new ResponseEntity<>(rent, HttpStatus.CREATED);
-        } return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     // ottieni la lista dei noleggi
     @GetMapping("/list{userId}")
     public ResponseEntity<List<Rent>> rentList(@PathVariable Long userId) {
 
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElse(null);
 
-        List<Rent> rentals = user.getOrders();
-        // Restituisci la lista dei noleggi messaggio ok
-        return new ResponseEntity<>(rentals, HttpStatus.OK);
+        if (user != null) {
+            if (user.getUserType() == UserTypes.BUYER) {
+                List<Rent> rentals = user.getOrders();
+                // Restituisci la lista dei noleggi messaggio ok
+                return new ResponseEntity<>(rentals, HttpStatus.OK);
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     // ottieni un noleggio da id
     @GetMapping("/search/{userId}/{rentId}")
-    public ResponseEntity<Rent> getRentById(@PathVariable Long id) {
-        Rent rent = rentService.getRentById(id);
-        if (rent == null) {
-            // se il noleggio e' null, errore
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Rent> getRentById(@PathVariable Long userId, @PathVariable Long rentId) {
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user != null) {
+            if (user.getUserType() == UserTypes.BUYER) {
+                Rent rent = rentService.getRentById(rentId);
+                if (rent == null) {
+                    // se il noleggio e' null, errore
+                    return ResponseEntity.notFound().build();
+                }
+                // restituisci il noleggio trovato con messaggio ok
+                return new ResponseEntity<>(rent, HttpStatus.OK);
+            }
         }
-        // restituisci il noleggio trovato con messaggio ok
-        return new ResponseEntity<>(rent, HttpStatus.OK);
+
+        return ResponseEntity.badRequest().build();
     }
 
     // modifica le date di un noleggio
     @PutMapping("/update/{userId}/{rentId}")
-    public ResponseEntity<Rent> updateRentDates(@PathVariable Long id, @RequestBody ModifyRentDTO modifyRentDTO) {
-        Rent updatedRent = rentService.updateRentDates(id, modifyRentDTO.getStartDate(), modifyRentDTO.getEndDate());
-        if (updatedRent == null) {
-            // se il noleggio non viene trovato, errore
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Rent> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody ModifyRentDTO modifyRentDTO) {
+
+        User user = userRepository.findbyId(userId).orElse(null);
+
+        if (user != null) {
+            if (user.getUserType() == UserTypes.ADMIN || user.getUserType() == UserTypes.SELLER) {
+                Rent updatedRent = rentService.updateRentDates(rentId, modifyRentDTO.getStartDate(), modifyRentDTO.getEndDate());
+                if (updatedRent == null) {
+                    // se il noleggio non viene trovato, errore
+                    return ResponseEntity.notFound().build();
+                }
+                // noleggio aggiornato messaggio ok
+                return new ResponseEntity<>(updatedRent, HttpStatus.OK);
+            }
         }
-        // noleggio aggiornato messaggio ok
-        return new ResponseEntity<>(updatedRent, HttpStatus.OK);
+
+        return ResponseEntity.badRequest().build();
     }
     // Elimina un noleggio
     @DeleteMapping("/remove/{userId}/{rentId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRent(@PathVariable Long id) {
-        // elimina il noleggio by id
-        rentService.deleteRent(id);
-    }
+    public ResponseEntity<Void> deleteRent(@PathVariable Long userId, @PathVariable Long rentId) {
 
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user != null) {
+            if (user.getUserType() == UserTypes.ADMIN || user.getUserType() == UserTypes.SELLER) {
+                rentService.deleteRent(rentId);
+                return ResponseEntity.noContent().build();
+            } else if (user.getUserType() == UserTypes.BUYER) {
+                // Rimuovi il noleggio dal cliente
+                Rent rent = rentService.getRentById(rentId);
+                if (rent != null && rent.getUser().getId().equals(userId)) {
+                    rentService.deleteRent(rentId);
+                    return ResponseEntity.noContent().build();
+                }
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
 
 }
 
