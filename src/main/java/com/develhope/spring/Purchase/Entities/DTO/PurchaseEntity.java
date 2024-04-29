@@ -32,11 +32,4 @@ public class PurchaseEntity {
         return new PurchaseModel(this.idPurchase,this.deposit, this.isPaid, this.status, this.order);
     }
 
-    public PurchaseEntity(int deposit, boolean isPaid, PurchaseStatus status, Order order) {
-        this.deposit = deposit;
-        this.isPaid = isPaid;
-        this.status = status;
-        this.order = order;
-    }
-
 }

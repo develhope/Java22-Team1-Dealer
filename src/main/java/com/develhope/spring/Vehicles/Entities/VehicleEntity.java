@@ -1,5 +1,6 @@
 package com.develhope.spring.Vehicles.Entities;
 
+import com.develhope.spring.Vehicles.DTO.VehicleModel;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -59,4 +60,9 @@ public class VehicleEntity {
     @Column(nullable = false, name = "Vehicle_Type")
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
+
+    public VehicleModel toModel() {
+        return new VehicleModel(this.brand, this.model, this.displacement, this.color, this.power, this.transmission, this.registrationYear,
+                this.powerSupply, this.price, this.discount, this.accessories, this.isNew, this.vehicleStatus, this.vehicleType);
+    }
 }
