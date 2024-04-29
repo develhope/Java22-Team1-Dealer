@@ -1,13 +1,13 @@
-package com.develhope.spring.Rent.Serivices;
+package com.develhope.spring.Rent.Services;
 
 import com.develhope.spring.Rent.Entities.DTO.ModifyRentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.Rent;
 import com.develhope.spring.Rent.Repositories.RentRepository;
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.User.Entities.UserTypes;
-import com.develhope.spring.Veichles.Entities.Vehicle;
-import com.develhope.spring.Veichles.Repositories.VehicleRepository;
+import com.develhope.spring.User.Entities.Enum.UserTypes;
+import com.develhope.spring.Vehicles.Entities.Vehicle;
+import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.User.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
