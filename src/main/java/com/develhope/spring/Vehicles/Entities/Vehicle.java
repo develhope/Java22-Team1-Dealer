@@ -1,7 +1,7 @@
-package com.develhope.spring.Veichles.Entities;
+package com.develhope.spring.Vehicles.Entities;
 
-import com.develhope.spring.Veichles.Entities.Enum.VehicleStatus;
-import com.develhope.spring.Veichles.Entities.Enum.VehicleType;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
+import com.develhope.spring.Vehicles.Entities.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,10 +40,10 @@ public class Vehicle {
     @Column(nullable = false, name = "Transmission")
     private String transmission;
 
-    @Column(nullable = false, name = "Registration Year")
+    @Column(nullable = false, name = "Registration_Year")
     private Integer registrationYear;
 
-    @Column(nullable = false, name = "Power Supply")
+    @Column(nullable = false, name = "Power_Supply")
     private String powerSupply;
 
     @Column(nullable = false, name = "Price")
@@ -55,14 +55,14 @@ public class Vehicle {
     @Column(nullable = false, name = "Accessories")
     private String accessories;
 
-    @Column(nullable = false, name = "Is New")
+    @Column(nullable = false, name = "Is_New")
     private Boolean isNew;
 
-    @Column(nullable = false, name = "Vehicle Status")
+    @Column(nullable = false, name = "Vehicle_Status")
     @Enumerated(EnumType.STRING)
     private VehicleStatus vehicleStatus;
 
-    @Column(nullable = false, name = "Vehicle Type")
+    @Column(nullable = false, name = "Vehicle_Type")
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
