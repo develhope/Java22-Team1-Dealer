@@ -1,6 +1,5 @@
-package com.develhope.spring.Purchase.Entities;
+package com.develhope.spring.Purchase.Entities.DTO;
 
-import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.order.Entities.Order;
 import jakarta.persistence.*;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Purchase {
+public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPurchase;

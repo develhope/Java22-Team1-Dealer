@@ -1,7 +1,6 @@
 package com.develhope.spring.Purchase.Entities.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.Purchase.Entities.Purchase;
 import com.develhope.spring.order.Entities.Order;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class PurchaseDTO {
         this.order = order;
     }
 
-    public Purchase toEntity() {
-        return new Purchase(this.id, this.deposit, this.isPaid, this.status, this.order);
+    public PurchaseEntity toEntity() {
+        return new PurchaseEntity(this.id, this.deposit, this.isPaid, this.status, this.order);
     }
 }
