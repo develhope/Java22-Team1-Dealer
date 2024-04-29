@@ -1,10 +1,14 @@
 package com.develhope.spring.Rent.Serivices;
 
+import com.develhope.spring.Rent.Entities.DTO.ModifyRentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.Rent;
 import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserTypes;
 import com.develhope.spring.Veichles.Entities.Vehicle;
 import com.develhope.spring.Veichles.Repositories.VehicleRepository;
+import com.develhope.spring.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,62 +19,65 @@ import java.util.List;
 public class RentService {
 
     @Autowired
-    private RentRepository rentRepository;
-    @Autowired
-    private VehicleRepository veichleRepository;
+    private UserRepository userRepository;
 
-    //inserisci un nuovo noleggio
-    public Rent createRent(RentDTO rentDTO) {
-        Vehicle vehicle = veichleRepository.findById(rentDTO.getVehicleId()).orElse(null);
-        if (vehicle == null) {
-            // veicolo non trovato, null
+    @Autowired
+    private RentRepository rentRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    public Rent createRent(Long userId, RentDTO rentDTO) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
             return null;
-        }
+
+        Vehicle vehicle = vehicleRepository.findById(rentDTO.getVehicleId()).orElse(null);
+        if (vehicle == null)
+            return null;
 
         Rent rent = new Rent();
+        rent.setUser(user);
+        rent.setVehicle(vehicle);
         rent.setStartDate(rentDTO.getStartDate());
         rent.setEndDate(rentDTO.getEndDate());
         rent.setDailyCost(rentDTO.getDailyCost());
         rent.setIsPaid(rentDTO.getIsPaid());
-        rent.setVehicle(vehicle);
-        // calcola costo totale
         rent.setTotalCost(rent.calculateTotalCost());
-        //salva e restituisce il noleggio
+
         return rentRepository.save(rent);
     }
 
-    //ottieni i noleggi listati
-    public List<Rent> rentList() {
-        return rentRepository.findAll();
+    public List<Rent> getRentsByUserId(Long userId) {
+        return rentRepository.findByUserId(userId);
     }
 
-    //ottieni da id
-    public Rent getRentById(Long id) {
-        return rentRepository.findById(id).orElse(null);
-    }
-
-    //aggiorna le date del noleggio esistente
-    public Rent updateRentDates(Long id, LocalDate newStartDate, LocalDate newEndDate) {
-        Rent rentToUpdate = rentRepository.findById(id).orElse(null);
-        if (rentToUpdate == null) {
-            // non trovato, null
+    public Rent getRentById(Long userId, Long rentId) {
+        Rent rent = rentRepository.findById(rentId).orElse(null);
+        if (rent == null || !rent.getUser().getId().equals(userId))
             return null;
-        }
 
-        rentToUpdate.setStartDate(newStartDate);
-
-        rentToUpdate.setEndDate(newEndDate);
-
-        // ricalcolo costo noleggio
-        rentToUpdate.setTotalCost(rentToUpdate.calculateTotalCost());
-
-        //salva e restituisce il noleggio
-        return rentRepository.save(rentToUpdate);
+        return rent;
     }
 
-    //elimina uun noleggio esistente
-    public void deleteRent(Long id) {
-        rentRepository.deleteById(id);
+    public Rent updateRentDates(Long userId, Long rentId, ModifyRentDTO modifyRentDTO) {
+        Rent rent = getRentById(userId, rentId);
+        if (rent == null)
+            return null;
+
+        rent.setStartDate(modifyRentDTO.getStartDate());
+        rent.setEndDate(modifyRentDTO.getEndDate());
+        rent.setTotalCost(rent.calculateTotalCost());
+
+        return rentRepository.save(rent);
     }
 
+    public boolean deleteRent(Long userId, Long rentId) {
+        Rent rent = getRentById(userId, rentId);
+        if (rent == null)
+            return false;
+
+        rentRepository.delete(rent);
+        return true;
+    }
 }
