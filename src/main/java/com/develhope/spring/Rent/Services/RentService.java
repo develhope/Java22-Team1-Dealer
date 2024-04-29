@@ -6,7 +6,7 @@ import com.develhope.spring.Rent.Entities.Rent;
 import com.develhope.spring.Rent.Repositories.RentRepository;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.Vehicles.Entities.Vehicle;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.User.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +31,13 @@ public class RentService {
         if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
             return null;
 
-        Vehicle vehicle = vehicleRepository.findById(rentDTO.getVehicleId()).orElse(null);
-        if (vehicle == null)
+        VehicleEntity vehicleEntity = vehicleRepository.findById(rentDTO.getVehicleId()).orElse(null);
+        if (vehicleEntity == null)
             return null;
 
         Rent rent = new Rent();
         rent.setUser(user);
-        rent.setVehicle(vehicle);
+        rent.setVehicle(vehicleEntity);
         rent.setStartDate(rentDTO.getStartDate());
         rent.setEndDate(rentDTO.getEndDate());
         rent.setDailyCost(rentDTO.getDailyCost());

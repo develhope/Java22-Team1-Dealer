@@ -1,7 +1,7 @@
 package com.develhope.spring.User.Controllers.ControllerSeller;
 
 
-import com.develhope.spring.Vehicles.Entities.Vehicle;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class ControllerSeller {
     VehicleRepository vehicleRepository;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vehicle> getVehicleById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<VehicleEntity> getVehicleById(@PathVariable(name = "id") Long id) {
        return ResponseEntity.ok().body(vehicleRepository.getReferenceById(id));
     }
 }
