@@ -1,8 +1,12 @@
 package com.develhope.spring.User.Entities;
 
+
 import com.develhope.spring.User.Entities.Enum.UserTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table
@@ -27,5 +31,8 @@ public class User {
     @Column(nullable = false, name = "User password")
     private String password;
     @Column(nullable = false, name = "User type")
-    private UserTypes userType;
+    private UserTypes userType;\
+
+    @OneToMany(mappedBy = "user") // Relazione con l'entità Order
+    private List<Order> orders;
 }

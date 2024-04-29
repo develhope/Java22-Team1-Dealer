@@ -1,4 +1,4 @@
-package com.develhope.spring.Repositories;
+package com.develhope.spring.User.Repositories;
 
 import com.develhope.spring.User.Entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
