@@ -1,7 +1,8 @@
 package com.develhope.spring.Rent.Entities;
 
+import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Veichles.Entities.Vehicle;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "rentals")
 @Data
-public class Rent {
+public class RentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +26,7 @@ public class Rent {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    private Long vehicleId;
 
     private Double dailyCost;
     private Double totalCost;
@@ -37,5 +38,9 @@ public class Rent {
             return days * dailyCost;
         }
         return null;
+    }
+
+    public RentModel toModel() {
+        return new RentModel(this.startDate, this.endDate, this.dailyCost, this.isPaid);
     }
 }

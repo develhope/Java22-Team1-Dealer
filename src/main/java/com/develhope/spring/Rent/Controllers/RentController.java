@@ -1,9 +1,8 @@
 package com.develhope.spring.Rent.Controllers;
 
-import com.develhope.spring.Rent.Entities.DTO.ModifyRentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
-import com.develhope.spring.Rent.Entities.Rent;
-import com.develhope.spring.Rent.Serivices.RentService;
+import com.develhope.spring.Rent.Entities.RentEntity;
+import com.develhope.spring.Rent.Services.RentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,35 +19,35 @@ public class RentController {
 
     @PostMapping("/create/{userId}")
     public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestBody RentDTO rentDTO) {
-        Rent rent = rentService.createRent(userId, rentDTO);
-        if (rent == null)
+        RentDTO rentEntity = rentService.createRent(userId, rentDTO);
+        if (rentEntity == null)
             return ResponseEntity.badRequest().body("Unable to create rent");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(rent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(rentEntity);
     }
 
     @GetMapping("/list/{userId}")
     public ResponseEntity<?> rentList(@PathVariable Long userId) {
-        List<Rent> rentals = rentService.getRentsByUserId(userId);
+        List<RentDTO> rentals = rentService.getRentsByUserId(userId);
         return ResponseEntity.ok(rentals);
     }
 
     @GetMapping("/search/{userId}/{rentId}")
     public ResponseEntity<?> getRentById(@PathVariable Long userId, @PathVariable Long rentId) {
-        Rent rent = rentService.getRentById(userId, rentId);
-        if (rent == null)
+        RentDTO rentEntity = rentService.getRentById(userId, rentId);
+        if (rentEntity == null)
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(rent);
+        return ResponseEntity.ok(rentEntity);
     }
 
     @PutMapping("/update/{userId}/{rentId}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody ModifyRentDTO modifyRentDTO) {
-        Rent updatedRent = rentService.updateRentDates(userId, rentId, modifyRentDTO);
-        if (updatedRent == null)
+    public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody RentDTO rentDTO) {
+        RentDTO updatedRentEntity = rentService.updateRentDates(userId, rentId, rentDTO);
+        if (updatedRentEntity == null)
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(updatedRent);
+        return ResponseEntity.ok(updatedRentEntity);
     }
 
     @DeleteMapping("/remove/{userId}/{rentId}")
