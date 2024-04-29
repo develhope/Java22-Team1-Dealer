@@ -1,6 +1,6 @@
 package com.develhope.spring.Purchase.Repositories;
 
-import com.develhope.spring.Purchase.Entities.DTO.PurchaseEntity;
+import com.develhope.spring.Purchase.Entities.Entity.PurchaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,5 +1,7 @@
-package com.develhope.spring.Purchase.Entities.DTO;
+package com.develhope.spring.Purchase.Entities.Model;
 
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.Entity.PurchaseEntity;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.order.Entities.Order;
 import lombok.AllArgsConstructor;
