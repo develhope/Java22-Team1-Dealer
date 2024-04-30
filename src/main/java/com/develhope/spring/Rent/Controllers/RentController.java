@@ -2,7 +2,9 @@ package com.develhope.spring.Rent.Controllers;
 
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.RentEntity;
+import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.Rent.Services.RentService;
+import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,42 +21,45 @@ public class RentController {
 
     @PostMapping("/create/{userId}")
     public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestBody RentDTO rentDTO) {
-        RentDTO rentEntity = rentService.createRent(userId, rentDTO);
-        if (rentEntity == null)
-            return ResponseEntity.badRequest().body("Unable to create rent");
+        Either<RentResponse, RentDTO> result = rentService.createRent(userId, rentDTO);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(rentEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
     }
 
     @GetMapping("/list/{userId}")
     public ResponseEntity<?> rentList(@PathVariable Long userId) {
-        List<RentDTO> rentals = rentService.getRentsByUserId(userId);
-        return ResponseEntity.ok(rentals);
+        Either<RentResponse, List<RentDTO>> result = rentService.getRentsByUserId(userId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+
+        return ResponseEntity.ok(result.get());
     }
 
     @GetMapping("/search/{userId}/{rentId}")
     public ResponseEntity<?> getRentById(@PathVariable Long userId, @PathVariable Long rentId) {
-        RentDTO rentEntity = rentService.getRentById(userId, rentId);
-        if (rentEntity == null)
-            return ResponseEntity.notFound().build();
+        Either<RentResponse, RentDTO> result = rentService.getRentById(userId, rentId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
-        return ResponseEntity.ok(rentEntity);
+        return ResponseEntity.ok(result.get());
     }
 
     @PutMapping("/update/{userId}/{rentId}")
     public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody RentDTO rentDTO) {
-        RentDTO updatedRentEntity = rentService.updateRentDates(userId, rentId, rentDTO);
-        if (updatedRentEntity == null)
-            return ResponseEntity.notFound().build();
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(userId, rentId, rentDTO);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
-        return ResponseEntity.ok(updatedRentEntity);
+        return ResponseEntity.ok(result.get());
     }
 
     @DeleteMapping("/remove/{userId}/{rentId}")
     public ResponseEntity<?> deleteRent(@PathVariable Long userId, @PathVariable Long rentId) {
-        boolean deleted = rentService.deleteRent(userId, rentId);
-        if (!deleted)
-            return ResponseEntity.notFound().build();
+        Either<RentResponse, Boolean> result = rentService.deleteRent(userId, rentId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
         return ResponseEntity.noContent().build();
     }

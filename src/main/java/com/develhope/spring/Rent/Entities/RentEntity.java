@@ -24,8 +24,7 @@ public class RentEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id")
+    @Column(name = "vehicle_id")
     private Long vehicleId;
 
     private Double dailyCost;
