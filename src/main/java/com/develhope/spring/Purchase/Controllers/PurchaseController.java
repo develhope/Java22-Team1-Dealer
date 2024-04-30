@@ -3,6 +3,11 @@ package com.develhope.spring.Purchase.Controllers;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Service.PurchaseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +22,27 @@ public class PurchaseController {
     @Autowired
     PurchaseService purchaseService;
 
+    @Operation(summary = "Gets all users")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Returned all users",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode ="404",
+                            description = "No users found",
+                            content = @Content
+                    )
+            }
+    )
+
     @GetMapping("/")
     public ResponseEntity<?> getAll() {
         List<PurchaseDTO> result = purchaseService.getAllPurchases();
         if(result.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.notFound().build();
         } else {
             return ResponseEntity.ok().body(result);
         }
