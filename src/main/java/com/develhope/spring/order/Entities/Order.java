@@ -1,7 +1,6 @@
 package com.develhope.spring.order.Entities;
 
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Veichles.Entities.Vehicle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
