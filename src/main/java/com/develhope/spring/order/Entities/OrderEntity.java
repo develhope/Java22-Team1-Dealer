@@ -14,7 +14,7 @@ import java.util.List;
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public class Order {
+    public class OrderEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long orderId;

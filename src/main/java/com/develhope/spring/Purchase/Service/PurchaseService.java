@@ -9,7 +9,7 @@ import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
-import com.develhope.spring.order.Entities.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class PurchaseService {
         }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.isPaid(),
-                purchaseRequest.getStatus(), purchaseRequest.getOrder());
+                purchaseRequest.getStatus(), purchaseRequest.getOrderEntity());
         PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(result);
@@ -64,9 +64,9 @@ public class PurchaseService {
 
         //checks if purchase belongs to user
         PurchaseEntity purchaseEntity = purchaseOptional.get();
-        Order order = purchaseEntity.getOrder();
+        OrderEntity orderEntity = purchaseEntity.getOrderEntity();
         User user = userOptional.get();
-        if (!(user.getOrders().contains(order))) {
+        if (!(user.getOrderEntities().contains(orderEntity))) {
             return Either.left(new PurchaseResponse(403, "This purchase does not belong to the specified user"));
         }
 
@@ -82,9 +82,9 @@ public class PurchaseService {
             return Either.left(new PurchaseResponse(419, "User with id " + userId + "found"));
         }
 
-        List<Order> userOrders = userOptional.get().getOrders();
+        List<OrderEntity> userOrderEntities = userOptional.get().getOrderEntities();
 
-        List<PurchaseEntity> userPurchase = userOrders.stream().flatMap(order -> order.getPurchases().stream()).toList();
+        List<PurchaseEntity> userPurchase = userOrderEntities.stream().flatMap(order -> order.getPurchases().stream()).toList();
 
         return Either.right(userPurchase.stream()
                 .map(

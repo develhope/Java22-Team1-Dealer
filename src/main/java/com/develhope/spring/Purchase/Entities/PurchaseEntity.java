@@ -1,7 +1,7 @@
 package com.develhope.spring.Purchase.Entities;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.order.Entities.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +24,7 @@ public class PurchaseEntity {
     private PurchaseStatus status;
     @OneToOne
     @JoinColumn(name = "order_id")
-    private Order order;
+    private OrderEntity orderEntity;
 
 
 

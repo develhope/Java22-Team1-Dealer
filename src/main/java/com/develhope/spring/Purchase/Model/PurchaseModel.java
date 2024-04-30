@@ -3,7 +3,7 @@ package com.develhope.spring.Purchase.Model;
 import com.develhope.spring.Purchase.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.order.Entities.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,28 +18,28 @@ public class PurchaseModel {
 
     private PurchaseStatus status;
 
-    private Order order;
+    private OrderEntity orderEntity;
 
 
-    public PurchaseModel(double deposit, boolean isPaid, PurchaseStatus status, Order order) {
+    public PurchaseModel(double deposit, boolean isPaid, PurchaseStatus status, OrderEntity orderEntity) {
         this.deposit = deposit;
         this.isPaid = isPaid;
         this.status = status;
-        this.order = order;
+        this.orderEntity = orderEntity;
     }
 
     public static PurchaseEntity modelToEntity(PurchaseModel purchaseModel) {
-        return new PurchaseEntity(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.isPaid(), purchaseModel.getStatus(), purchaseModel.getOrder());
+        return new PurchaseEntity(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.isPaid(), purchaseModel.getStatus(), purchaseModel.getOrderEntity());
     }
     public static PurchaseDTO modelToDto(PurchaseModel purchaseModel) {
-        return new PurchaseDTO(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.isPaid(), purchaseModel.getStatus(), purchaseModel.getOrder());
+        return new PurchaseDTO(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.isPaid(), purchaseModel.getStatus(), purchaseModel.getOrderEntity());
     }
 
     public static PurchaseModel entityToModel(PurchaseEntity purchaseEntity) {
-        return new PurchaseModel(purchaseEntity.getId(),purchaseEntity.getDeposit(), purchaseEntity.isPaid(), purchaseEntity.getStatus(), purchaseEntity.getOrder());
+        return new PurchaseModel(purchaseEntity.getId(),purchaseEntity.getDeposit(), purchaseEntity.isPaid(), purchaseEntity.getStatus(), purchaseEntity.getOrderEntity());
     }
 
     public static PurchaseModel dtoToModel(PurchaseDTO purchaseDTO) {
-        return new PurchaseModel(purchaseDTO.getId(),purchaseDTO.getDeposit(), purchaseDTO.isPaid(), purchaseDTO.getStatus(), purchaseDTO.getOrder());
+        return new PurchaseModel(purchaseDTO.getId(),purchaseDTO.getDeposit(), purchaseDTO.isPaid(), purchaseDTO.getStatus(), purchaseDTO.getOrderEntity());
     }
 }

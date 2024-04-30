@@ -1,9 +1,9 @@
 package com.develhope.spring.order.Repositories;
 
-import jakarta.persistence.criteria.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 }
