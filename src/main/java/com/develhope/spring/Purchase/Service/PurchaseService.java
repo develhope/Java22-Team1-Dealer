@@ -6,6 +6,7 @@ import com.develhope.spring.Purchase.Model.PurchaseModel;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
+import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.order.Entities.Order;
@@ -24,25 +25,29 @@ public class PurchaseService {
     UserRepository userRepository;
 
     public Either<PurchaseResponse, PurchaseDTO> createPurchase(Long userId, PurchaseRequest purchaseRequest) {
-        //checks if user exists
+        //check if user exists
         Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            //checks if deposit is not negative
-            if (purchaseRequest.getDeposit() < 0) {
-                return Either.left(new PurchaseResponse(400, "Deposit cannot be negative"));
-            }
-            PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.isPaid(),
-                    purchaseRequest.getStatus(), purchaseRequest.getOrder());
-
-            PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
-
-            PurchaseModel resultModel = PurchaseModel.entityToModel(result);
-            return Either.right(PurchaseModel.modelToDto(resultModel));
-        } else {
+        if (userOptional.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "User not found"));
         }
 
+        User user = userOptional.get();
+        //check if user has the necessary role
+        if (user.getUserType() != UserTypes.BUYER && user.getUserType() != UserTypes.ADMIN) {
+            return Either.left(new PurchaseResponse(403, "This user does not have permission to create a purchase"));
+        }
 
+        //check if deposit is not negative
+        if (purchaseRequest.getDeposit() < 0) {
+            return Either.left(new PurchaseResponse(400, "Deposit cannot be negative"));
+        }
+
+        PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.isPaid(),
+                purchaseRequest.getStatus(), purchaseRequest.getOrder());
+        PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+
+        PurchaseModel resultModel = PurchaseModel.entityToModel(result);
+        return Either.right(PurchaseModel.modelToDto(resultModel));
     }
 
     public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(Long userId, Long purchadeId) {
@@ -109,14 +114,25 @@ public class PurchaseService {
 
     }
 
-    public Either<PurchaseResponse, PurchaseDTO> deletePurchase(Long userId, Long purchadeId) {
-        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userId, purchadeId);
-        if (singlePurchase.isLeft()) {
-            return singlePurchase;
+    public PurchaseResponse deletePurchase(Long userId, Long purchaseId) {
+        //checks if purchase and user exists and they belong to each other
+        Either<PurchaseResponse, PurchaseDTO> singlePurchaseResult = getSinglePurchase(userId, purchaseId);
+        if (singlePurchaseResult.isLeft()) {
+            return singlePurchaseResult.getLeft();
         }
 
-        PurchaseModel foundPurchase = PurchaseModel.dtoToModel(singlePurchase.get());
+        //if it exists proceed with deletion
+        Optional<PurchaseEntity> purchaseEntity = purchaseRepository.findById(purchaseId);
+        if (purchaseEntity.isEmpty()) {
+            return new PurchaseResponse(404, "Purchase with id " + purchaseId + " not found");
+        }
 
+        try {
+            purchaseRepository.delete(purchaseEntity.get());
+            return new PurchaseResponse(200, "Purchase deleted successfully");
+        } catch (Exception e) {
+            return new PurchaseResponse(500, "Internal server error");
+        }
     }
 }
 
