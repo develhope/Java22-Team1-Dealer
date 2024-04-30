@@ -152,15 +152,11 @@ public class PurchaseController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "No purchase found with id{id}"
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Problem in the process of deleting purchase from server"
                     )
             }
     )
     @DeleteMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long purchaseId) {
+    public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long purchaseId) {
         PurchaseResponse result = purchaseService.deletePurchase(userId, purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
