@@ -21,8 +21,8 @@ public class RentEntity {
     private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id") // Aggiunto per la relazione con l'utente
-    private User user; // Aggiunto per la relazione con l'utente
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
@@ -31,6 +31,14 @@ public class RentEntity {
     private Double dailyCost;
     private Double totalCost;
     private Boolean isPaid;
+
+    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleId) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isPaid = isPaid;
+        this.dailyCost = dailyCost;
+        this.vehicleId = vehicleId;
+    }
 
     public Double calculateTotalCost() {
         if (dailyCost != null && startDate != null && endDate != null) {
