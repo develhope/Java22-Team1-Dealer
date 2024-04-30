@@ -61,8 +61,4 @@ public class VehicleEntity {
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
-    public VehicleModel toModel() {
-        return new VehicleModel(this.brand, this.model, this.displacement, this.color, this.power, this.transmission, this.registrationYear,
-                this.powerSupply, this.price, this.discount, this.accessories, this.isNew, this.vehicleStatus, this.vehicleType);
-    }
 }
