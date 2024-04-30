@@ -29,18 +29,18 @@ public class RentModel {
         this.dailyCost = dailyCost;
     }
 
-    public RentEntity modelToEntity(RentModel rentModel) {
+    public static RentEntity modelToEntity(RentModel rentModel) {
         return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleId());
     }
-    public RentDTO modelToDTO(RentModel rentModel) {
+    public static RentDTO modelToDTO(RentModel rentModel) {
         return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleId());
     }
 
-    public RentModel dtoToModel(RentDTO rentDTO) {;
+    public static RentModel dtoToModel(RentDTO rentDTO) {;
         return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
     }
 
-    public RentModel entityToModel(RentEntity rentEntity) {
+    public static RentModel entityToModel(RentEntity rentEntity) {
         return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid());
     }
 }

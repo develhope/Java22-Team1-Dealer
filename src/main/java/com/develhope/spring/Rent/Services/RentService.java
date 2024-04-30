@@ -28,7 +28,8 @@ public class RentService {
     private VehicleRepository vehicleRepository;
 
     public RentDTO createRent(Long userId, RentDTO rentDTO) {
-        RentEntity rentEntity = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId()).modelToEntity();
+        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
+        RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
             return null;
@@ -37,13 +38,16 @@ public class RentService {
         if (vehicleEntity == null)
             return null;
 
-        RentEntity savedRent = rentRepository.save(rentEntity);
-        return new RentModel(savedRent.getStartDate(), savedRent.getEndDate(), savedRent.getDailyCost(), savedRent.getIsPaid(), savedRent.getVehicleId()).modelToDTO();
+        RentModel savedRent = RentModel.entityToModel(rentRepository.save(rentEntity));
+        return RentModel.modelToDTO(savedRent);
     }
 
     public List<RentDTO> getRentsByUserId(Long userId) {
         return rentRepository.findByUserId(userId).stream()
-                .map(rentEntity -> new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId()).modelToDTO())
+                .map(rentEntity -> {
+                    RentModel rentModel = RentModel.entityToModel(rentEntity);
+                    return RentModel.modelToDTO(rentModel);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +56,8 @@ public class RentService {
         if (rentEntity == null || !rentEntity.getUser().getId().equals(userId))
             return null;
 
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId()).modelToDTO();
+        RentModel rentModel = RentModel.entityToModel(rentEntity);
+        return RentModel.modelToDTO(rentModel);
     }
 
     public RentDTO updateRentDates(Long userId, Long rentId, RentDTO RentDTO) {
@@ -65,7 +70,8 @@ public class RentService {
         rentEntity.setTotalCost(rentEntity.calculateTotalCost());
 
         RentEntity updatedRent = rentRepository.save(rentEntity);
-        return new RentModel(updatedRent.getStartDate(), updatedRent.getEndDate(), updatedRent.getDailyCost(), updatedRent.getIsPaid(), updatedRent.getVehicleId()).modelToDTO();
+        RentModel updatedRentModel = RentModel.entityToModel(updatedRent);
+        return RentModel.modelToDTO(updatedRentModel);
     }
 
     public boolean deleteRent(Long userId, Long rentId) {

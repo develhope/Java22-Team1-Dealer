@@ -1,9 +1,8 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -11,6 +10,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "rentals")
 @Data
+@AllArgsConstructor
 public class RentEntity {
 
     @Id
