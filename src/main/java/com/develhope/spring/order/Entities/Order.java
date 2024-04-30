@@ -1,12 +1,15 @@
 package com.develhope.spring.order.Entities;
 
+import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.User.Entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-    @Entity
+import java.util.List;
+
+@Entity
     @Table
     @Data
     @AllArgsConstructor
@@ -27,6 +30,10 @@ import lombok.NoArgsConstructor;
 
         @ManyToOne
         @JoinColumn(name = "user_id", nullable = false)
-        private User user; // Relazione con l'entità User
+        private User user;
+
+        @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+        private List<PurchaseEntity> purchases;
+
     }
 

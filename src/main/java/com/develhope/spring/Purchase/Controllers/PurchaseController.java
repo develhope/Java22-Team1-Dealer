@@ -33,19 +33,19 @@ public class PurchaseController {
                             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
                     ),
                     @ApiResponse(
-                            responseCode ="404",
-                            description = "No purchases found"
+                            responseCode ="419",
+                            description = "User with id{useId} not found"
                     )
             }
     )
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getAll(@PathVariable Long userId) {
-        List<PurchaseDTO> result = purchaseService.getAllPurchases();
-        if(result.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
+        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userId);
+        if (result.isRight()) {
             return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
 
@@ -58,14 +58,22 @@ public class PurchaseController {
                             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
                     ),
                     @ApiResponse(
-                            responseCode ="404",
+                            responseCode ="403",
+                            description = "This purchase does not belong to the specified user"
+                    ),
+                    @ApiResponse(
+                            responseCode ="419",
+                            description = "User with id{userId} not found"
+                    ),
+                    @ApiResponse(
+                            responseCode ="420",
                             description = "No purchase found with id{id}"
                     )
             }
     )
     @GetMapping("/{userId}/{purchaseId}")
     public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long purchaseId) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(purchaseId);
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(userId,purchaseId);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -80,12 +88,25 @@ public class PurchaseController {
                             responseCode = "200",
                             description = "Successfully created purchase",
                             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Deposit is negative"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User with id{userId} not found"
                     )
             }
     )
     @PostMapping("/{userId}")
-    public ResponseEntity<PurchaseDTO> create(@PathVariable Long id, @RequestBody PurchaseRequest purchaseRequest) {
-        return ResponseEntity.ok(purchaseService.createPurchase(purchaseRequest));
+    public ResponseEntity<?> create(@PathVariable Long userId, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userId, purchaseRequest);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
     }
 
     @Operation(summary = "Update purchase by id")
@@ -93,18 +114,26 @@ public class PurchaseController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Successfully updated purchase with id{id}",
+                            description = "Updated purchase with id{id}",
                             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
                     ),
                     @ApiResponse(
-                            responseCode = "404",
+                            responseCode ="403",
+                            description = "This purchase does not belong to the specified user"
+                    ),
+                    @ApiResponse(
+                            responseCode ="419",
+                            description = "User with id{userId} not found"
+                    ),
+                    @ApiResponse(
+                            responseCode ="420",
                             description = "No purchase found with id{id}"
                     )
             }
     )
     @PutMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<?> update(@PathVariable Long purchaseId, @RequestBody PurchaseDTO purchaseDTO) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(purchaseId, PurchaseModel.dtoToModel(purchaseDTO));
+    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long purchaseId, @RequestBody PurchaseDTO purchaseDTO) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userId, purchaseId, PurchaseModel.dtoToModel(purchaseDTO));
 
         if (result.isRight()) {
             return ResponseEntity.ok(result);
@@ -128,7 +157,7 @@ public class PurchaseController {
     )
     @DeleteMapping("/{userId}/{purchaseId}")
     public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long purchaseId) {
-        PurchaseResponse result = purchaseService.deletePurchase(purchaseId);
+        PurchaseResponse result = purchaseService.deletePurchase(userId, purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
