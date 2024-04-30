@@ -39,8 +39,8 @@ public class PurchaseController {
             }
     )
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAll() {
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getAll(@PathVariable Long userId) {
         List<PurchaseDTO> result = purchaseService.getAllPurchases();
         if(result.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -63,9 +63,9 @@ public class PurchaseController {
                     )
             }
     )
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSingle(@PathVariable Long id) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(id);
+    @GetMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long purchaseId) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(purchaseId);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -83,8 +83,8 @@ public class PurchaseController {
                     )
             }
     )
-    @PostMapping("/")
-    public ResponseEntity<PurchaseDTO> create(@RequestBody PurchaseRequest purchaseRequest) {
+    @PostMapping("/{userId}")
+    public ResponseEntity<PurchaseDTO> create(@PathVariable Long id, @RequestBody PurchaseRequest purchaseRequest) {
         return ResponseEntity.ok(purchaseService.createPurchase(purchaseRequest));
     }
 
@@ -102,9 +102,9 @@ public class PurchaseController {
                     )
             }
     )
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PurchaseDTO purchaseDTO) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(id, PurchaseModel.dtoToModel(purchaseDTO));
+    @PutMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> update(@PathVariable Long purchaseId, @RequestBody PurchaseDTO purchaseDTO) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(purchaseId, PurchaseModel.dtoToModel(purchaseDTO));
 
         if (result.isRight()) {
             return ResponseEntity.ok(result);
@@ -126,9 +126,9 @@ public class PurchaseController {
                     )
             }
     )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        PurchaseResponse result = purchaseService.deletePurchase(id);
+    @DeleteMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long purchaseId) {
+        PurchaseResponse result = purchaseService.deletePurchase(purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
