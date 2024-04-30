@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class VehicleDTO {
 
+    private Long vehicleId;
     private String brand;
     private String model;
     private Integer displacement;
@@ -29,29 +30,4 @@ public class VehicleDTO {
     private Boolean isNew;
     private VehicleStatus vehicleStatus;
     private VehicleType vehicleType;
-
-    public VehicleModel toModel(){
-        return new VehicleModel(this.brand, this.model, this.displacement, this.color, this.power, this.transmission, this.registrationYear,
-                this.powerSupply, this.price, this.discount, this.accessories, this.isNew, this.vehicleStatus, this.vehicleType);
-    }
-
-    @Override
-    public String toString() {
-        return "VehicleDTO{" +
-                "brand='" + brand + '\'' +
-                ", model='" + model + '\'' +
-                ", displacement=" + displacement +
-                ", color='" + color + '\'' +
-                ", power=" + power +
-                ", transmission='" + transmission + '\'' +
-                ", registrationYear=" + registrationYear +
-                ", powerSupply='" + powerSupply + '\'' +
-                ", price=" + price +
-                ", discount=" + discount +
-                ", accessories='" + accessories + '\'' +
-                ", isNew=" + isNew +
-                ", vehicleStatus=" + vehicleStatus +
-                ", vehicleType=" + vehicleType +
-                '}';
-    }
 }
