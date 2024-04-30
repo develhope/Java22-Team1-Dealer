@@ -40,7 +40,5 @@ public class RentEntity {
         return null;
     }
 
-    public RentModel toModel() {
-        return new RentModel(this.startDate, this.endDate, this.dailyCost, this.isPaid);
-    }
+
 }

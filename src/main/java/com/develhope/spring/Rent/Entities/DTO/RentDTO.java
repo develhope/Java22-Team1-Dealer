@@ -1,6 +1,5 @@
 package com.develhope.spring.Rent.Entities.DTO;
 
-import com.develhope.spring.Rent.Entities.RentEntity;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -26,13 +25,4 @@ public class RentDTO {
         this.vehicleId = vehicleId;
     }
 
-    public RentModel toModel() {
-        RentModel rentModel = new RentModel();
-        rentModel.setStartDate(this.startDate);
-        rentModel.setEndDate(this.endDate);
-        rentModel.setDailyCost(this.dailyCost);
-        rentModel.setIsPaid(this.isPaid);
-        rentModel.setVehicleId(this.vehicleId);
-        return rentModel;
-    }
 }

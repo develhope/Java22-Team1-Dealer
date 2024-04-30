@@ -26,7 +26,7 @@ public class RentService {
     private VehicleRepository vehicleRepository;
 
     public RentDTO createRent(Long userId, RentDTO rentDTO) {
-        RentEntity rentEntity = rentDTO.toModel().toEntity();
+        RentEntity rentEntity = rentDTO.dtoToModel().toEntity();
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
             return null;
@@ -35,12 +35,12 @@ public class RentService {
         if (vehicleEntity == null)
             return null;
 
-        return rentRepository.save(rentEntity).toModel().toDTO();
+        return rentRepository.save(rentEntity).toModel().modelToDTO();
     }
 
     public List<RentDTO> getRentsByUserId(Long userId) {
         return rentRepository.findByUserId(userId).stream().map(rentEntity -> {
-            return rentEntity.toModel().toDTO();
+            return rentEntity.toModel().modelToDTO();
         }).toList();
     }
 
@@ -49,11 +49,11 @@ public class RentService {
         if (rentEntity == null || !rentEntity.getUser().getId().equals(userId))
             return null;
 
-        return rentEntity.toModel().toDTO();
+        return rentEntity.toModel().modelToDTO();
     }
 
     public RentDTO updateRentDates(Long userId, Long rentId, RentDTO RentDTO) {
-        RentEntity rentEntity = getRentById(userId, rentId).toModel().toEntity();
+        RentEntity rentEntity = getRentById(userId, rentId).dtoToModel().toEntity();
         if (rentEntity == null)
             return null;
 
@@ -61,11 +61,11 @@ public class RentService {
         rentEntity.setEndDate(RentDTO.getEndDate());
         rentEntity.setTotalCost(rentEntity.calculateTotalCost());
 
-        return rentRepository.save(rentEntity).toModel().toDTO();
+        return rentRepository.save(rentEntity).toModel().modelToDTO();
     }
 
     public boolean deleteRent(Long userId, Long rentId) {
-        RentEntity rentEntity = getRentById(userId, rentId).toModel().toEntity();
+        RentEntity rentEntity = getRentById(userId, rentId).dtoToModel().toEntity();
         if (rentEntity == null)
             return false;
 
