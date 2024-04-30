@@ -1,7 +1,9 @@
 package com.develhope.spring.Purchase.Controllers;
 
-import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
-import com.develhope.spring.Purchase.Entities.Response.PurchaseResponse;
+import com.develhope.spring.Purchase.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Model.PurchaseModel;
+import com.develhope.spring.Purchase.Request.PurchaseRequest;
+import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -59,13 +61,13 @@ public class PurchaseController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<PurchaseDTO> create(@RequestBody PurchaseDTO purchaseDTO) {
-        return ResponseEntity.ok().body(purchaseService.createPurchase(purchaseDTO));
+    public ResponseEntity<PurchaseDTO> create(@RequestBody PurchaseRequest purchaseRequest) {
+        return ResponseEntity.ok().body(purchaseService.createPurchase(purchaseRequest));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PurchaseDTO purchaseDTO) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(id, purchaseDTO.toModel());
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(id, PurchaseModel.dtoToModel(purchaseDTO));
 
         if (result.isRight()) {
             return ResponseEntity.ok().body(result);

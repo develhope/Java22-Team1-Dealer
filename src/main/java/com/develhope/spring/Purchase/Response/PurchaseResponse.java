@@ -1,4 +1,4 @@
-package com.develhope.spring.Purchase.Entities.Response;
+package com.develhope.spring.Purchase.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

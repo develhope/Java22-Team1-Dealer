@@ -1,7 +1,6 @@
-package com.develhope.spring.Purchase.Entities.DTO;
+package com.develhope.spring.Purchase.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.Purchase.Entities.Model.PurchaseModel;
 import com.develhope.spring.order.Entities.Order;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PurchaseDTO {
+    private Long id;
 
-    private int deposit;
+    private double deposit;
 
     private boolean isPaid;
 
@@ -20,8 +20,4 @@ public class PurchaseDTO {
 
     private Order order;
 
-
-    public PurchaseModel toModel() {
-        return new PurchaseModel(this.deposit, this.isPaid, this.status, this.order);
-    }
 }
