@@ -60,8 +60,8 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/{userId}/{orderId}")
-    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
-
-    }
+//    @GetMapping("/{userId}/{orderId}")
+//    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
+//
+//    }
 }

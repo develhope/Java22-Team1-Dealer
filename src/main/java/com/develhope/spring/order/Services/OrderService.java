@@ -68,18 +68,18 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId) {
-        //check if user exists
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
-        }
-        //check if order exists
-        Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
-        if (orderEntityOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
-        }
-
-
-    }
+//    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId) {
+//        //check if user exists
+//        Optional<User> userOptional = userRepository.findById(userId);
+//        if (userOptional.isEmpty()) {
+//            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
+//        }
+//        //check if order exists
+//        Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
+//        if (orderEntityOptional.isEmpty()) {
+//            return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
+//        }
+//
+//
+//    }
 }
