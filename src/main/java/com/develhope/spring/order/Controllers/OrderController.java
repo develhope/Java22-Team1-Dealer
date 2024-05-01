@@ -40,9 +40,10 @@ public class OrderController {
                     )
             }
     )
-    @PostMapping("/admin/{adminId}/{userId}")
-    public ResponseEntity<?> create(@PathVariable Long adminId, @PathVariable Long userId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.createByAdmin(adminId, userId, orderRequest);
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> create(@PathVariable Long userId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.create(userId, false, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -50,9 +51,9 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<?> create(@PathVariable Long userId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.create(userId, orderRequest);
+    @PostMapping("/admin/{userId}")
+    public ResponseEntity<?> createByAdmin(@PathVariable Long userId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.create(userId, true, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {

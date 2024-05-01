@@ -19,46 +19,20 @@ import java.util.Optional;
 @Service
 public class OrderService {
     @Autowired
-     OrderRepository orderRepository;
+    OrderRepository orderRepository;
     @Autowired
     UserRepository userRepository;
-    
-    @Autowired
-    
-    public Either<OrderResponse, OrderDTO> create(Long userId, OrderRequest orderRequest) {
+
+    public Either<OrderResponse, OrderDTO> create(Long userId, boolean isAdmin, OrderRequest orderRequest) {
         //check if user exists
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User not found"));
-        }
-        //TODO
-        //aggiungere limitazione utente
-
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
-                orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
-
-        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-
-        OrderModel savedModel = OrderModel.entityToModel(savedEntity);
-        return Either.right(OrderModel.modelToDto(savedModel));
-    }
-
-    public Either<OrderResponse, OrderDTO> createByAdmin(Long adminId, Long userId, OrderRequest orderRequest) {
-        //check if admin exists
-        Optional<User> adminOptional = userRepository.findById(userId);
-        if (adminOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "Admin with id" + adminId + " not found"));
-        }
-        //checks if requesting user is an admin
-        if(adminOptional.get().getUserType() != UserTypes.ADMIN) {
-            return Either.left(new OrderResponse(403, "User with id " + adminId + " is not an admin"));
-        }
-        //check if user exists
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
+            return Either.left(new OrderResponse(404, "User with id " + userId + " not found"));
         }
 
+        if (isAdmin && userOptional.get().getUserType() != UserTypes.ADMIN) {
+            return Either.left(new OrderResponse(403, "User is not an admin"));
+        }
 
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
                 orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
@@ -84,7 +58,7 @@ public class OrderService {
         //check if order belongs to specified user
         User user = userOptional.get();
         OrderEntity orderEntity = orderEntityOptional.get();
-        if(!(user.getOrderEntities().contains(orderEntity))) {
+        if (!(user.getOrderEntities().contains(orderEntity))) {
             return Either.left(new OrderResponse(403, "This order does not belong to specified user"));
         }
 
@@ -99,18 +73,19 @@ public class OrderService {
         }
 
         List<OrderEntity> userOrders = userOptional.get().getOrderEntities();
-        if(userOrders.isEmpty()) {
+        if (userOrders.isEmpty()) {
             return Either.left(new OrderResponse(404, "No orders found for the user " + userId));
         }
 
-        List<OrderModel> orderModels = userOrders.stream().flatMap(orderEntity -> {
-
-        })
+        return Either.right(userOrders.stream().map(orderEntity -> {
+            OrderModel orderModel = OrderModel.entityToModel(orderEntity);
+            return OrderModel.modelToDto(orderModel);
+        }).toList());
     }
 
     public Either<OrderResponse, OrderDTO> update(Long userId, Long orderId, OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> foundOrder = getSingle(userId, orderId);
-        if(foundOrder.isLeft()) {
+        if (foundOrder.isLeft()) {
             return foundOrder;
         }
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
