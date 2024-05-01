@@ -1,6 +1,5 @@
 package com.develhope.spring.order.Controllers;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Response.OrderResponse;
@@ -22,13 +21,13 @@ public class OrderController {
     @Autowired
     OrderService orderService;
 
-    @Operation(summary = "Create a purchase with required data")
+    @Operation(summary = "Create a order with required data")
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Successfully created purchase",
-                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                            description = "Successfully created order",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -36,7 +35,7 @@ public class OrderController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "User with id{userId} not found"
+                            description = "Specified user not found"
                     )
             }
     )
@@ -51,6 +50,27 @@ public class OrderController {
         }
     }
 
+    @Operation(summary = "Admin creates order for specified user with required data")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully created order",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Deposit cannot be negative"
+                    ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Specified user is not an admin"
+            ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Specified user not found"
+                    )
+            }
+    )
     @PostMapping("/admin/{userId}")
     public ResponseEntity<?> createByAdmin(@PathVariable Long userId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.create(userId, true, orderRequest);
@@ -61,6 +81,27 @@ public class OrderController {
         }
     }
 
+    @Operation(summary = "Gets user's order by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully found order",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Order does not belong to specified user"
+                    ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Specified order not found"
+            ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Specified user not found"
+                    )
+            }
+    )
     @GetMapping("/{userId}/{orderId}")
     public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
         Either<OrderResponse, OrderDTO> result = orderService.getSingle(userId, orderId);
@@ -69,15 +110,36 @@ public class OrderController {
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
-   }
+    }
 
-   @PostMapping("/{userId}/{orderId}")
+    @Operation(summary = "Gets user's order by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully found order",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Order does not belong to specified user"
+                    ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Specified order not found"
+            ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Specified user not found"
+                    )
+            }
+    )
+    @PostMapping("/{userId}/{orderId}")
     public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-       Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, orderRequest);
-       if (result.isRight()) {
-           return ResponseEntity.ok(result);
-       } else {
-           return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
-       }
-   }
+        Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, orderRequest);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
 }
