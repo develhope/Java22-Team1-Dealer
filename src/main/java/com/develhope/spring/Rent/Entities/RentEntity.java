@@ -1,6 +1,7 @@
 package com.develhope.spring.Rent.Entities;
 
 import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,19 +25,20 @@ public class RentEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "vehicle_id")
-    private Long vehicleId;
+    @ManyToOne(fetch = FetchType.EAGER) // Modifica qui
+    @JoinColumn(name = "vehicle_id")
+    private VehicleEntity vehicle; // Modifica qui
 
     private Double dailyCost;
     private Double totalCost;
     private Boolean isPaid;
 
-    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleId) {
+    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
-        this.vehicleId = vehicleId;
+        this.vehicle = vehicleEntity;
     }
 
     public Double calculateTotalCost() {
@@ -46,6 +48,4 @@ public class RentEntity {
         }
         return null;
     }
-
-
 }

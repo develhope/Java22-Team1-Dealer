@@ -3,13 +3,11 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/padrepio
     username: root
     password: CornettoVuoto
-    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
     show_sql: true
     hibernate:
-      dialect: org.hibernate.dialect.MySQL57Dialect
-      ddl-auto: create-drop
+      ddl-auto: update
   jackson:
     serialization:
       fail-on-empty-beans: false

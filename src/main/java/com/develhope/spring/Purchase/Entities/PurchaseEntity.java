@@ -15,17 +15,15 @@ import lombok.NoArgsConstructor;
 public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long purchaseId;
     @Column(nullable = false, name = "deposito")
     private double deposit;
     @Column(nullable = false, name = "pagato")
     private boolean isPaid;
     @Column(nullable = false, name = "stato_ordine")
     private PurchaseStatus status;
-    @OneToOne
-    @JoinColumn(name = "order_id")
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity orderEntity;
-
-
-
 }

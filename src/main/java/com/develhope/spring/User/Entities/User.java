@@ -14,8 +14,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +32,6 @@ public class User {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @OneToMany(mappedBy = "user") // Relazione con l'entità Order
+    @OneToMany(mappedBy = "user")
     private List<OrderEntity> orderEntities;
 }

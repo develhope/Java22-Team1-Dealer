@@ -29,13 +29,13 @@ public class RentService {
     private VehicleRepository vehicleRepository;
 
     public Either<RentResponse, RentDTO> createRent(Long userId, RentDTO rentDTO) {
-        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
+        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
             return Either.left(new RentResponse(400, "User not found"));
 
-        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicleId()).orElse(null);
+        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicle().getVehicleId()).orElse(null);
         if (vehicleEntity == null)
             return Either.left(new RentResponse(404, "Vehicle not found"));
 
