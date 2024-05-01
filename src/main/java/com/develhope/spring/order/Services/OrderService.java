@@ -96,4 +96,21 @@ public class OrderService {
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
+
+    public OrderResponse deleteOrder(Long userId, Long orderId) {
+        //checks if purchase and user exists and they belong to each other
+        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userId, orderId);
+        if (singlePurchaseResult.isLeft()) {
+            return singlePurchaseResult.getLeft();
+        }
+
+        Optional<OrderEntity> purchaseEntity = orderRepository.findById(orderId);
+
+        try {
+            orderRepository.delete(purchaseEntity.get());
+            return new OrderResponse(200, "Purchase deleted successfully");
+        } catch (Exception e) {
+            return new OrderResponse(500, "Internal server error");
+        }
+    }
 }
