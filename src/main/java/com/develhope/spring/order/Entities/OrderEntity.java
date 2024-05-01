@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
     @Column(nullable = false, name = "deposit")
     private int deposit;
