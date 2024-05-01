@@ -3,7 +3,7 @@ package com.develhope.spring.User.Entities;
 
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 
-import com.develhope.spring.order.Entities.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,5 +35,5 @@ public class User {
     private UserTypes userType;
 
     @OneToMany(mappedBy = "user") // Relazione con l'entità Order
-    private List<Order> orders;
+    private List<OrderEntity> orderEntities;
 }

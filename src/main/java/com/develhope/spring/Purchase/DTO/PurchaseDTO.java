@@ -1,14 +1,12 @@
 package com.develhope.spring.Purchase.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.order.Entities.Order;
+import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class PurchaseDTO {
     private Long id;
 
@@ -18,6 +16,5 @@ public class PurchaseDTO {
 
     private PurchaseStatus status;
 
-    private Order order;
-
+    private OrderEntity orderEntity;
 }

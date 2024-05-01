@@ -24,61 +24,140 @@ public class PurchaseController {
     @Autowired
     PurchaseService purchaseService;
 
-    @Operation(summary = "Gets all users")
+    @Operation(summary = "Gets all purchases")
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Returned all users",
+                            description = "Returned all purchases",
                             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
                     ),
                     @ApiResponse(
-                            responseCode ="404",
-                            description = "No users found",
-                            content = @Content
+                            responseCode ="419",
+                            description = "User with id{useId} not found"
                     )
             }
     )
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAll() {
-        List<PurchaseDTO> result = purchaseService.getAllPurchases();
-        if(result.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok().body(result);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSingle(@PathVariable Long id) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(id);
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getAll(@PathVariable Long userId) {
+        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userId);
         if (result.isRight()) {
-            return ResponseEntity.ok().body(result);
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
 
-    @PostMapping("/")
-    public ResponseEntity<PurchaseDTO> create(@RequestBody PurchaseRequest purchaseRequest) {
-        return ResponseEntity.ok().body(purchaseService.createPurchase(purchaseRequest));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PurchaseDTO purchaseDTO) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(id, PurchaseModel.dtoToModel(purchaseDTO));
-
+    @Operation(summary = "Gets single purchase by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Returned purchase with id{id}",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode ="403",
+                            description = "This purchase does not belong to the specified user"
+                    ),
+                    @ApiResponse(
+                            responseCode ="419",
+                            description = "User with id{userId} not found"
+                    ),
+                    @ApiResponse(
+                            responseCode ="420",
+                            description = "No purchase found with id{id}"
+                    )
+            }
+    )
+    @GetMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long purchaseId) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(userId,purchaseId);
         if (result.isRight()) {
-            return ResponseEntity.ok().body(result);
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        PurchaseResponse result = purchaseService.deletePurchase(id);
+    @Operation(summary = "Create a purchase with required data")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully created purchase",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Deposit is negative"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User with id{userId} not found"
+                    )
+            }
+    )
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> create(@PathVariable Long userId, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userId, purchaseRequest);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Update purchase by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Updated purchase with id{id}",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode ="403",
+                            description = "This purchase does not belong to the specified user"
+                    ),
+                    @ApiResponse(
+                            responseCode ="419",
+                            description = "User with id{userId} not found"
+                    ),
+                    @ApiResponse(
+                            responseCode ="420",
+                            description = "No purchase found with id{id}"
+                    )
+            }
+    )
+    @PutMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long purchaseId, @RequestBody PurchaseDTO purchaseDTO) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userId, purchaseId, PurchaseModel.dtoToModel(purchaseDTO));
+
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Delete purchase by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully deleted purchase with id{id}"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No purchase found with id{id}"
+                    )
+            }
+    )
+    @DeleteMapping("/{userId}/{purchaseId}")
+    public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long purchaseId) {
+        PurchaseResponse result = purchaseService.deletePurchase(userId, purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
