@@ -43,11 +43,11 @@ public class RentController {
             }
     )
     @PostMapping("/create/{userId}")
-    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestBody RentRequest rentRequest) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(userId, rentRequest);
-        if (result.isLeft())
+    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestParam(required = false) Long receiverId, @RequestBody RentRequest rentRequest) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(userId ,receiverId, rentRequest);
+        if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
-
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
     }
 
