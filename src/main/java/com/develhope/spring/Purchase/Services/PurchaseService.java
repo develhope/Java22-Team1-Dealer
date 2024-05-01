@@ -1,8 +1,8 @@
-package com.develhope.spring.Purchase.Service;
+package com.develhope.spring.Purchase.Services;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Purchase.Model.PurchaseModel;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
@@ -50,16 +50,16 @@ public class PurchaseService {
         return Either.right(PurchaseModel.modelToDto(resultModel));
     }
 
-    public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(Long userId, Long purchadeId) {
+    public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(Long userId, Long purchaseId) {
         //checks if user exists
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new PurchaseResponse(419, "User with id " + userId + "not found"));
         }
         //checks if purchase exists
-        Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(purchadeId);
+        Optional<PurchaseEntity> purchaseOptional = purchaseRepository.findById(purchaseId);
         if (purchaseOptional.isEmpty()) {
-            return Either.left(new PurchaseResponse(420, "Purchase with id " + purchadeId + " not found"));
+            return Either.left(new PurchaseResponse(420, "Purchase with id " + purchaseId + " not found"));
         }
 
         //checks if purchase belongs to user
@@ -95,8 +95,8 @@ public class PurchaseService {
     }
 
 
-    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(Long userId, Long purchadeId, PurchaseModel updatedPurchaseModel) {
-        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userId, purchadeId);
+    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(Long userId, Long purchaseId, PurchaseModel updatedPurchaseModel) {
+        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userId, purchaseId);
         if (singlePurchase.isLeft()) {
             return singlePurchase;
         }
