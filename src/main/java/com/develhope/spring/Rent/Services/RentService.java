@@ -4,6 +4,7 @@ import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
@@ -28,7 +29,7 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Either<RentResponse, RentDTO> createRent(Long userId, RentDTO rentDTO) {
+    public Either<RentResponse, RentDTO> createRent(Long userId, RentRequest rentDTO) {
         RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         User user = userRepository.findById(userId).orElse(null);
@@ -68,7 +69,7 @@ public class RentService {
         return Either.right(rentDTO);
     }
 
-    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentDTO RentDTO) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentRequest RentDTO) {
         RentEntity rentEntity = rentRepository.findById(rentId).orElse(null);
         if (rentEntity == null || !rentEntity.getUser().getId().equals(userId))
             return Either.left(new RentResponse(404, "Rent not found"));

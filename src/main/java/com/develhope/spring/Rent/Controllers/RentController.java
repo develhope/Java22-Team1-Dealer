@@ -1,7 +1,7 @@
 package com.develhope.spring.Rent.Controllers;
 
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
-import com.develhope.spring.Rent.Entities.RentEntity;
+import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.Rent.Services.RentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,8 +43,8 @@ public class RentController {
             }
     )
     @PostMapping("/create/{userId}")
-    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestBody RentDTO rentDTO) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(userId, rentDTO);
+    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestBody RentRequest rentRequest) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(userId, rentRequest);
         if (result.isLeft())
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
@@ -116,8 +116,8 @@ public class RentController {
             }
     )
     @PutMapping("/update/{userId}/{rentId}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody RentDTO rentDTO) {
-        Either<RentResponse, RentDTO> result = rentService.updateRentDates(userId, rentId, rentDTO);
+    public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody RentRequest rentRequest) {
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(userId, rentId, rentRequest);
         if (result.isLeft())
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
