@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/vehicle")
 public class VehicleController {
@@ -34,5 +36,14 @@ public class VehicleController {
         } else {
             return ResponseEntity.ok(result);
         }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getAllCars(@PathVariable Long userId){
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.getAllCars(userId);
+        if (result.isRight()){
+            return ResponseEntity.ok(result);
+        }else{
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());        }
     }
 }
