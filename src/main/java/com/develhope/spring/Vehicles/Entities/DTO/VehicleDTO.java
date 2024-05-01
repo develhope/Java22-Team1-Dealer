@@ -1,4 +1,4 @@
-package com.develhope.spring.Vehicles.DTO;
+package com.develhope.spring.Vehicles.Entities.DTO;
 
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
