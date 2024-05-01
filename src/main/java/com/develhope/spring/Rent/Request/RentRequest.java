@@ -1,15 +1,16 @@
 package com.develhope.spring.Rent.Request;
 
-import com.develhope.spring.Rent.Entities.Enums.RentStatus;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 @Data
 public class RentRequest {
 
-    private double deposit;
-
-    private boolean isPaid;
-
-    private RentStatus status;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Double dailyCost;
+    private boolean paid;
+    private Long vehicleId;
 
 }

@@ -29,8 +29,8 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Either<RentResponse, RentDTO> createRent(Long userId, RentRequest rentDTO) {
-        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
+    public Either<RentResponse, RentDTO> createRent(Long userId, RentRequest rentRequest) {
+        RentModel rentModel = new RentModel(rentRequest.getStartDate(), rentRequest.getEndDate(), rentRequest.getDailyCost(), rentRequest.isPaid(), rentRequest.getVehicleId());
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
@@ -69,13 +69,13 @@ public class RentService {
         return Either.right(rentDTO);
     }
 
-    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentRequest RentDTO) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentRequest rentRequest) {
         RentEntity rentEntity = rentRepository.findById(rentId).orElse(null);
         if (rentEntity == null || !rentEntity.getUser().getId().equals(userId))
             return Either.left(new RentResponse(404, "Rent not found"));
 
-        rentEntity.setStartDate(RentDTO.getStartDate());
-        rentEntity.setEndDate(RentDTO.getEndDate());
+        rentEntity.setStartDate(rentRequest.getStartDate());
+        rentEntity.setEndDate(rentRequest.getEndDate());
         rentEntity.setTotalCost(rentEntity.calculateTotalCost());
 
         RentEntity updatedRent = rentRepository.save(rentEntity);
