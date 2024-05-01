@@ -60,8 +60,23 @@ public class OrderController {
         }
     }
 
-//    @GetMapping("/{userId}/{orderId}")
-//    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
-//
-//    }
+    @GetMapping("/{userId}/{orderId}")
+    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
+        Either<OrderResponse, OrderDTO> result = orderService.getSingle(userId, orderId);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+   }
+
+   @PostMapping("/{userId}/{orderId}")
+    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+       Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, orderRequest);
+       if (result.isRight()) {
+           return ResponseEntity.ok(result);
+       } else {
+           return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+       }
+   }
 }

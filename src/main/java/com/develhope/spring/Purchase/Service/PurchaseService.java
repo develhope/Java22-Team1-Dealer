@@ -95,23 +95,19 @@ public class PurchaseService {
     }
 
 
-    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(Long userId, Long purchadeId, PurchaseModel updatedPurchaseModel) {
-        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userId, purchadeId);
+    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(Long userId, Long purchaseId, PurchaseRequest updatedPurchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userId, purchaseId);
         if (singlePurchase.isLeft()) {
             return singlePurchase;
         }
-        PurchaseModel purchaseModel = PurchaseModel.dtoToModel(singlePurchase.get());
 
-        purchaseModel.setDeposit(updatedPurchaseModel.getDeposit());
-        purchaseModel.setStatus(updatedPurchaseModel.getStatus());
-        purchaseModel.setPaid(updatedPurchaseModel.isPaid());
+        PurchaseModel purchaseModel = new PurchaseModel(updatedPurchaseRequest.getDeposit(), updatedPurchaseRequest.isPaid(),
+                updatedPurchaseRequest.getStatus(), updatedPurchaseRequest.getOrderEntity());
 
         PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
         PurchaseModel savedModel = PurchaseModel.entityToModel(savedPurchase);
-
         return Either.right(PurchaseModel.modelToDto(savedModel));
-
     }
 
     public PurchaseResponse deletePurchase(Long userId, Long purchaseId) {

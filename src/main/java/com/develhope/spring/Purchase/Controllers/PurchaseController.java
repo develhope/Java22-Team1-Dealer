@@ -1,7 +1,6 @@
 package com.develhope.spring.Purchase.Controllers;
 
 import com.develhope.spring.Purchase.DTO.PurchaseDTO;
-import com.develhope.spring.Purchase.Model.PurchaseModel;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Service.PurchaseService;
@@ -132,8 +131,8 @@ public class PurchaseController {
             }
     )
     @PutMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long purchaseId, @RequestBody PurchaseDTO purchaseDTO) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userId, purchaseId, PurchaseModel.dtoToModel(purchaseDTO));
+    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long purchaseId, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userId, purchaseId,purchaseRequest);
 
         if (result.isRight()) {
             return ResponseEntity.ok(result);
