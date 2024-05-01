@@ -1,10 +1,5 @@
 package com.develhope.spring.order.Services;
 
-import com.develhope.spring.Order.DTO.OrderDTO;
-import com.develhope.spring.Order.Entities.OrderEntity;
-import com.develhope.spring.Order.Model.OrderModel;
-import com.develhope.spring.Order.Request.OrderRequest;
-import com.develhope.spring.Order.Response.OrderResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
@@ -35,8 +30,16 @@ public class OrderService {
         if (userOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "User not found"));
         }
+        //TODO
+        //aggiungere limitazione utente
 
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
+                orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
 
+        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+
+        OrderModel savedModel = OrderModel.entityToModel(savedEntity);
+        return Either.right(OrderModel.modelToDto(savedModel));
     }
 
     public Either<OrderResponse, OrderDTO> createByAdmin(Long adminId, Long userId, OrderRequest orderRequest) {
@@ -63,5 +66,20 @@ public class OrderService {
 
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
+    }
+
+    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId) {
+        //check if user exists
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
+        }
+        //check if order exists
+        Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
+        if (orderEntityOptional.isEmpty()) {
+            return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
+        }
+
+
     }
 }

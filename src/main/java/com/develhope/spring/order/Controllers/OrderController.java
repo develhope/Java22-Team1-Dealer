@@ -59,4 +59,9 @@ public class OrderController {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
+
+    @GetMapping("/{userId}/{orderId}")
+    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
+
+    }
 }
