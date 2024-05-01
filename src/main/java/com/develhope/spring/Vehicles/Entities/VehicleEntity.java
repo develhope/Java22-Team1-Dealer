@@ -1,6 +1,5 @@
 package com.develhope.spring.Vehicles.Entities;
 
-import com.develhope.spring.Vehicles.DTO.VehicleModel;
 import jakarta.persistence.*;
 import lombok.*;
 

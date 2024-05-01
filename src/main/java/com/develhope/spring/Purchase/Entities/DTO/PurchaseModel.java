@@ -1,6 +1,5 @@
-package com.develhope.spring.Purchase.Model;
+package com.develhope.spring.Purchase.Entities.DTO;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.order.Entities.OrderEntity;

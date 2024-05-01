@@ -2,8 +2,8 @@ package com.develhope.spring.Vehicles.Services;
 
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.DTO.VehicleDTO;
-import com.develhope.spring.Vehicles.DTO.VehicleModel;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
