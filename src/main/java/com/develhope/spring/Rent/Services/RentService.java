@@ -4,15 +4,14 @@ import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
-import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,21 +27,21 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Either<RentResponse, RentDTO> createRent(Long userId, RentDTO rentDTO) {
-        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
-        RentEntity rentEntity = RentModel.modelToEntity(rentModel);
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
-            return Either.left(new RentResponse(400, "User not found"));
-
-        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicle().getVehicleId()).orElse(null);
-        if (vehicleEntity == null)
-            return Either.left(new RentResponse(404, "Vehicle not found"));
-
-        RentModel savedRent = RentModel.entityToModel(rentRepository.save(rentEntity));
-        RentDTO savedRentDTO = RentModel.modelToDTO(savedRent);
-        return Either.right(savedRentDTO);
-    }
+//    public Either<RentResponse, RentDTO> createRent(Long userId, Long receiverId, RentRequest rentDTO) {
+//        RentModel rentModel = new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
+//        RentEntity rentEntity = RentModel.modelToEntity(rentModel);
+//        User user = userRepository.findById(userId).orElse(null);
+//        if (user == null || !UserTypes.ADMIN.equals(user.getUserType()) && !UserTypes.SELLER.equals(user.getUserType()))
+//            return Either.left(new RentResponse(400, "User not found"));
+//
+//        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicle().getVehicleId()).orElse(null);
+//        if (vehicleEntity == null)
+//            return Either.left(new RentResponse(404, "Vehicle not found"));
+//
+//        RentModel savedRent = RentModel.entityToModel(rentRepository.save(rentEntity));
+//        RentDTO savedRentDTO = RentModel.modelToDTO(savedRent);
+//        return Either.right(savedRentDTO);
+//    }
 
     public Either<RentResponse, List<RentDTO>> getRentsByUserId(Long userId) {
         List<RentEntity> rents = rentRepository.findByUserId(userId);
@@ -68,7 +67,7 @@ public class RentService {
         return Either.right(rentDTO);
     }
 
-    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentDTO RentDTO) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long userId, Long rentId, RentRequest RentDTO) {
         RentEntity rentEntity = rentRepository.findById(rentId).orElse(null);
         if (rentEntity == null || !rentEntity.getUser().getId().equals(userId))
             return Either.left(new RentResponse(404, "Rent not found"));

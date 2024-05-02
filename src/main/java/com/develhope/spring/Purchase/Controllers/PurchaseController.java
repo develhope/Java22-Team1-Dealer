@@ -1,9 +1,9 @@
 package com.develhope.spring.Purchase.Controllers;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
-import com.develhope.spring.Purchase.Service.PurchaseService;
+import com.develhope.spring.Purchase.Services.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

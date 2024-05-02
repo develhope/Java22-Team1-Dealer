@@ -43,11 +43,14 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId) {
+    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId, boolean isAdmin) {
         //check if user exists
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
+        }
+        if (isAdmin && userOptional.get().getUserType() != UserTypes.ADMIN) {
+            return Either.left(new OrderResponse(403, "User is not an admin"));
         }
         //check if order exists
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
@@ -83,11 +86,12 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(Long userId, Long orderId, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userId, orderId);
+    public Either<OrderResponse, OrderDTO> update(Long userId, Long orderId, boolean isAdmin, OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userId, orderId, isAdmin);
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
+
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
                 orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
 
@@ -97,9 +101,9 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public OrderResponse deleteOrder(Long userId, Long orderId) {
+    public OrderResponse deleteOrder(Long userId, Long orderId, boolean isAdmin) {
         //checks if purchase and user exists and they belong to each other
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userId, orderId);
+        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userId, orderId, isAdmin);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }
