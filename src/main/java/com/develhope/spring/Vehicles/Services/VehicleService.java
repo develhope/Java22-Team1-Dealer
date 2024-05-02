@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
 public class VehicleService {
@@ -83,4 +84,5 @@ public class VehicleService {
 
         return Either.right(vehicleDTOs);
     }
+    //TODO funzione update + funzione delete
 }
