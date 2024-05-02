@@ -147,7 +147,7 @@ public class VehicleController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByBrand(@PathVariable Long userId, @RequestParam String brand) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, brand);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByBrand(userId, brand);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -164,7 +164,7 @@ public class VehicleController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByTransmission(@PathVariable Long userId, @RequestParam String transmission) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, transmission);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByTransmission(userId, transmission);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -181,7 +181,7 @@ public class VehicleController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByPowerSupply(@PathVariable Long userId, @RequestParam String powerSupply) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, powerSupply);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPowerSupply(userId, powerSupply);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
