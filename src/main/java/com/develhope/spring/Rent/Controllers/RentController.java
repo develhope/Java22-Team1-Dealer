@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,32 +23,32 @@ public class RentController {
     @Autowired
     private RentService rentService;
 
-    @Operation(summary = "Create a rent with required data")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Successfully created rent",
-                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Unable to create rent"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "User with id {userId} not found"
-                    )
-            }
-    )
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestParam(required = false) Long receiverId, @RequestBody RentRequest rentRequest) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(userId ,receiverId, rentRequest);
-        if (result.isLeft()) {
-            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
-    }
+//    @Operation(summary = "Create a rent with required data")
+//    @ApiResponses(
+//            value = {
+//                    @ApiResponse(
+//                            responseCode = "201",
+//                            description = "Successfully created rent",
+//                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
+//                    ),
+//                    @ApiResponse(
+//                            responseCode = "400",
+//                            description = "Unable to create rent"
+//                    ),
+//                    @ApiResponse(
+//                            responseCode = "404",
+//                            description = "User with id {userId} not found"
+//                    )
+//            }
+//    )
+//    @PostMapping("/create/{userId}")
+//    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestParam(required = false) Long receiverId, @RequestBody RentRequest rentRequest) {
+//        Either<RentResponse, RentDTO> result = rentService.createRent(userId ,receiverId, rentRequest);
+//        if (result.isLeft()) {
+//            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+//        }
+//        return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
+//    }
 
     @Operation(summary = "Get a list of rents by user id")
     @ApiResponses(

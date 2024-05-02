@@ -1,6 +1,6 @@
 package com.develhope.spring.Purchase.Controllers;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Service.PurchaseService;

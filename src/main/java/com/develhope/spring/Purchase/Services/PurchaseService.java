@@ -1,8 +1,8 @@
 package com.develhope.spring.Purchase.Service;
 
-import com.develhope.spring.Purchase.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Purchase.Model.PurchaseModel;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
