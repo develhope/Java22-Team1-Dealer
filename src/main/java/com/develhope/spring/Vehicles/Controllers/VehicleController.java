@@ -4,6 +4,7 @@ import com.develhope.spring.Vehicles.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Request.VehicleRequest;
 import com.develhope.spring.Vehicles.Response.VehicleResponse;
 import com.develhope.spring.Vehicles.Services.VehicleService;
+import com.develhope.spring.order.DTO.OrderDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +23,13 @@ public class VehicleController {
 
     @Autowired
     VehicleService vehicleService;
+
+    @Operation(summary = "Create a vehicle")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "Successfully created vehicle",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
     @PostMapping("/{userId}")
     public ResponseEntity<?> createVehicle(@PathVariable Long id, @RequestBody VehicleRequest vehicleRequest) {
@@ -49,6 +57,13 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Gets all vehicles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> getAll(@PathVariable Long userId) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.getAllVehicle(userId);
@@ -58,6 +73,13 @@ public class VehicleController {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
+
+    @Operation(summary = "Updates a vehicle")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully modified vehicle",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
     @PutMapping("/{userId}/{vehicleId}")
     public ResponseEntity<?> updateVehicle(@PathVariable Long userId, @PathVariable Long vehicleId, @RequestBody VehicleRequest vehicleRequest) {
@@ -69,11 +91,25 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Deletes a vehicle")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted vehicle"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
+
     @DeleteMapping("/{userId}/{vehicleId}")
     public ResponseEntity<?> deleteVehicle(@PathVariable Long userId, @PathVariable Long vehicleId) {
         VehicleResponse result = vehicleService.deleteVehicle(userId, vehicleId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
+
+    @Operation(summary = "Gets all vehicles by color")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByColor(@PathVariable Long userId, @RequestParam String color) {
@@ -85,6 +121,13 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Gets all vehicles by model")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByModel(@PathVariable Long userId, @RequestParam String model) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, model);
@@ -94,6 +137,13 @@ public class VehicleController {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
+
+    @Operation(summary = "Gets all vehicles by brand")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByBrand(@PathVariable Long userId, @RequestParam String brand) {
@@ -105,6 +155,13 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Gets all vehicles by transmission")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByTransmission(@PathVariable Long userId, @RequestParam String transmission) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, transmission);
@@ -115,6 +172,13 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Gets all vehicles by power supply")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByPowerSupply(@PathVariable Long userId, @RequestParam String powerSupply) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, powerSupply);
@@ -124,6 +188,13 @@ public class VehicleController {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
     }
+
+    @Operation(summary = "Gets all vehicles by accessories")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> findByAccessories(@PathVariable Long userId, @RequestBody List<String> accessories) {
