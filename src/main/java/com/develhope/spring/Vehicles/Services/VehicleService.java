@@ -294,5 +294,5 @@ public class VehicleService {
 
 
 
-    //TODO prezzo,marca,ecc
+    //TODO displacement, power, registrationYear, price, discount, isNew, vehicleStatus, vehicleType
 }
