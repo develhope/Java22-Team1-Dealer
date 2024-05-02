@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,13 +24,13 @@ public class VehicleModel {
     private String powerSupply;
     private BigDecimal price;
     private BigDecimal discount;
-    private String accessories;
+    private List<String> accessories;
     private Boolean isNew;
     private VehicleStatus vehicleStatus;
     private VehicleType vehicleType;
 
     public VehicleModel(String brand, String model, Integer displacement, String color, Integer power, String transmission,
-                        Integer registrationYear, String powerSupply, BigDecimal price, BigDecimal discount, String accessories,
+                        Integer registrationYear, String powerSupply, BigDecimal price, BigDecimal discount, List <String> accessories,
                         Boolean isNew, VehicleStatus vehicleStatus, VehicleType vehicleType) {
         this.brand = brand;
         this.model = model;

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Entity
@@ -47,7 +48,7 @@ public class VehicleEntity {
     private BigDecimal discount;
 
     @Column(nullable = false, name = "Accessories")
-    private String accessories;
+    private List<String> accessories;
 
     @Column(nullable = false, name = "Is_New")
     private Boolean isNew;

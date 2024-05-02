@@ -5,6 +5,7 @@ import com.develhope.spring.Vehicles.Entities.VehicleType;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class VehicleRequest {
@@ -19,7 +20,7 @@ public class VehicleRequest {
     private String powerSupply;
     private BigDecimal price;
     private BigDecimal discount;
-    private String accessories;
+    private List<String> accessories;
     private Boolean isNew;
     private VehicleStatus vehicleStatus;
     private VehicleType vehicleType;

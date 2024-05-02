@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,7 +27,7 @@ public class VehicleDTO {
     private String powerSupply;
     private BigDecimal price;
     private BigDecimal discount;
-    private String accessories;
+    private List<String> accessories;
     private Boolean isNew;
     private VehicleStatus vehicleStatus;
     private VehicleType vehicleType;
