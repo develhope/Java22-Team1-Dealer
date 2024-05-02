@@ -1,4 +1,4 @@
-package com.develhope.spring.Purchase.Service;
+package com.develhope.spring.Purchase.Services;
 
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
