@@ -1,22 +1,15 @@
-package com.develhope.spring.Vehicles.Entities.DTO;
+package com.develhope.spring.Vehicles.Request;
 
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class VehicleDTO {
+@Data
+public class VehicleRequest {
 
-    private Long vehicleId;
     private String brand;
     private String model;
     private Integer displacement;
