@@ -29,8 +29,14 @@ public class OrderService {
         if (userOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "User with id " + userId + " not found"));
         }
+        User user = userOptional.get();
 
-        if (isAdmin && userOptional.get().getUserType() != UserTypes.ADMIN) {
+        // check authorization
+        if (!isAdmin && user.getUserType() == UserTypes.SELLER) {
+            return Either.left(new OrderResponse(403, "User cannot see orders"));
+        }
+
+        if (isAdmin && user.getUserType() != UserTypes.ADMIN) {
             return Either.left(new OrderResponse(403, "User is not an admin"));
         }
 
