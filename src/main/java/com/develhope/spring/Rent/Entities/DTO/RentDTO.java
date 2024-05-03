@@ -1,5 +1,6 @@
 package com.develhope.spring.Rent.Entities.DTO;
 
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -15,9 +16,9 @@ public class RentDTO {
 
     private Boolean isPaid; // stato pagamento nol
 
-    private Long vehicleEntity;
+    private VehicleEntity vehicleEntity;
 
-    public RentDTO(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleEntity) {
+    public RentDTO(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
