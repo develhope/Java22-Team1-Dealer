@@ -291,8 +291,58 @@ public class VehicleService {
         return Either.right(vehicleDTOs);
     }
 
+    public Either<VehicleResponse, List<VehicleDTO>> findByDisplacement(Long userId, Integer minDisplacement, Integer maxDisplacement) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
+        }
+        User user = userOptional.get();
+        if (user.getUserType() != UserTypes.BUYER) {
+            return Either.left(new VehicleResponse(403, "This user does not have permission"));
+        }
+
+        if (minDisplacement > maxDisplacement) {
+            return Either.left(new VehicleResponse(400, "the minimum displacement cannot be higher than the maximum"));
+        }
+
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByDisplacementBetween(minDisplacement, maxDisplacement);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicles found in the specified range"));
+        }
+        List<VehicleDTO> vehicleDTOs = vehicleEntities.stream()
+                .map(VehicleModel::entityToModel)
+                .map(VehicleModel::modelToDTO)
+                .collect(Collectors.toList());
+
+        return Either.right(vehicleDTOs);
+    }
+
+    public Either<VehicleResponse, List<VehicleDTO>> findByPower(Long userId, Integer minPower, Integer maxPower) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
+        }
+        User user = userOptional.get();
+        if (user.getUserType() != UserTypes.BUYER) {
+            return Either.left(new VehicleResponse(403, "This user does not have permission"));
+        }
+
+        if (minPower > maxPower) {
+            return Either.left(new VehicleResponse(400, "the minimum power cannot be higher than the maximum"));
+        }
+
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByPowerBetween(minPower, maxPower);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicles found in the specified range"));
+        }
+        List<VehicleDTO> vehicleDTOs = vehicleEntities.stream()
+                .map(VehicleModel::entityToModel)
+                .map(VehicleModel::modelToDTO)
+                .collect(Collectors.toList());
+
+        return Either.right(vehicleDTOs);
+    }
 
 
-
-    //TODO displacement, power, registrationYear, price, discount, isNew, vehicleStatus, vehicleType
+    //TODO  registrationYear, price, discount, isNew, vehicleStatus, vehicleType
 }
