@@ -205,6 +205,40 @@ public class VehicleController {
         }
     }
 
+    @Operation(summary = "Gets all vehicles by displacement")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "the minimum displacement cannot be higher than the maximum"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/displacement/{userId}")
+    public ResponseEntity<?> findByDisplacement(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByDisplacement(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by power")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "the minimum power cannot be higher than the maximum"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/power/{userId}")
+    public ResponseEntity<?> findByPower(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPower(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
 
 }
-//
