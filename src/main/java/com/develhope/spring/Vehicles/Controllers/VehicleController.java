@@ -4,7 +4,6 @@ import com.develhope.spring.Vehicles.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Request.VehicleRequest;
 import com.develhope.spring.Vehicles.Response.VehicleResponse;
 import com.develhope.spring.Vehicles.Services.VehicleService;
-import com.develhope.spring.order.DTO.OrderDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -208,3 +207,4 @@ public class VehicleController {
 
 
 }
+//
