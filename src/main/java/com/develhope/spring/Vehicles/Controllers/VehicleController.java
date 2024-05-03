@@ -1,6 +1,6 @@
 package com.develhope.spring.Vehicles.Controllers;
 
-import com.develhope.spring.Vehicles.DTO.VehicleDTO;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Request.VehicleRequest;
 import com.develhope.spring.Vehicles.Response.VehicleResponse;
 import com.develhope.spring.Vehicles.Services.VehicleService;
