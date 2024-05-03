@@ -1,7 +1,6 @@
 package com.develhope.spring.Rent.Entities;
 
 import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +26,7 @@ public class RentEntity {
 
     @ManyToOne(fetch = FetchType.EAGER) // Modifica qui
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicle; // Modifica qui
+    private Long vehicle; // Modifica qui
 
     private Double dailyCost;
     private Double totalCost;
