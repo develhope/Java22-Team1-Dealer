@@ -24,8 +24,7 @@ public class RentEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Modifica qui
-    @JoinColumn(name = "vehicle_id")
+    @Column(name = "vehicle_id") // Modifica qui
     private Long vehicle; // Modifica qui
 
     private Double dailyCost;
