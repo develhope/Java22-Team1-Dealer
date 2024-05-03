@@ -89,7 +89,7 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PostMapping("/{userId}/{orderId}")
+    @PutMapping("/{userId}/{orderId}")
     public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, false, orderRequest);
         return createResponseEntity(result);
@@ -103,7 +103,7 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Specified user is not an admin"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PostMapping("/admin/{userId}/{orderId}")
+    @PutMapping("/admin/{userId}/{orderId}")
     public ResponseEntity<?> updateByAdmin(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, true, orderRequest);
         return createResponseEntity(result);
