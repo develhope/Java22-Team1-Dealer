@@ -36,10 +36,10 @@ public class RentModel {
     }
 
     public static RentModel dtoToModel(RentDTO rentDTO) {
-        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity().getVehicleId());
+        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
     }
 
     public static RentModel entityToModel(RentEntity rentEntity) {
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicle().getVehicleId());
+        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicle());
     }
 }
