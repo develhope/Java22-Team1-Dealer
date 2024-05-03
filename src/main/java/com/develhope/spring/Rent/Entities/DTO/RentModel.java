@@ -21,7 +21,7 @@ public class RentModel {
     private VehicleEntity vehicleEntity;
 
 
-    public RentModel(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
+    public RentModel(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleEntity) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
@@ -36,7 +36,7 @@ public class RentModel {
         return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleEntity());
     }
 
-    public static RentModel dtoToModel(RentDTO rentDTO) {;
+    public static RentModel dtoToModel(RentDTO rentDTO) {
         return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
     }
 
