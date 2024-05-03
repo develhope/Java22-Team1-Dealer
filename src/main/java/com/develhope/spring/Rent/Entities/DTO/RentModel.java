@@ -1,7 +1,6 @@
 package com.develhope.spring.Rent.Entities.DTO;
 
 import com.develhope.spring.Rent.Entities.RentEntity;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +17,7 @@ public class RentModel {
 
     private Boolean isPaid; // stato pagamento nol
 
-    private VehicleEntity vehicleEntity;
+    private Long vehicleEntity;
 
 
     public RentModel(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleEntity) {
@@ -37,10 +36,10 @@ public class RentModel {
     }
 
     public static RentModel dtoToModel(RentDTO rentDTO) {
-        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
+        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity().getVehicleId());
     }
 
     public static RentModel entityToModel(RentEntity rentEntity) {
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicle());
+        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicle().getVehicleId());
     }
 }
