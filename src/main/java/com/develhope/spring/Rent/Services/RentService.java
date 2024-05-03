@@ -55,7 +55,7 @@ public class RentService {
         RentModel rentModel = new RentModel(rentRequest.getStartDate(), rentRequest.getEndDate(), rentRequest.getDailyCost(), rentRequest.isPaid(), rentRequest.getVehicleId());
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
 
-        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicle().getVehicleId()).orElse(null);
+        VehicleEntity vehicleEntity = vehicleRepository.findById(rentEntity.getVehicle()).orElse(null);
         if (vehicleEntity == null) {
             return Either.left(new RentResponse(404, "Vehicle not found"));
         }
