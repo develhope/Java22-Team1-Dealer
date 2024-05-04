@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -343,6 +344,83 @@ public class VehicleService {
         return Either.right(vehicleDTOs);
     }
 
+    public Either<VehicleResponse, List<VehicleDTO>> findByRegistrationYear(Long userId, Integer minRegistrationYear, Integer maxRegistrationYear) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
+        }
+        User user = userOptional.get();
+        if (user.getUserType() != UserTypes.BUYER) {
+            return Either.left(new VehicleResponse(403, "This user does not have permission"));
+        }
 
-    //TODO  registrationYear, price, discount, isNew, vehicleStatus, vehicleType
+        if (minRegistrationYear > maxRegistrationYear) {
+            return Either.left(new VehicleResponse(400, "the minimum registration year cannot be higher than the maximum"));
+        }
+
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByRegistrationYearBetween(minRegistrationYear, maxRegistrationYear);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicles found in the specified range"));
+        }
+        List<VehicleDTO> vehicleDTOs = vehicleEntities.stream()
+                .map(VehicleModel::entityToModel)
+                .map(VehicleModel::modelToDTO)
+                .collect(Collectors.toList());
+
+        return Either.right(vehicleDTOs);
+    }
+
+    public Either<VehicleResponse, List<VehicleDTO>> findByPrice(Long userId, BigDecimal minPrice, BigDecimal maxPrice) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
+        }
+        User user = userOptional.get();
+        if (user.getUserType() != UserTypes.BUYER) {
+            return Either.left(new VehicleResponse(403, "This user does not have permission"));
+        }
+
+        if (minPrice.compareTo(maxPrice) > 0) {
+            return Either.left(new VehicleResponse(400, "the minimum price cannot be higher than the maximum"));
+        }
+
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByPriceBetween(minPrice, maxPrice);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicles found in the specified range"));
+        }
+        List<VehicleDTO> vehicleDTOs = vehicleEntities.stream()
+                .map(VehicleModel::entityToModel)
+                .map(VehicleModel::modelToDTO)
+                .collect(Collectors.toList());
+
+        return Either.right(vehicleDTOs);
+    }
+
+    public Either<VehicleResponse, List<VehicleDTO>> findByDiscount(Long userId, BigDecimal minPrice, BigDecimal maxPrice) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
+        }
+        User user = userOptional.get();
+        if (user.getUserType() != UserTypes.BUYER) {
+            return Either.left(new VehicleResponse(403, "This user does not have permission"));
+        }
+
+        if (minPrice.compareTo(maxPrice) > 0) {
+            return Either.left(new VehicleResponse(400, "the minimum discount price cannot be higher than the maximum"));
+        }
+
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByDiscountBetween(minPrice, maxPrice);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicles found in the specified range"));
+        }
+        List<VehicleDTO> vehicleDTOs = vehicleEntities.stream()
+                .map(VehicleModel::entityToModel)
+                .map(VehicleModel::modelToDTO)
+                .collect(Collectors.toList());
+
+        return Either.right(vehicleDTOs);
+    }
+
+    //TODO  isNew, vehicleStatus, vehicleType
 }

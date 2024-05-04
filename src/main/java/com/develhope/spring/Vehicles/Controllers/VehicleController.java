@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -234,6 +235,60 @@ public class VehicleController {
     @GetMapping("/power/{userId}")
     public ResponseEntity<?> findByPower(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPower(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by registration year")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "the minimum registration year cannot be higher than the maximum"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/registrationYear/{userId}")
+    public ResponseEntity<?> findByRegistrationYear(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByRegistrationYear(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by price")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "the minimum price cannot be higher than the maximum"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/price/{userId}")
+    public ResponseEntity<?> findByPrice(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPrice(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by discount price")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "the minimum discount price cannot be higher than the maximum"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/discount/{userId}")
+    public ResponseEntity<?> findByDiscount(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByDiscount(userId, min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
