@@ -1,9 +1,12 @@
 package com.develhope.spring.Vehicles.Controllers;
 
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
+import com.develhope.spring.Vehicles.Entities.VehicleType;
 import com.develhope.spring.Vehicles.Request.VehicleRequest;
 import com.develhope.spring.Vehicles.Response.VehicleResponse;
-import com.develhope.spring.Vehicles.Services.VehicleService;
+import com.develhope.spring.Vehicles.Services.VehicleResearchService;
+import com.develhope.spring.Vehicles.Services.VehicleCRUDService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,7 +25,10 @@ import java.util.List;
 public class VehicleController {
 
     @Autowired
-    VehicleService vehicleService;
+    VehicleCRUDService vehicleCRUDService;
+
+    @Autowired
+    VehicleResearchService vehicleResearchService;
 
     @Operation(summary = "Create a vehicle")
     @ApiResponses(value = {
@@ -33,7 +39,7 @@ public class VehicleController {
 
     @PostMapping("/{userId}")
     public ResponseEntity<?> createVehicle(@PathVariable Long id, @RequestBody VehicleRequest vehicleRequest) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleService.createVehicle(id, vehicleRequest);
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(id, vehicleRequest);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -49,7 +55,7 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
     @GetMapping("/{userId}/{vehicleId}")
     public ResponseEntity<?> getSingleVehicle(@PathVariable Long userId, @PathVariable Long vehicleId) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleService.getSingleVehicle(userId, vehicleId);
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(userId, vehicleId);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -66,7 +72,7 @@ public class VehicleController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getAll(@PathVariable Long userId) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.getAllVehicle(userId);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle(userId);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -83,7 +89,7 @@ public class VehicleController {
 
     @PutMapping("/{userId}/{vehicleId}")
     public ResponseEntity<?> updateVehicle(@PathVariable Long userId, @PathVariable Long vehicleId, @RequestBody VehicleRequest vehicleRequest) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleService.updateVehicle(userId, vehicleId, vehicleRequest);
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(userId, vehicleId, vehicleRequest);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -100,7 +106,7 @@ public class VehicleController {
 
     @DeleteMapping("/{userId}/{vehicleId}")
     public ResponseEntity<?> deleteVehicle(@PathVariable Long userId, @PathVariable Long vehicleId) {
-        VehicleResponse result = vehicleService.deleteVehicle(userId, vehicleId);
+        VehicleResponse result = vehicleCRUDService.deleteVehicle(userId, vehicleId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
@@ -113,7 +119,7 @@ public class VehicleController {
 
     @GetMapping("/color/{userId}")
     public ResponseEntity<?> findByColor(@PathVariable Long userId, @RequestParam String color) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByColor(userId, color);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor(userId, color);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -130,7 +136,7 @@ public class VehicleController {
 
     @GetMapping("/model/{userId}")
     public ResponseEntity<?> findByModel(@PathVariable Long userId, @RequestParam String model) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByModel(userId, model);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel(userId, model);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -147,7 +153,7 @@ public class VehicleController {
 
     @GetMapping("/brand/{userId}")
     public ResponseEntity<?> findByBrand(@PathVariable Long userId, @RequestParam String brand) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByBrand(userId, brand);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand(userId, brand);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -164,7 +170,7 @@ public class VehicleController {
 
     @GetMapping("/transmission/{userId}")
     public ResponseEntity<?> findByTransmission(@PathVariable Long userId, @RequestParam String transmission) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByTransmission(userId, transmission);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission(userId, transmission);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -181,7 +187,7 @@ public class VehicleController {
 
     @GetMapping("/powerSupply/{userId}")
     public ResponseEntity<?> findByPowerSupply(@PathVariable Long userId, @RequestParam String powerSupply) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPowerSupply(userId, powerSupply);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply(userId, powerSupply);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -198,7 +204,7 @@ public class VehicleController {
 
     @GetMapping("/accessories/{userId}")
     public ResponseEntity<?> findByAccessories(@PathVariable Long userId, @RequestBody List<String> accessories) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByAccessories(userId, accessories);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(userId, accessories);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -216,7 +222,7 @@ public class VehicleController {
 
     @GetMapping("/displacement/{userId}")
     public ResponseEntity<?> findByDisplacement(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByDisplacement(userId, min, max);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(userId, min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -234,7 +240,7 @@ public class VehicleController {
 
     @GetMapping("/power/{userId}")
     public ResponseEntity<?> findByPower(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPower(userId, min, max);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(userId, min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -252,7 +258,7 @@ public class VehicleController {
 
     @GetMapping("/registrationYear/{userId}")
     public ResponseEntity<?> findByRegistrationYear(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByRegistrationYear(userId, min, max);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(userId, min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -270,7 +276,7 @@ public class VehicleController {
 
     @GetMapping("/price/{userId}")
     public ResponseEntity<?> findByPrice(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByPrice(userId, min, max);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(userId, min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -288,7 +294,58 @@ public class VehicleController {
 
     @GetMapping("/discount/{userId}")
     public ResponseEntity<?> findByDiscount(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleService.findByDiscount(userId, min, max);
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(userId, min, max);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by isNew")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/isNew/{userId}")
+    public ResponseEntity<?> findByIsNew(@PathVariable Long userId, @RequestParam boolean isNew) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(userId, isNew);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/vehicleStatus/{userId}")
+    public ResponseEntity<?> findByVehicleStatus(@PathVariable Long userId, @RequestParam VehicleStatus vehicleStatus) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(userId, vehicleStatus);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
+    }
+
+    @Operation(summary = "Gets all vehicles by type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found vehicles",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = VehicleDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
+
+    @GetMapping("/vehicleType/{userId}")
+    public ResponseEntity<?> findByVehicleType(@PathVariable Long userId, @RequestParam VehicleType vehicleType) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(userId, vehicleType);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
