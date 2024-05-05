@@ -1,9 +1,15 @@
 package com.develhope.spring.Rent.Controllers;
 
-import com.develhope.spring.Rent.Entities.DTO.ModifyRentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
-import com.develhope.spring.Rent.Entities.Rent;
-import com.develhope.spring.Rent.Serivices.RentService;
+import com.develhope.spring.Rent.Request.RentRequest;
+import com.develhope.spring.Rent.Response.RentResponse;
+import com.develhope.spring.Rent.Services.RentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,58 +24,132 @@ public class RentController {
     @Autowired
     private RentService rentService;
 
-    // inserisci un nuovo noleggio
-    @PostMapping("/create")
-    public ResponseEntity<Rent> createRent(@RequestBody RentDTO rentDTO) {
-        Rent rent = rentService.createRent(rentDTO);
-        if (rent == null) {
-            // se il noleggio e' null, errore
-            return ResponseEntity.badRequest().build();
+    @Operation(summary = "Create a rent")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Successfully created rent",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Access denied"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User or receiver not found"
+                    )
+            }
+    )
+
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<?> createRent(@PathVariable Long userId, @RequestParam(required = false) Long receiverId, @RequestBody RentRequest rentRequest) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(userId, receiverId, rentRequest);
+        if (result.isLeft()) {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
-        // noleggio creato messaggio created
-        return new ResponseEntity<>(rent, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
     }
 
-    // ottieni la lista dei noleggi
-    @GetMapping("/list")
-    public ResponseEntity<List<Rent>> rentList() {
-        List<Rent> rentals = rentService.rentList();
-        // Restituisci la lista dei noleggi messaggio ok
-        return new ResponseEntity<>(rentals, HttpStatus.OK);
+    @Operation(summary = "Get a list of rents by user id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully retrieved list of rents",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
+                    )
+            }
+    )
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<?> rentList(@PathVariable Long userId) {
+        Either<RentResponse, List<RentDTO>> result = rentService.getRentsByUserId(userId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+
+        return ResponseEntity.ok(result.get());
     }
 
-    // ottieni un noleggio da id
-    @GetMapping("/search/{id}")
-    public ResponseEntity<Rent> getRentById(@PathVariable Long id) {
-        Rent rent = rentService.getRentById(id);
-        if (rent == null) {
-            // se il noleggio e' null, errore
-            return ResponseEntity.notFound().build();
-        }
-        // restituisci il noleggio trovato con messaggio ok
-        return new ResponseEntity<>(rent, HttpStatus.OK);
+    @Operation(summary = "Get a rent by user id and rent id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Rent successfully found",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Rent with id {rentId} not found for user with id {userId}"
+                    )
+            }
+    )
+    @GetMapping("/search/{userId}/{rentId}")
+    public ResponseEntity<?> getRentById(@PathVariable Long userId, @PathVariable Long rentId) {
+        Either<RentResponse, RentDTO> result = rentService.getRentById(userId, rentId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+
+        return ResponseEntity.ok(result.get());
     }
 
-    // modifica le date di un noleggio
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Rent> updateRentDates(@PathVariable Long id, @RequestBody ModifyRentDTO modifyRentDTO) {
-        Rent updatedRent = rentService.updateRentDates(id, modifyRentDTO.getStartDate(), modifyRentDTO.getEndDate());
-        if (updatedRent == null) {
-            // se il noleggio non viene trovato, errore
-            return ResponseEntity.notFound().build();
-        }
-        // noleggio aggiornato messaggio ok
-        return new ResponseEntity<>(updatedRent, HttpStatus.OK);
-    }
-    // Elimina un noleggio
-    @DeleteMapping("/remove/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteRent(@PathVariable Long id) {
-        // elimina il noleggio by id
-        rentService.deleteRent(id);
+    @Operation(summary = "Update rent by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Updated rent with id: {rentId}",
+                            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}
+                    ),
+                    @ApiResponse(
+                            responseCode ="403",
+                            description = "This rent does not belong to the specified user with id: {userId}"
+                    ),
+                    @ApiResponse(
+                            responseCode ="404",
+                            description = "No rent found with id: {rentId}"
+                    ),
+                    @ApiResponse(
+                            responseCode ="404",
+                            description = "User with id: {userId}, is not found"
+                    )
+            }
+    )
+    @PutMapping("/update/{userId}/{rentId}")
+    public ResponseEntity<?> updateRentDates(@PathVariable Long userId, @PathVariable Long rentId, @RequestBody RentRequest rentRequest) {
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(userId, rentId, rentRequest);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+
+        return ResponseEntity.ok(result.get());
     }
 
+    @Operation(summary = "Delete rent by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Rent deleted successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No rent found with id: {rentId} for user with id: {userId}"
+                    )
+            }
+    )
+    @DeleteMapping("/remove/{userId}/{rentId}")
+    public ResponseEntity<?> deleteRent(@PathVariable Long userId, @PathVariable Long rentId) {
+        Either<RentResponse, Boolean> result = rentService.deleteRent(userId, rentId);
+        if (result.isLeft())
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
 
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

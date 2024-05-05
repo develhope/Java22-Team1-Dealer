@@ -1,15 +1,19 @@
 package com.develhope.spring.User.Entities;
 
+
+import com.develhope.spring.User.Entities.Enum.UserTypes;
+
+import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +31,7 @@ public class User {
     private String password;
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
+
+    @OneToMany(mappedBy = "user")
+    private List<OrderEntity> orderEntities;
 }

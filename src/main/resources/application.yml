@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/dealer
+    username: root
+    password: claudio
+  jpa:
+    database: mysql
+    show_sql: true
+    hibernate:
+      ddl-auto: update
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+
