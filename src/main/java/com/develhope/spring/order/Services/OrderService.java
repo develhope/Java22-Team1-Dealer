@@ -9,6 +9,7 @@ import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
 import com.develhope.spring.order.Response.OrderResponse;
 import io.vavr.control.Either;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +23,20 @@ public class OrderService {
     @Autowired
     UserRepository userRepository;
 
-    public Either<OrderResponse, OrderDTO> create(Long buyerId, Long intermediaryId, OrderRequest orderRequest) {
+    public Either<OrderResponse, OrderDTO> create(Long buyerId, @Nullable Long intermediaryId, OrderRequest orderRequest) {
         Optional<User> buyerOptional = userRepository.findById(buyerId);
         if (buyerOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "User with id" + buyerId + " not found"));
         }
 
-        Optional<User> intermediaryOptional = userRepository.findById(intermediaryId);
-        User intermediary = intermediaryOptional.orElse(null);
+        User intermediary = null;
+        if (intermediaryId != null) {
+            Optional<User> intermediaryOptional = userRepository.findById(intermediaryId);
+            if (intermediaryOptional.isEmpty()) {
+                return Either.left(new OrderResponse(404, "Intermediary with id" + intermediaryId + " not found"));
+            }
+            intermediary = intermediaryOptional.get();
+        }
 
         OrderModel orderModel = new OrderModel(
                 orderRequest.getDeposit(),
