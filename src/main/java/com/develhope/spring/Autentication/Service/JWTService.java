@@ -4,11 +4,20 @@ import com.develhope.spring.Autentication.Entities.DTO.RefreshToken;
 import com.develhope.spring.User.Entities.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public interface JWTService {
-    String getUserName(String token);
-    String generateToken(UserDetails userDetails);
+public class JWTService {
+    private String jwtSignInKey =
+    String getUserName(String token) {
+    }
 
-    RefreshToken generateRefreshToken(User user);
-    boolean isRefreshTokenExpired(RefreshToken token);
-    boolean isTokenAvailable(String token, UserDetails userDetails);
+    public String generateToken(UserDetails userDetails) {
+    }
+
+    public RefreshToken generateRefreshToken(User user) {
+    }
+
+    public boolean isRefreshTokenExpired(RefreshToken token) {
+    }
+
+    final boolean isTokenAvailable(String token, UserDetails userDetails) {
+    }
 }
