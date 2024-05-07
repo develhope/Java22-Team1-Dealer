@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -17,7 +19,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String token;
-    private String expDate;
+    private Instant expDate;
     @OneToOne
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private User userInfo;

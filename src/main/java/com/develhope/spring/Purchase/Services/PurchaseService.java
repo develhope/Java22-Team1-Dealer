@@ -84,7 +84,7 @@ public class PurchaseService {
 
         List<OrderEntity> userOrderEntities = userOptional.get().getOrderEntities();
 
-        List<PurchaseEntity> userPurchase = userOrderEntities.stream().flatMap(order -> order.getPurchases().stream()).toList();
+        List<PurchaseEntity> userPurchase = userOrderEntities.stream().map(OrderEntity::getPurchase).toList();
 
         return Either.right(userPurchase.stream()
                 .map(
