@@ -17,7 +17,7 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    public UserDTO updateUser(long userId, UserModel updateUserRequest) {
+    public UserDTO updateUser(long userId, UserDTO updateUserRequest) {
         Optional<User> result = userRepository.findById(userId);
 
         if (result.isPresent()) {
@@ -45,7 +45,7 @@ public class UserService {
     }
     public UserDTO createUser(UserDTO createUserRequest) {
         try {
-            UserModel userModel = new UserModel(createUserRequest.getId(), createUserRequest.getName(), createUserRequest.getSurname(), createUserRequest.getEmail(), createUserRequest.getPhoneNumber(), createUserRequest.getPassword());
+            UserModel userModel = new UserModel(createUserRequest.getId(), createUserRequest.getName(), createUserRequest.getSurname(), createUserRequest.getEmail(), createUserRequest.getPhoneNumber(), createUserRequest.getPassword(),createUserRequest.getUserType());
             UserModel userModel1 = UserModel.entityToModel(userRepository.save(UserModel.modelToEntity(userModel)));
             return UserModel.modelToDto(userModel1);
         } catch (Exception e) {

@@ -3,13 +3,8 @@ package com.develhope.spring.User.Controllers.ControllerSeller;
 
 import com.develhope.spring.User.Services.UserService;
 import com.develhope.spring.User.UserDTO.UserDTO;
-import com.develhope.spring.User.UserDTO.UserModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
-import com.develhope.spring.order.DTO.OrderDTO;
-import com.develhope.spring.order.OrderRequest.OrderRequest;
-import com.develhope.spring.order.Response.OrderResponse;
-import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +50,7 @@ public class UserController {
         }
     }
     @PatchMapping("/update/user/{userId}")
-    public ResponseEntity<?> updateSingleUser(@PathVariable long userId, @RequestBody UserModel updateUserRequest) {
+    public ResponseEntity<?> updateSingleUser(@PathVariable long userId, @RequestBody UserDTO updateUserRequest) {
         UserDTO result = userService.updateUser(userId, updateUserRequest);
         if (result == null) {
             return ResponseEntity.status(422).body("user not found");
