@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
+@Table(name = "purchases")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +23,7 @@ public class PurchaseEntity {
     @Column(nullable = false, name = "stato_ordine")
     private PurchaseStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "order_id")
     private OrderEntity orderEntity;
 }

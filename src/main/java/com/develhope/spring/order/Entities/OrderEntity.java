@@ -3,7 +3,6 @@ package com.develhope.spring.order.Entities;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.User;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,10 +34,10 @@ public class OrderEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Nullable
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private PurchaseEntity purchase;
 
-    @Nullable
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private RentEntity rent;
 }
 
