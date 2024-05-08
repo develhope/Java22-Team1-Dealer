@@ -4,8 +4,6 @@ import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.User.Entities.User;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class OrderRequest {
     private int deposit;
@@ -18,5 +16,5 @@ public class OrderRequest {
 
     private User user;
 
-    private List<PurchaseEntity> purchases;
+    private PurchaseEntity purchase;
 }
