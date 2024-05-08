@@ -8,7 +8,7 @@ public enum UserTypes {
 
 
     public static UserTypes convertFromString(String role) {
-        return switch (role) {
+        return switch (role.toLowerCase()) {
             case "admin" -> UserTypes.ADMIN;
             case "seller" -> UserTypes.SELLER;
             case "buyer" -> UserTypes.BUYER;

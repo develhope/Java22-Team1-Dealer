@@ -1,5 +1,6 @@
 package com.develhope.spring.order.Controllers;
 
+import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Response.OrderResponse;
@@ -12,12 +13,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/dealer/order")
 public class OrderController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Deposit is negative"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
-    @PostMapping("/{userId}")
+    @PostMapping("/create")
     public ResponseEntity<?> create(@PathVariable Long buyerId,@RequestParam(required = false) Long intermediaryId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.create(buyerId, intermediaryId, orderRequest);
 
@@ -49,9 +51,9 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @GetMapping("/{userId}/{orderId}")
-    public ResponseEntity<?> getSingle(@PathVariable Long userId, @PathVariable Long orderId) {
-        Either<OrderResponse, OrderDTO> result = orderService.getSingle(userId, orderId);
+    @GetMapping("/get/{orderId}")
+    public ResponseEntity<?> getSingle(@AuthenticationPrincipal User user, @PathVariable Long orderId) {
+        Either<OrderResponse, OrderDTO> result = orderService.getSingle(user, orderId);
         return createResponseEntity(result);
     }
 
@@ -61,7 +63,7 @@ public class OrderController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "404", description = "No orders found for specified user")})
-    @GetMapping("/{userId}")
+    @GetMapping("/get")
     public ResponseEntity<?> getAll(@PathVariable Long userId) {
         Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(userId);
 
@@ -80,9 +82,9 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PutMapping("/{userId}/{orderId}")
-    public ResponseEntity<?> update(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId,  orderRequest);
+    @PutMapping("/update/{orderId}")
+    public ResponseEntity<?> update(@AuthenticationPrincipal User user, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.update(user, orderId,  orderRequest);
         return createResponseEntity(result);
     }
 
@@ -95,8 +97,8 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
     @PutMapping("/admin/{userId}/{orderId}")
-    public ResponseEntity<?> updateByAdmin(@PathVariable Long userId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userId, orderId, orderRequest);
+    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal User user, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.update(user, orderId, orderRequest);
         return createResponseEntity(result);
     }
 
@@ -107,9 +109,9 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
-    @DeleteMapping("/{userId}/{orderId}")
-    public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long orderId) {
-        OrderResponse result = orderService.deleteOrder(userId, orderId);
+    @DeleteMapping("/delete/{orderId}")
+    public ResponseEntity<?> delete(@AuthenticationPrincipal User user, @PathVariable Long orderId) {
+        OrderResponse result = orderService.deleteOrder(user, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
@@ -121,9 +123,9 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
-    @DeleteMapping("/admin/{userId}/{orderId}")
-    public ResponseEntity<?> deleteByAdmin(@PathVariable Long userId, @PathVariable Long orderId) {
-        OrderResponse result = orderService.deleteOrder(userId, orderId);
+    @DeleteMapping("/admin/delete/{orderId}")
+    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal User user, @PathVariable Long orderId) {
+        OrderResponse result = orderService.deleteOrder(user, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 

@@ -58,12 +58,8 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId) {
+    public Either<OrderResponse, OrderDTO> getSingle(User user, Long orderId) {
         //check if user exists
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
-        }
         //check if order exists
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
         if (orderEntityOptional.isEmpty()) {
@@ -71,7 +67,6 @@ public class OrderService {
         }
 
         //check if order belongs to specified user
-        User user = userOptional.get();
         OrderEntity orderEntity = orderEntityOptional.get();
         if (!(user.getOrderEntities().contains(orderEntity))) {
             return Either.left(new OrderResponse(403, "This order does not belong to specified user"));
@@ -98,12 +93,13 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(Long userId, Long orderId, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userId, orderId);
+    public Either<OrderResponse, OrderDTO> update(User user, Long orderId, OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
 
+        // cambiare con set
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
                 orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchase());
 
@@ -113,9 +109,9 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public OrderResponse deleteOrder(Long userId, Long orderId) {
+    public OrderResponse deleteOrder(User user, Long orderId) {
         //checks if purchase and user exists and they belong to each other
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userId, orderId);
+        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(user, orderId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }

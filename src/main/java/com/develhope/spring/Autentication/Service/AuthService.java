@@ -49,10 +49,10 @@ public class AuthService {
 
     public JWTAuthResponse signin(SigninRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        var user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-        var jwt = jwtService.generateToken(user);
+        String jwt = jwtService.generateToken(user);
         RefreshToken refreshToken = jwtService.generateRefreshToken(user);
         return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.getToken()).build();
     }
@@ -62,10 +62,10 @@ public class AuthService {
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken());
 
         if (refreshToken.isPresent() && !jwtService.isRefreshTokenExpired(refreshToken.get())) {
-            var user = userRepository.findByEmail(refreshToken.get().getUserInfo().getEmail())
+            User user = userRepository.findByEmail(refreshToken.get().getUserInfo().getEmail())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-            var jwt = jwtService.generateToken(user);
+            String jwt = jwtService.generateToken(user);
 
             return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.get().getToken()).build();
         } else {
