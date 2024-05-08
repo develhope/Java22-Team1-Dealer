@@ -23,11 +23,7 @@ public class OrderService {
     @Autowired
     UserRepository userRepository;
 
-    public Either<OrderResponse, OrderDTO> create(Long buyerId, @Nullable Long intermediaryId, OrderRequest orderRequest) {
-        Optional<User> buyerOptional = userRepository.findById(buyerId);
-        if (buyerOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + buyerId + " not found"));
-        }
+    public Either<OrderResponse, OrderDTO> create(User buyer, @Nullable Long intermediaryId, OrderRequest orderRequest) {
 
         User intermediary = null;
         if (intermediaryId != null) {
@@ -50,7 +46,6 @@ public class OrderService {
         );
 
         OrderEntity orderEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-        User buyer = buyerOptional.get();
         buyer.getOrderEntities().add(orderEntity);
         userRepository.saveAndFlush(buyer);
 
