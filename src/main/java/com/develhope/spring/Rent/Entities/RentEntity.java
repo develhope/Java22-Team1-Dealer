@@ -21,6 +21,7 @@ public class RentEntity {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -29,10 +30,6 @@ public class RentEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicle;
-
-    @OneToOne
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
 
     private Double dailyCost;
     private Double totalCost;

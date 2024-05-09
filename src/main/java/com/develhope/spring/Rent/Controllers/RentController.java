@@ -19,7 +19,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rents")
+@RequestMapping("/rentals")
 @RequiredArgsConstructor
 public class RentController {
 
@@ -47,7 +47,7 @@ public class RentController {
                     )
             }
     )
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest) {
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest);
         if (result.isRight()) {
@@ -75,7 +75,7 @@ public class RentController {
                     )
             }
     )
-    @GetMapping
+    @GetMapping("/list")
     public List<RentDTO> getRentList(Principal principal) {
         return rentService.getRentList(principal);
     }
@@ -98,7 +98,7 @@ public class RentController {
                     )
             }
     )
-    @GetMapping("/{id}")
+    @GetMapping("/find/{id}")
     public ResponseEntity<RentDTO> getRentById(@PathVariable Long id, Principal principal) {
         RentDTO rentDTO = rentService.getRentById(id, principal);
         if (rentDTO != null) {
@@ -126,7 +126,7 @@ public class RentController {
                     )
             }
     )
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, Principal principal) {
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, principal);
         if (result.isRight()) {
@@ -153,7 +153,7 @@ public class RentController {
                     )
             }
     )
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteRent(@PathVariable Long id, Principal principal) {
         Either<RentResponse, Void> result = rentService.deleteRent(id, principal);
         if (result.isRight()) {
@@ -181,7 +181,7 @@ public class RentController {
                     )
             }
     )
-    @PostMapping("/{id}/pay")
+    @PostMapping("/pay/{id}")
     public ResponseEntity<String> payRent(@PathVariable Long id, Principal principal) {
         Either<RentResponse, String> result = rentService.payRent(id, principal);
         if (result.isRight()) {
@@ -191,5 +191,3 @@ public class RentController {
         }
     }
 }
-
-
