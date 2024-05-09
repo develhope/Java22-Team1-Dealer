@@ -14,20 +14,20 @@ import lombok.NoArgsConstructor;
 public class OrderModel {
     private Long orderId;
 
-    private int deposit;
+    private Integer deposit;
 
-    private boolean paid;
+    private Boolean paid;
 
     private String status;
 
-    private boolean isSold;
+    private Boolean isSold;
 
     private User buyer;
 
     private VehicleEntity vehicleEntity;
 
 
-    public OrderModel(int deposit, boolean paid, String status, boolean isSold, User buyer, VehicleEntity vehicleEntity) {
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, User buyer, VehicleEntity vehicleEntity) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
@@ -40,9 +40,9 @@ public class OrderModel {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setOrderId(orderModel.getOrderId());
         orderEntity.setDeposit(orderModel.getDeposit());
-        orderEntity.setPaid(orderModel.isPaid());
+        orderEntity.setIsPaid(orderModel.getPaid());
         orderEntity.setStatus(orderModel.getStatus());
-        orderEntity.setSold(orderModel.isSold());
+        orderEntity.setIsSold(orderModel.getIsSold());
         orderEntity.setBuyer(orderModel.getBuyer());
         return orderEntity;
     }
@@ -51,9 +51,9 @@ public class OrderModel {
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setOrderId(orderModel.getOrderId());
         orderDTO.setDeposit(orderModel.getDeposit());
-        orderDTO.setPaid(orderModel.isPaid());
+        orderDTO.setPaid(orderModel.getPaid());
         orderDTO.setStatus(orderModel.getStatus());
-        orderDTO.setSold(orderModel.isSold());
+        orderDTO.setIsSold(orderModel.getIsSold());
         orderDTO.setUser(orderModel.getBuyer());
 
         return orderDTO;
@@ -63,9 +63,9 @@ public class OrderModel {
         OrderModel orderModel = new OrderModel();
         orderModel.setOrderId(orderEntity.getOrderId());
         orderModel.setDeposit(orderEntity.getDeposit());
-        orderModel.setPaid(orderEntity.isPaid());
+        orderModel.setPaid(orderEntity.getIsPaid());
         orderModel.setStatus(orderEntity.getStatus());
-        orderModel.setSold(orderEntity.isSold());
+        orderModel.setIsSold(orderEntity.getIsSold());
         orderModel.setBuyer(orderEntity.getBuyer());
 
         return orderModel;
@@ -75,9 +75,9 @@ public class OrderModel {
         OrderModel orderModel = new OrderModel();
         orderModel.setOrderId(orderDTO.getOrderId());
         orderModel.setDeposit(orderDTO.getDeposit());
-        orderModel.setPaid(orderDTO.isPaid());
+        orderModel.setPaid(orderDTO.getPaid());
         orderModel.setStatus(orderDTO.getStatus());
-        orderModel.setSold(orderDTO.isSold());
+        orderModel.setIsSold(orderDTO.getIsSold());
         orderModel.setBuyer(orderDTO.getUser());
         return orderModel;
     }

@@ -18,16 +18,16 @@ public class OrderEntity {
     private Long orderId;
 
     @Column(nullable = false, name = "deposit")
-    private int deposit;
+    private Integer deposit;
 
     @Column(nullable = false, name = "paid")
-    private boolean paid;
+    private Boolean isPaid;
 
     @Column(nullable = false, name = "order_status")
     private String status;
 
     @Column(nullable = false, name = "ordered_sold")
-    private boolean isSold;
+    private Boolean isSold;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

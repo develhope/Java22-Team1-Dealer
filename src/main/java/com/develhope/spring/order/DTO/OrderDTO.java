@@ -13,13 +13,13 @@ public class OrderDTO {
 
     private Long orderId;
 
-    private int deposit;
+    private Integer deposit;
 
-    private boolean paid;
+    private Boolean paid;
 
     private String status;
 
-    private boolean isSold;
+    private Boolean isSold;
 
     private User user;
 
