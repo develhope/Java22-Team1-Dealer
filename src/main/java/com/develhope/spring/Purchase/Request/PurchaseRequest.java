@@ -1,7 +1,6 @@
 package com.develhope.spring.Purchase.Request;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.Data;
 
 @Data
@@ -13,6 +12,5 @@ public class PurchaseRequest {
 
     private PurchaseStatus status;
 
-    private OrderEntity orderEntity;
-
+    private Long vehicleId;
 }

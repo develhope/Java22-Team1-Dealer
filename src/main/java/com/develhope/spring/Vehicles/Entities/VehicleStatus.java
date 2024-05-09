@@ -2,7 +2,7 @@ package com.develhope.spring.Vehicles.Entities;
 
 public enum VehicleStatus {
 
-    ORDERABLE,
+    RENTABLE,
     PURCHASABLE,
     NOT_AVAILABLE
 

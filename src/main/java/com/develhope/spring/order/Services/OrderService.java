@@ -2,6 +2,9 @@ package com.develhope.spring.order.Services;
 
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
+import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Model.OrderModel;
@@ -9,7 +12,6 @@ import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
 import com.develhope.spring.order.Response.OrderResponse;
 import io.vavr.control.Either;
-import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,40 +24,25 @@ public class OrderService {
     OrderRepository orderRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    VehicleRepository vehicleRepository;
 
-    public Either<OrderResponse, OrderDTO> create(User buyer, @Nullable Long intermediaryId, OrderRequest orderRequest) {
-
-        User intermediary = null;
-        if (intermediaryId != null) {
-            Optional<User> intermediaryOptional = userRepository.findById(intermediaryId);
-            if (intermediaryOptional.isEmpty()) {
-                return Either.left(new OrderResponse(404, "Intermediary with id" + intermediaryId + " not found"));
-            }
-            intermediary = intermediaryOptional.get();
+    public Either<OrderResponse, OrderDTO> create(User buyer, OrderRequest orderRequest) {
+        Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
+        if(foundVehicle.isEmpty()) {
+            return Either.left(new OrderResponse(404, "Vehicle not found"));
+        }
+        if(foundVehicle.get().getVehicleStatus() != VehicleStatus.NOT_AVAILABLE) {
+            return Either.left(new OrderResponse(403, "Vehicle is not orderable"));
         }
 
-        OrderModel orderModel = new OrderModel(
-                orderRequest.getDeposit(),
-                orderRequest.isPaid(),
-                orderRequest.getStatus(),
-                orderRequest.isSold(),
-                orderRequest.getUser(),
-                orderRequest.getPurchase(),
-                null,
-                intermediary
-        );
-
-        OrderEntity orderEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-        buyer.getOrderEntities().add(orderEntity);
-        userRepository.saveAndFlush(buyer);
-
-        OrderModel savedModel = OrderModel.entityToModel(orderEntity);
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(), orderRequest.isSold(), buyer, foundVehicle.get());
+        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
     public Either<OrderResponse, OrderDTO> getSingle(User user, Long orderId) {
-        //check if user exists
-        //check if order exists
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
         if (orderEntityOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
@@ -96,7 +83,7 @@ public class OrderService {
 
         // cambiare con set
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
-                orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchase());
+                orderRequest.isSold(), user, foundOrder.get().getVehicleEntity());
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
 
@@ -105,7 +92,6 @@ public class OrderService {
     }
 
     public OrderResponse deleteOrder(User user, Long orderId) {
-        //checks if purchase and user exists and they belong to each other
         Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(user, orderId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();

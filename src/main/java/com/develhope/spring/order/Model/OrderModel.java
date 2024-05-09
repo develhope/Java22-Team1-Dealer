@@ -1,11 +1,9 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,33 +22,18 @@ public class OrderModel {
 
     private boolean isSold;
 
-    private User user;
+    private User buyer;
 
-    @Nullable
-    private PurchaseEntity purchase;
-    @Nullable
-    private RentEntity rent;
-    @Nullable
-    private User intermediary;
+    private VehicleEntity vehicleEntity;
 
-    public OrderModel(int deposit, boolean paid, String status, boolean isSold, User user, @Nullable PurchaseEntity purchase, @Nullable RentEntity rent, @Nullable User intermediary) {
+
+    public OrderModel(int deposit, boolean paid, String status, boolean isSold, User buyer, VehicleEntity vehicleEntity) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
         this.isSold = isSold;
-        this.user = user;
-        this.purchase = purchase;
-        this.rent = rent;
-        this.intermediary = intermediary;
-    }
-
-    public OrderModel(int deposit, boolean paid, String status, boolean isSold, User user, @Nullable PurchaseEntity purchase) {
-        this.deposit = deposit;
-        this.paid = paid;
-        this.status = status;
-        this.isSold = isSold;
-        this.user = user;
-        this.purchase = purchase;
+        this.buyer = buyer;
+        this.vehicleEntity = vehicleEntity;
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
@@ -60,15 +43,7 @@ public class OrderModel {
         orderEntity.setPaid(orderModel.isPaid());
         orderEntity.setStatus(orderModel.getStatus());
         orderEntity.setSold(orderModel.isSold());
-        orderEntity.setUser(orderModel.getUser());
-
-        if (orderModel.getPurchase() != null) {
-            orderEntity.setPurchase(orderModel.getPurchase());
-        }
-        if (orderModel.getRent() != null) {
-            orderEntity.setRent(orderModel.getRent());
-        }
-
+        orderEntity.setBuyer(orderModel.getBuyer());
         return orderEntity;
     }
 
@@ -79,15 +54,8 @@ public class OrderModel {
         orderDTO.setPaid(orderModel.isPaid());
         orderDTO.setStatus(orderModel.getStatus());
         orderDTO.setSold(orderModel.isSold());
-        orderDTO.setUser(orderModel.getUser());
-        orderDTO.setIntermediary(orderModel.getIntermediary());
+        orderDTO.setUser(orderModel.getBuyer());
 
-        if (orderModel.getPurchase() != null) {
-            orderDTO.setPurchase(orderModel.getPurchase());
-        }
-        if (orderModel.getRent() != null) {
-            orderDTO.setRent(orderModel.getRent());
-        }
         return orderDTO;
     }
 
@@ -98,16 +66,7 @@ public class OrderModel {
         orderModel.setPaid(orderEntity.isPaid());
         orderModel.setStatus(orderEntity.getStatus());
         orderModel.setSold(orderEntity.isSold());
-        orderModel.setUser(orderEntity.getUser());
-
-        // Se è impostato l'attributo 'purchase', converte in 'PurchaseEntity'
-        if (orderEntity.getPurchase() != null) {
-            orderModel.setPurchase(orderEntity.getPurchase());
-        }
-        // Se è impostato l'attributo 'rent', converte in 'RentEntity'
-        if (orderEntity.getRent() != null) {
-            orderModel.setRent(orderEntity.getRent());
-        }
+        orderModel.setBuyer(orderEntity.getBuyer());
 
         return orderModel;
     }
@@ -119,15 +78,7 @@ public class OrderModel {
         orderModel.setPaid(orderDTO.isPaid());
         orderModel.setStatus(orderDTO.getStatus());
         orderModel.setSold(orderDTO.isSold());
-        orderModel.setUser(orderDTO.getUser());
-
-        if (orderDTO.getPurchase() != null) {
-            orderModel.setPurchase(orderDTO.getPurchase());
-        }
-        if (orderDTO.getRent() != null) {
-            orderModel.setRent(orderDTO.getRent());
-        }
-
+        orderModel.setBuyer(orderDTO.getUser());
         return orderModel;
     }
 }

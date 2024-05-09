@@ -1,7 +1,5 @@
 package com.develhope.spring.order.OrderRequest;
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.User.Entities.User;
 import lombok.Data;
 
 @Data
@@ -14,7 +12,5 @@ public class OrderRequest {
 
     private boolean isSold;
 
-    private User user;
-
-    private PurchaseEntity purchase;
+    private Long vehicleId;
 }

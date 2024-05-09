@@ -1,6 +1,8 @@
 package com.develhope.spring.User.Entities;
 
 
+import com.develhope.spring.Purchase.Entities.PurchaseEntity;
+import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
@@ -41,6 +43,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<OrderEntity> orderEntities;
+
+    @OneToMany(mappedBy = "user")
+    private List<PurchaseEntity> purchaseEntities;
+
+    @OneToMany(mappedBy = "user")
+    private List<RentEntity> rentEntities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

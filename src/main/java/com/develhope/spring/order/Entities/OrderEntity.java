@@ -1,8 +1,7 @@
 package com.develhope.spring.order.Entities;
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,12 +31,8 @@ public class OrderEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User buyer;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private PurchaseEntity purchase;
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private RentEntity rent;
+    private VehicleEntity vehicleEntity;
 }
 

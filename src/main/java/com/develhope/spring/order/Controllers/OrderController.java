@@ -34,8 +34,8 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@AuthenticationPrincipal User user,@RequestParam(required = false) Long intermediaryId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.create(user, intermediaryId, orderRequest);
+    public ResponseEntity<?> create(@AuthenticationPrincipal User user, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.create(user, orderRequest);
 
         if (result.isRight()) {
             return ResponseEntity.ok(result);
