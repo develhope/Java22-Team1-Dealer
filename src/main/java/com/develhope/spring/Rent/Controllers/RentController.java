@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -48,8 +50,8 @@ public class RentController {
             }
     )
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest);
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserDetails userDetails) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -76,8 +78,8 @@ public class RentController {
             }
     )
     @GetMapping("/list")
-    public List<RentDTO> getRentList(Principal principal) {
-        return rentService.getRentList(principal);
+    public List<RentDTO> getRentList(@AuthenticationPrincipal UserDetails userDetails) {
+        return rentService.getRentList(userDetails);
     }
 
     @Operation(summary = "Get a rent by ID")
@@ -99,8 +101,8 @@ public class RentController {
             }
     )
     @GetMapping("/find/{id}")
-    public ResponseEntity<RentDTO> getRentById(@PathVariable Long id, Principal principal) {
-        RentDTO rentDTO = rentService.getRentById(id, principal);
+    public ResponseEntity<RentDTO> getRentById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        RentDTO rentDTO = rentService.getRentById(id, userDetails);
         if (rentDTO != null) {
             return ResponseEntity.ok(rentDTO);
         } else {
@@ -127,8 +129,8 @@ public class RentController {
             }
     )
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, Principal principal) {
-        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, principal);
+    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserDetails userDetails) {
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -154,8 +156,8 @@ public class RentController {
             }
     )
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRent(@PathVariable Long id, Principal principal) {
-        Either<RentResponse, Void> result = rentService.deleteRent(id, principal);
+    public ResponseEntity<?> deleteRent(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Either<RentResponse, Void> result = rentService.deleteRent(id, userDetails);
         if (result.isRight()) {
             return ResponseEntity.noContent().build();
         } else {
@@ -182,8 +184,8 @@ public class RentController {
             }
     )
     @PostMapping("/pay/{id}")
-    public ResponseEntity<String> payRent(@PathVariable Long id, Principal principal) {
-        Either<RentResponse, String> result = rentService.payRent(id, principal);
+    public ResponseEntity<String> payRent(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Either<RentResponse, String> result = rentService.payRent(id, userDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
