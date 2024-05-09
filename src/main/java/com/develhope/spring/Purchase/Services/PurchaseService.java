@@ -11,7 +11,6 @@ import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
-import com.develhope.spring.order.Entities.OrderEntity;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,8 +44,8 @@ public class PurchaseService {
             return Either.left(new PurchaseResponse(400, "Deposit cannot be negative"));
         }
 
-        PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.isPaid(),
-                purchaseRequest.getStatus(), vehicleEntity.get());
+        PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
+                purchaseRequest.getStatus(), vehicleEntity.get(), user);
         PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(result);
@@ -87,10 +86,15 @@ public class PurchaseService {
             return singlePurchase;
         }
 
-        PurchaseModel purchaseModel = new PurchaseModel(updatedPurchaseRequest.getDeposit(), updatedPurchaseRequest.isPaid(),
-                updatedPurchaseRequest.getStatus(), );
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(updatedPurchaseRequest.getVehicleId());
 
-        PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+        singlePurchase.get().setDeposit(updatedPurchaseRequest.getDeposit() == null ? singlePurchase.get().getDeposit() : updatedPurchaseRequest.getDeposit());
+        singlePurchase.get().setIsPaid(updatedPurchaseRequest.getIsPaid() == null ? singlePurchase.get().getIsPaid() : updatedPurchaseRequest.getIsPaid());
+        singlePurchase.get().setStatus(updatedPurchaseRequest.getStatus() == null ? singlePurchase.get().getStatus() : updatedPurchaseRequest.getStatus());
+        singlePurchase.get().setVehicleEntity(vehicleEntity.orElseGet(() -> singlePurchase.get().getVehicleEntity()));
+
+
+        PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(PurchaseModel.dtoToModel(singlePurchase.get())));
 
         PurchaseModel savedModel = PurchaseModel.entityToModel(savedPurchase);
         return Either.right(PurchaseModel.modelToDto(savedModel));

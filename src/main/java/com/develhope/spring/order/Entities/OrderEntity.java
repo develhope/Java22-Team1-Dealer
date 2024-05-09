@@ -30,9 +30,11 @@ public class OrderEntity {
     private Boolean isSold;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User buyer;
 
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleEntity;
 }
 

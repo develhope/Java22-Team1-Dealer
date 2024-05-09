@@ -41,10 +41,10 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "buyer")
     private List<OrderEntity> orderEntities;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "buyer")
     private List<PurchaseEntity> purchaseEntities;
 
     @OneToMany(mappedBy = "user")

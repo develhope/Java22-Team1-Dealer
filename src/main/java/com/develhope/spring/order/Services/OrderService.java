@@ -36,7 +36,7 @@ public class OrderService {
             return Either.left(new OrderResponse(403, "Vehicle is not orderable"));
         }
 
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(), orderRequest.isSold(), buyer, foundVehicle.get());
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(), buyer, foundVehicle.get());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));

@@ -6,11 +6,13 @@ import lombok.Data;
 @Data
 public class PurchaseRequest {
 
-    private double deposit;
+    private Double deposit;
 
-    private boolean isPaid;
+    private Boolean isPaid;
 
     private PurchaseStatus status;
 
     private Long vehicleId;
+
+    private Long userId;
 }
