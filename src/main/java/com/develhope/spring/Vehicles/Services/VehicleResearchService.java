@@ -30,14 +30,7 @@ public class VehicleResearchService {
     @Autowired
     VehicleRepository vehicleRepository;
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByColor(Long userId, String color) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userId + "not found"));
-        }
-        if (userOptional.get().getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByColor(String color) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
@@ -56,14 +49,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByModel(Long userId, String model) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userId + "not found"));
-        }
-        if (userOptional.get().getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByModel(String model) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
@@ -82,14 +68,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByBrand(Long userId, String brand) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userId + "not found"));
-        }
-        if (userOptional.get().getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByBrand(String brand) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
@@ -108,14 +87,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByTransmission(Long userId, String transmission) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userId + "not found"));
-        }
-        if (userOptional.get().getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByTransmission(String transmission) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
@@ -134,14 +106,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByPowerSupply(Long userId, String powerSupply) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userId + "not found"));
-        }
-        if (userOptional.get().getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByPowerSupply(String powerSupply) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
@@ -160,15 +125,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByAccessories(Long userId, List<String> accessories) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
+    public Either<VehicleResponse, List<VehicleDTO>> findByAccessories(List<String> accessories) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findByAccessoriesIn(accessories);
         if (vehicleEntities.isEmpty()) {
             return Either.left(new VehicleResponse(404, "No vehicles found with the specified accessories"));
@@ -181,16 +138,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByDisplacement(Long userId, Integer minDisplacement, Integer maxDisplacement) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByDisplacement(Integer minDisplacement, Integer maxDisplacement) {
         if (minDisplacement > maxDisplacement) {
             return Either.left(new VehicleResponse(400, "the minimum displacement cannot be higher than the maximum"));
         }
@@ -207,16 +155,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByPower(Long userId, Integer minPower, Integer maxPower) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByPower(Integer minPower, Integer maxPower) {
         if (minPower > maxPower) {
             return Either.left(new VehicleResponse(400, "the minimum power cannot be higher than the maximum"));
         }
@@ -233,16 +172,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByRegistrationYear(Long userId, Integer minRegistrationYear, Integer maxRegistrationYear) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByRegistrationYear(Integer minRegistrationYear, Integer maxRegistrationYear) {
         if (minRegistrationYear > maxRegistrationYear) {
             return Either.left(new VehicleResponse(400, "the minimum registration year cannot be higher than the maximum"));
         }
@@ -259,16 +189,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByPrice(Long userId, BigDecimal minPrice, BigDecimal maxPrice) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByPrice(BigDecimal minPrice, BigDecimal maxPrice) {
         if (minPrice.compareTo(maxPrice) > 0) {
             return Either.left(new VehicleResponse(400, "the minimum price cannot be higher than the maximum"));
         }
@@ -285,16 +206,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByDiscount(Long userId, BigDecimal minPrice, BigDecimal maxPrice) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByDiscount(BigDecimal minPrice, BigDecimal maxPrice) {
         if (minPrice.compareTo(maxPrice) > 0) {
             return Either.left(new VehicleResponse(400, "the minimum discount price cannot be higher than the maximum"));
         }
@@ -311,16 +223,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByIsNew(Long userId, boolean isNew) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByIsNew(boolean isNew) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findByIsNew(isNew);
         if (vehicleEntities.isEmpty()) {
             return Either.left(new VehicleResponse(404, "No vehicles found"));
@@ -333,16 +236,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByVehicleStatus(Long userId, VehicleStatus vehicleStatus) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByVehicleStatus(VehicleStatus vehicleStatus) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findByVehicleStatus(vehicleStatus);
         if (vehicleEntities.isEmpty()) {
             return Either.left(new VehicleResponse(404, "No vehicles found"));
@@ -355,16 +249,7 @@ public class VehicleResearchService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> findByVehicleType(Long userId, VehicleType vehicleType) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "User with ID " + userId + " not found"));
-        }
-        User user = userOptional.get();
-        if (user.getUserType() != UserTypes.BUYER) {
-            return Either.left(new VehicleResponse(403, "This user does not have permission"));
-        }
-
+    public Either<VehicleResponse, List<VehicleDTO>> findByVehicleType(VehicleType vehicleType) {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findByVehicleType(vehicleType);
         if (vehicleEntities.isEmpty()) {
             return Either.left(new VehicleResponse(404, "No vehicles found"));

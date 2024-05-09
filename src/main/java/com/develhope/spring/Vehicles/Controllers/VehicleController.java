@@ -129,8 +129,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/color/{userId}")
-    public ResponseEntity<?> findByColor(@PathVariable Long userId, @RequestParam String color) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor(userId, color);
+    public ResponseEntity<?> findByColor(@RequestParam String color) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor(color);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -146,8 +146,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/model/{userId}")
-    public ResponseEntity<?> findByModel(@PathVariable Long userId, @RequestParam String model) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel(userId, model);
+    public ResponseEntity<?> findByModel(@RequestParam String model) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel(model);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -163,8 +163,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/brand/{userId}")
-    public ResponseEntity<?> findByBrand(@PathVariable Long userId, @RequestParam String brand) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand(userId, brand);
+    public ResponseEntity<?> findByBrand(@RequestParam String brand) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand(brand);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -180,8 +180,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/transmission/{userId}")
-    public ResponseEntity<?> findByTransmission(@PathVariable Long userId, @RequestParam String transmission) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission(userId, transmission);
+    public ResponseEntity<?> findByTransmission(@RequestParam String transmission) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission(transmission);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -197,8 +197,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/powerSupply/{userId}")
-    public ResponseEntity<?> findByPowerSupply(@PathVariable Long userId, @RequestParam String powerSupply) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply(userId, powerSupply);
+    public ResponseEntity<?> findByPowerSupply(@RequestParam String powerSupply) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply(powerSupply);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -214,8 +214,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/accessories/{userId}")
-    public ResponseEntity<?> findByAccessories(@PathVariable Long userId, @RequestBody List<String> accessories) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(userId, accessories);
+    public ResponseEntity<?> findByAccessories(@RequestBody List<String> accessories) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(accessories);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -232,8 +232,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/displacement/{userId}")
-    public ResponseEntity<?> findByDisplacement(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(userId, min, max);
+    public ResponseEntity<?> findByDisplacement(@RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -250,8 +250,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/power/{userId}")
-    public ResponseEntity<?> findByPower(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(userId, min, max);
+    public ResponseEntity<?> findByPower(@RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -268,8 +268,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/registrationYear/{userId}")
-    public ResponseEntity<?> findByRegistrationYear(@PathVariable Long userId, @RequestParam Integer min, @RequestParam Integer max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(userId, min, max);
+    public ResponseEntity<?> findByRegistrationYear(@RequestParam Integer min, @RequestParam Integer max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -286,8 +286,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/price/{userId}")
-    public ResponseEntity<?> findByPrice(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(userId, min, max);
+    public ResponseEntity<?> findByPrice(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -304,8 +304,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/discount/{userId}")
-    public ResponseEntity<?> findByDiscount(@PathVariable Long userId, @RequestParam BigDecimal min, @RequestParam BigDecimal max) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(userId, min, max);
+    public ResponseEntity<?> findByDiscount(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(min, max);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -321,8 +321,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/isNew/{userId}")
-    public ResponseEntity<?> findByIsNew(@PathVariable Long userId, @RequestParam boolean isNew) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(userId, isNew);
+    public ResponseEntity<?> findByIsNew(@RequestParam boolean isNew) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(isNew);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -338,8 +338,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/vehicleStatus/{userId}")
-    public ResponseEntity<?> findByVehicleStatus(@PathVariable Long userId, @RequestParam VehicleStatus vehicleStatus) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(userId, vehicleStatus);
+    public ResponseEntity<?> findByVehicleStatus(@RequestParam VehicleStatus vehicleStatus) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(vehicleStatus);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
@@ -355,8 +355,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/findBy/vehicleType/{userId}")
-    public ResponseEntity<?> findByVehicleType(@PathVariable Long userId, @RequestParam VehicleType vehicleType) {
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(userId, vehicleType);
+    public ResponseEntity<?> findByVehicleType(@RequestParam VehicleType vehicleType) {
+        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(vehicleType);
         if (result.isRight()) {
             return ResponseEntity.ok(result);
         } else {
