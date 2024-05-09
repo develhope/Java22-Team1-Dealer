@@ -20,4 +20,5 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     List<VehicleEntity> findByIsNew(boolean isNew);
     List<VehicleEntity> findByVehicleStatus(VehicleStatus vehicleStatus);
     List<VehicleEntity> findByVehicleType(VehicleType vehicleType);
+    VehicleStatus findStatusById(VehicleEntity vehicleId);
 }
