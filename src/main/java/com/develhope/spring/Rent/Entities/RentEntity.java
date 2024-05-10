@@ -28,13 +28,13 @@ public class RentEntity {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
-    private Long vehicleId;
+    private VehicleEntity vehicleId;
 
     private Double dailyCost;
     private Double totalCost;
     private Boolean isPaid;
 
-    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleId) {
+    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleId) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;

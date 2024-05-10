@@ -4,7 +4,6 @@ import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -21,7 +20,4 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     List<VehicleEntity> findByIsNew(boolean isNew);
     List<VehicleEntity> findByVehicleStatus(VehicleStatus vehicleStatus);
     List<VehicleEntity> findByVehicleType(VehicleType vehicleType);
-
-    @Query("SELECT v.vehicleStatus FROM VehicleEntity v WHERE v.id = :id")
-    VehicleStatus findStatusById(Long id);
 }

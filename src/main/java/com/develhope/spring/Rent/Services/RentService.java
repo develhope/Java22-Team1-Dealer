@@ -9,11 +9,11 @@ import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +36,8 @@ public class RentService {
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, User userDetails) {
         // Check vehicle availability
-        VehicleStatus vehicleStatus = vehicleRepository.findStatusById(rentRequest.getVehicleId());
-        if (vehicleStatus != VehicleStatus.RENTABLE) {
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(rentRequest.getVehicleId());
+        if (vehicleEntity.get().getVehicleStatus() != VehicleStatus.RENTABLE) {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
         }
 
@@ -48,7 +48,7 @@ public class RentService {
         }
 
         // Create Rent
-        RentModel rentModel = new RentModel(rentRequest.getStartDate(), rentRequest.getEndDate(), rentRequest.getDailyCost(), rentRequest.isPaid(), rentRequest.getVehicleId());
+        RentModel rentModel = new RentModel(rentRequest.getStartDate(), rentRequest.getEndDate(), rentRequest.getDailyCost(), rentRequest.isPaid(), vehicleEntity.get());
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
