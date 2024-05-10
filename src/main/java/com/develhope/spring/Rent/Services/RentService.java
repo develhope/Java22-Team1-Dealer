@@ -87,7 +87,7 @@ public class RentService {
 
 
     public List<RentDTO> getRentList(User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user.getUserType() == UserTypes.BUYER) {
             return rentRepository.findAllByUserId(user.getId()).stream().map(rentEntity -> {
                 RentModel rentModel = RentModel.entityToModel(rentEntity);
@@ -107,7 +107,7 @@ public class RentService {
     }
 
     public RentDTO getRentById(Long id, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user.getUserType() == UserTypes.BUYER) {
             Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserId(id, user.getId());
             if (rentOptional.isPresent()) {
@@ -130,7 +130,7 @@ public class RentService {
     }
 
     public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         RentEntity rentEntity = rentRepository.findById(id).orElse(null);
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
