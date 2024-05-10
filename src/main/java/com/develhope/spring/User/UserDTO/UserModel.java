@@ -4,8 +4,6 @@ import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import lombok.Data;
 
-import java.time.OffsetDateTime;
-
 @Data
 public class UserModel {
     private Long id;
