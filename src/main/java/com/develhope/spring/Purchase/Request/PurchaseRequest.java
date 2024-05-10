@@ -1,18 +1,17 @@
 package com.develhope.spring.Purchase.Request;
 
-import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.Data;
 
 @Data
 public class PurchaseRequest {
 
-    private double deposit;
+    private Double deposit;
 
-    private boolean isPaid;
+    private Boolean isPaid;
 
-    private PurchaseStatus status;
+    private String status;
 
-    private OrderEntity orderEntity;
+    private Long vehicleId;
 
+    private Long userId;
 }

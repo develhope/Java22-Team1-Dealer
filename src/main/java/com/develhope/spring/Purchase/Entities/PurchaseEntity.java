@@ -1,7 +1,8 @@
 package com.develhope.spring.Purchase.Entities;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,13 +18,17 @@ public class PurchaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long purchaseId;
     @Column(nullable = false, name = "deposito")
-    private double deposit;
+    private Double deposit;
     @Column(nullable = false, name = "pagato")
-    private boolean isPaid;
+    private Boolean isPaid;
     @Column(nullable = false, name = "stato_ordine")
     private PurchaseStatus status;
 
     @OneToOne
-    @JoinColumn(name = "order_id")
-    private OrderEntity orderEntity;
+    @JoinColumn(name = "vehicle_id")
+    private VehicleEntity vehicleEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User purchaseBuyer;
 }

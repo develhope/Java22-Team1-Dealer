@@ -38,6 +38,7 @@ public class AuthService {
                 .surname(request.getSurname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
                 .userType(UserTypes.convertFromString(request.getUserType())).build();
 
         userRepository.save(user);

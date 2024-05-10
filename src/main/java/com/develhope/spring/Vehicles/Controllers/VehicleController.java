@@ -54,7 +54,7 @@ public class VehicleController {
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         }
     }
 
@@ -70,7 +70,7 @@ public class VehicleController {
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         }
     }
 
@@ -85,7 +85,7 @@ public class VehicleController {
     public ResponseEntity<?> getAll(@AuthenticationPrincipal User user) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -104,7 +104,7 @@ public class VehicleController {
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         }
     }
 
@@ -132,7 +132,7 @@ public class VehicleController {
     public ResponseEntity<?> findByColor(@RequestParam String color) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor(color);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -149,7 +149,7 @@ public class VehicleController {
     public ResponseEntity<?> findByModel(@RequestParam String model) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel(model);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -166,7 +166,7 @@ public class VehicleController {
     public ResponseEntity<?> findByBrand(@RequestParam String brand) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand(brand);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -183,7 +183,7 @@ public class VehicleController {
     public ResponseEntity<?> findByTransmission(@RequestParam String transmission) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission(transmission);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -200,7 +200,7 @@ public class VehicleController {
     public ResponseEntity<?> findByPowerSupply(@RequestParam String powerSupply) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply(powerSupply);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -217,7 +217,7 @@ public class VehicleController {
     public ResponseEntity<?> findByAccessories(@RequestBody List<String> accessories) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(accessories);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -235,7 +235,7 @@ public class VehicleController {
     public ResponseEntity<?> findByDisplacement(@RequestParam Integer min, @RequestParam Integer max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(min, max);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -253,7 +253,7 @@ public class VehicleController {
     public ResponseEntity<?> findByPower(@RequestParam Integer min, @RequestParam Integer max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(min, max);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -271,7 +271,7 @@ public class VehicleController {
     public ResponseEntity<?> findByRegistrationYear(@RequestParam Integer min, @RequestParam Integer max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(min, max);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -289,7 +289,7 @@ public class VehicleController {
     public ResponseEntity<?> findByPrice(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(min, max);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -307,7 +307,7 @@ public class VehicleController {
     public ResponseEntity<?> findByDiscount(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(min, max);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -324,7 +324,7 @@ public class VehicleController {
     public ResponseEntity<?> findByIsNew(@RequestParam boolean isNew) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(isNew);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -341,7 +341,7 @@ public class VehicleController {
     public ResponseEntity<?> findByVehicleStatus(@RequestParam VehicleStatus vehicleStatus) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(vehicleStatus);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -358,7 +358,7 @@ public class VehicleController {
     public ResponseEntity<?> findByVehicleType(@RequestParam VehicleType vehicleType) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(vehicleType);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }

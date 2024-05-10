@@ -13,10 +13,9 @@ import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import java.security.Principal;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class RentService {
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, User userDetails) {
         // Check vehicle availability
         VehicleStatus vehicleStatus = vehicleRepository.findStatusById(rentRequest.getVehicleId());
-        if (vehicleStatus != VehicleStatus.ORDERABLE) {
+        if (vehicleStatus != VehicleStatus.RENTABLE) {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
         }
 
