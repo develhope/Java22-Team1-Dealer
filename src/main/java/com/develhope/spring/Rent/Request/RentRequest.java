@@ -13,5 +13,4 @@ public class RentRequest {
     private Double dailyCost;
     private boolean paid;
     private VehicleEntity vehicleId;
-
 }
