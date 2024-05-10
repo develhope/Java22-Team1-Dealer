@@ -17,5 +17,8 @@ public class UserDTO {
     private String email;
     private String password;
     private UserTypes userType;
+
+    public UserDTO(String name, String surname, String phoneNumber, String email, String password) {
+    }
     //private List<OrderEntity> orderEntities;
 }
