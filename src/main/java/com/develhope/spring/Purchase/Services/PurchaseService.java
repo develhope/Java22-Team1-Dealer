@@ -2,6 +2,7 @@ package com.develhope.spring.Purchase.Services;
 
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
+import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
@@ -45,7 +46,7 @@ public class PurchaseService {
         }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
-                purchaseRequest.getStatus(), vehicleEntity.get(), user);
+                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), vehicleEntity.get(), user);
         PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(result);
@@ -90,7 +91,7 @@ public class PurchaseService {
 
         singlePurchase.get().setDeposit(updatedPurchaseRequest.getDeposit() == null ? singlePurchase.get().getDeposit() : updatedPurchaseRequest.getDeposit());
         singlePurchase.get().setIsPaid(updatedPurchaseRequest.getIsPaid() == null ? singlePurchase.get().getIsPaid() : updatedPurchaseRequest.getIsPaid());
-        singlePurchase.get().setStatus(updatedPurchaseRequest.getStatus() == null ? singlePurchase.get().getStatus() : updatedPurchaseRequest.getStatus());
+        singlePurchase.get().setStatus(updatedPurchaseRequest.getStatus() == null ? singlePurchase.get().getStatus() : PurchaseStatus.convertFromString(updatedPurchaseRequest.getStatus()));
         singlePurchase.get().setVehicleEntity(vehicleEntity.orElseGet(() -> singlePurchase.get().getVehicleEntity()));
 
 

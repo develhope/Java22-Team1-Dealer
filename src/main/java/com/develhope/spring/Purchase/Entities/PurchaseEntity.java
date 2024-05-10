@@ -30,5 +30,5 @@ public class PurchaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User buyer;
+    private User purchaseBuyer;
 }

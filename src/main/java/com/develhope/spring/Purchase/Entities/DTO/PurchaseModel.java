@@ -39,7 +39,7 @@ public class PurchaseModel {
     }
 
     public static PurchaseModel entityToModel(PurchaseEntity purchaseEntity) {
-        return new PurchaseModel(purchaseEntity.getPurchaseId(),purchaseEntity.getDeposit(), purchaseEntity.getIsPaid(), purchaseEntity.getStatus(), purchaseEntity.getVehicleEntity(), purchaseEntity.getBuyer());
+        return new PurchaseModel(purchaseEntity.getPurchaseId(),purchaseEntity.getDeposit(), purchaseEntity.getIsPaid(), purchaseEntity.getStatus(), purchaseEntity.getVehicleEntity(), purchaseEntity.getPurchaseBuyer());
     }
 
     public static PurchaseModel dtoToModel(PurchaseDTO purchaseDTO) {

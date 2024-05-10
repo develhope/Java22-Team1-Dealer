@@ -43,7 +43,7 @@ public class OrderModel {
         orderEntity.setIsPaid(orderModel.getPaid());
         orderEntity.setStatus(orderModel.getStatus());
         orderEntity.setIsSold(orderModel.getIsSold());
-        orderEntity.setBuyer(orderModel.getBuyer());
+        orderEntity.setOrderBuyer(orderModel.getBuyer());
         return orderEntity;
     }
 
@@ -66,7 +66,7 @@ public class OrderModel {
         orderModel.setPaid(orderEntity.getIsPaid());
         orderModel.setStatus(orderEntity.getStatus());
         orderModel.setIsSold(orderEntity.getIsSold());
-        orderModel.setBuyer(orderEntity.getBuyer());
+        orderModel.setBuyer(orderEntity.getOrderBuyer());
 
         return orderModel;
     }

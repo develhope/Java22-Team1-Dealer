@@ -34,7 +34,7 @@ public class PurchaseController {
     public ResponseEntity<?> getAll(@AuthenticationPrincipal User user) {
         Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(user);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -50,7 +50,7 @@ public class PurchaseController {
     public ResponseEntity<?> getSingle(@AuthenticationPrincipal User user, @PathVariable Long purchaseId) {
         Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(user, purchaseId);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -65,7 +65,7 @@ public class PurchaseController {
     public ResponseEntity<?> create(@AuthenticationPrincipal User user, @RequestBody PurchaseRequest purchaseRequest) {
         Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(user, purchaseRequest);
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -82,7 +82,7 @@ public class PurchaseController {
         Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(user, purchaseId, purchaseRequest);
 
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }

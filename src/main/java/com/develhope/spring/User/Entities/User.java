@@ -41,13 +41,13 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @OneToMany(mappedBy = "buyer")
+    @OneToMany(mappedBy = "orderBuyer", fetch = FetchType.EAGER)
     private List<OrderEntity> orderEntities;
 
-    @OneToMany(mappedBy = "buyer")
+    @OneToMany(mappedBy = "purchaseBuyer", fetch = FetchType.EAGER)
     private List<PurchaseEntity> purchaseEntities;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<RentEntity> rentEntities;
 
     @Override

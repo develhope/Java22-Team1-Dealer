@@ -6,6 +6,8 @@ import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
+import com.develhope.spring.Vehicles.Entities.VehicleType;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.Vehicles.Request.VehicleRequest;
 import com.develhope.spring.Vehicles.Response.VehicleResponse;
@@ -35,8 +37,8 @@ public class VehicleCRUDService {
                         vehicleRequest.getDisplacement(), vehicleRequest.getColor(),
                         vehicleRequest.getPower(), vehicleRequest.getTransmission(), vehicleRequest.getRegistrationYear(),
                         vehicleRequest.getPowerSupply(), vehicleRequest.getPrice(), vehicleRequest.getDiscount(),
-                        vehicleRequest.getAccessories(), vehicleRequest.getIsNew(), vehicleRequest.getVehicleStatus(),
-                        vehicleRequest.getVehicleType());
+                        vehicleRequest.getAccessories(), vehicleRequest.getIsNew(), VehicleStatus.convertFromString(vehicleRequest.getVehicleStatus()),
+                        VehicleType.convertFromString(vehicleRequest.getVehicleType()));
                 VehicleEntity vehicleEntity = VehicleModel.modelToEntity(vehicleModel);
                 VehicleEntity result = vehicleRepository.save(vehicleEntity);
                 VehicleModel resultModel = VehicleModel.entityToModel(result);
@@ -103,8 +105,8 @@ public class VehicleCRUDService {
                 request.getDiscount(),
                 request.getAccessories(),
                 request.getIsNew(),
-                request.getVehicleStatus(),
-                request.getVehicleType()
+                VehicleStatus.convertFromString(request.getVehicleStatus()),
+                VehicleType.convertFromString(request.getVehicleType())
         );
         VehicleEntity savedEntity = vehicleRepository.saveAndFlush(VehicleModel.modelToEntity(vehicleModel));
         VehicleModel myVehicleModel = VehicleModel.entityToModel(savedEntity);

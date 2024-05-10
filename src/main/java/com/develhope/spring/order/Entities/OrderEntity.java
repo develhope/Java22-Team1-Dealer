@@ -31,7 +31,7 @@ public class OrderEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User buyer;
+    private User orderBuyer;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
