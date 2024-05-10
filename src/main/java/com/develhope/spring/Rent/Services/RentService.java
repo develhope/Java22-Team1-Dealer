@@ -148,7 +148,7 @@ public class RentService {
     }
 
     public Either<RentResponse, Void> deleteRent(Long id, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         RentEntity rentEntity = rentRepository.findById(id).orElse(null);
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
@@ -165,7 +165,7 @@ public class RentService {
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
         }
-        if (rentEntity.getUser().getId() != userId) {
+        if (!Objects.equals(rentEntity.getUser().getId(), userId)) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         rentEntity.setIsPaid(true);
