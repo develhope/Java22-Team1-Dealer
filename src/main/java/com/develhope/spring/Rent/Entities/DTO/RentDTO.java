@@ -16,14 +16,14 @@ public class RentDTO {
 
     private Boolean isPaid; // stato pagamento nol
 
-    private VehicleEntity vehicleEntity;
+    private Long vehicleId;
 
-    public RentDTO(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
+    public RentDTO(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleId) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
-        this.vehicleEntity = vehicleEntity;
+        this.vehicleId = vehicleId;
     }
 
 }
