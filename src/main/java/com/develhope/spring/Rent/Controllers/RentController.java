@@ -26,6 +26,7 @@ public class RentController {
 
     private final RentService rentService;
 
+
     @Operation(summary = "Create a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Successfully created rent", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}),
