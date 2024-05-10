@@ -18,29 +18,29 @@ public class RentModel {
 
     private Boolean isPaid; // stato pagamento nol
 
-    private VehicleEntity vehicleEntity;
+    private Long vehicleId;
 
 
-    public RentModel(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
+    public RentModel(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, Long vehicleId) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
-        this.vehicleEntity = vehicleEntity;
+        this.vehicleId = vehicleId;
     }
 
     public static RentEntity modelToEntity(RentModel rentModel) {
-        return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleEntity());
+        return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleId());
     }
     public static RentDTO modelToDTO(RentModel rentModel) {
-        return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleEntity());
+        return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.getIsPaid(), rentModel.getVehicleId());
     }
 
     public static RentModel dtoToModel(RentDTO rentDTO) {
-        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity());
+        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleId());
     }
 
     public static RentModel entityToModel(RentEntity rentEntity) {
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicle());
+        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId());
     }
 }

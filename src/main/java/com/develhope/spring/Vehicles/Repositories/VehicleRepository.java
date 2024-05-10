@@ -23,5 +23,5 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     List<VehicleEntity> findByVehicleType(VehicleType vehicleType);
 
     @Query("SELECT v.vehicleStatus FROM VehicleEntity v WHERE v.id = :id")
-    VehicleStatus findStatusById(VehicleEntity id);
+    VehicleStatus findStatusById(Long id);
 }
