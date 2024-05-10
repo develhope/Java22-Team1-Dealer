@@ -20,25 +20,26 @@ public class RentEntity {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicle;
+    private VehicleEntity vehicleId;
 
     private Double dailyCost;
     private Double totalCost;
     private Boolean isPaid;
 
-    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleEntity) {
+    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleId) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
-        this.vehicle = vehicleEntity;
+        this.vehicleId = vehicleId;
     }
 
     public Double calculateTotalCost() {

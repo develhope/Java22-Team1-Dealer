@@ -1,8 +1,10 @@
 package com.develhope.spring.order.Services;
 
-import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
+import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Model.OrderModel;
@@ -22,50 +24,31 @@ public class OrderService {
     OrderRepository orderRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    VehicleRepository vehicleRepository;
 
-    public Either<OrderResponse, OrderDTO> create(Long userId, boolean isAdmin, OrderRequest orderRequest) {
-        //check if user exists
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id " + userId + " not found"));
+    public Either<OrderResponse, OrderDTO> create(User buyer, OrderRequest orderRequest) {
+        Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
+        if(foundVehicle.isEmpty()) {
+            return Either.left(new OrderResponse(404, "Vehicle not found"));
         }
-        User user = userOptional.get();
-
-        // check authorization
-        if (!isAdmin && user.getUserType() == UserTypes.SELLER) {
-            return Either.left(new OrderResponse(403, "User cannot see orders"));
+        if(foundVehicle.get().getVehicleStatus() != VehicleStatus.NOT_AVAILABLE) {
+            return Either.left(new OrderResponse(403, "Vehicle is not orderable"));
         }
 
-        if (isAdmin && user.getUserType() != UserTypes.ADMIN) {
-            return Either.left(new OrderResponse(403, "User is not an admin"));
-        }
-
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
-                orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
-
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(), buyer, foundVehicle.get());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(Long userId, Long orderId, boolean isAdmin) {
-        //check if user exists
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
-        }
-        if (isAdmin && userOptional.get().getUserType() != UserTypes.ADMIN) {
-            return Either.left(new OrderResponse(403, "User is not an admin"));
-        }
-        //check if order exists
+    public Either<OrderResponse, OrderDTO> getSingle(User user, Long orderId) {
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
         if (orderEntityOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
         }
 
         //check if order belongs to specified user
-        User user = userOptional.get();
         OrderEntity orderEntity = orderEntityOptional.get();
         if (!(user.getOrderEntities().contains(orderEntity))) {
             return Either.left(new OrderResponse(403, "This order does not belong to specified user"));
@@ -92,24 +75,27 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(Long userId, Long orderId, boolean isAdmin, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userId, orderId, isAdmin);
+    public Either<OrderResponse, OrderDTO> update(User user, Long orderId, OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(orderRequest.getVehicleId());
 
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.isPaid(), orderRequest.getStatus(),
-                orderRequest.isSold(), orderRequest.getUser(), orderRequest.getPurchases());
+        foundOrder.get().setDeposit(orderRequest.getDeposit() == null ? foundOrder.get().getDeposit() : orderRequest.getDeposit());
+        foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
+        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : orderRequest.getStatus());
+        foundOrder.get().setIsSold(orderRequest.getIsSold() == null ? foundOrder.get().getIsSold() : orderRequest.getIsSold());
+        foundOrder.get().setVehicleEntity(vehicleEntity.orElseGet(() -> foundOrder.get().getVehicleEntity()));
 
-        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
 
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public OrderResponse deleteOrder(Long userId, Long orderId, boolean isAdmin) {
-        //checks if purchase and user exists and they belong to each other
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userId, orderId, isAdmin);
+    public OrderResponse deleteOrder(User user, Long orderId) {
+        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(user, orderId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }

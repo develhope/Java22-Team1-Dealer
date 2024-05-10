@@ -1,56 +1,84 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderModel {
     private Long orderId;
 
-    private int deposit;
+    private Integer deposit;
 
-    private boolean paid;
+    private Boolean paid;
 
     private String status;
 
-    private boolean isSold;
+    private Boolean isSold;
 
-    private User user;
+    private User buyer;
 
-    private List<PurchaseEntity> purchases;
+    private VehicleEntity vehicleEntity;
 
-    public OrderModel(int deposit, boolean paid, String status, boolean isSold, User user, List<PurchaseEntity> purchases) {
+
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, User buyer, VehicleEntity vehicleEntity) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
         this.isSold = isSold;
-        this.user = user;
-        this.purchases = purchases;
+        this.buyer = buyer;
+        this.vehicleEntity = vehicleEntity;
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
-        return new OrderEntity(orderModel.getOrderId(), orderModel.getDeposit(), orderModel.isPaid(),
-                orderModel.getStatus(), orderModel.isSold(), orderModel.getUser(), orderModel.getPurchases());
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderId(orderModel.getOrderId());
+        orderEntity.setDeposit(orderModel.getDeposit());
+        orderEntity.setIsPaid(orderModel.getPaid());
+        orderEntity.setStatus(orderModel.getStatus());
+        orderEntity.setIsSold(orderModel.getIsSold());
+        orderEntity.setOrderBuyer(orderModel.getBuyer());
+        return orderEntity;
     }
+
     public static OrderDTO modelToDto(OrderModel orderModel) {
-        return new OrderDTO(orderModel.getOrderId(), orderModel.getDeposit(), orderModel.isPaid(),
-                orderModel.getStatus(), orderModel.isSold(), orderModel.getUser(), orderModel.getPurchases());
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderId(orderModel.getOrderId());
+        orderDTO.setDeposit(orderModel.getDeposit());
+        orderDTO.setPaid(orderModel.getPaid());
+        orderDTO.setStatus(orderModel.getStatus());
+        orderDTO.setIsSold(orderModel.getIsSold());
+        orderDTO.setUser(orderModel.getBuyer());
+
+        return orderDTO;
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
-        return new OrderModel(orderEntity.getOrderId(), orderEntity.getDeposit(), orderEntity.isPaid(),
-                orderEntity.getStatus(), orderEntity.isSold(), orderEntity.getUser(), orderEntity.getPurchases());
+        OrderModel orderModel = new OrderModel();
+        orderModel.setOrderId(orderEntity.getOrderId());
+        orderModel.setDeposit(orderEntity.getDeposit());
+        orderModel.setPaid(orderEntity.getIsPaid());
+        orderModel.setStatus(orderEntity.getStatus());
+        orderModel.setIsSold(orderEntity.getIsSold());
+        orderModel.setBuyer(orderEntity.getOrderBuyer());
+
+        return orderModel;
     }
 
     public static OrderModel dtoToModel(OrderDTO orderDTO) {
-        return new OrderModel(orderDTO.getOrderId(), orderDTO.getDeposit(), orderDTO.isPaid(),
-                orderDTO.getStatus(), orderDTO.isSold(), orderDTO.getUser(), orderDTO.getPurchases());
+        OrderModel orderModel = new OrderModel();
+        orderModel.setOrderId(orderDTO.getOrderId());
+        orderModel.setDeposit(orderDTO.getDeposit());
+        orderModel.setPaid(orderDTO.getPaid());
+        orderModel.setStatus(orderDTO.getStatus());
+        orderModel.setIsSold(orderDTO.getIsSold());
+        orderModel.setBuyer(orderDTO.getUser());
+        return orderModel;
     }
 }

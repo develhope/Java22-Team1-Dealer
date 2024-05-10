@@ -1,7 +1,5 @@
 package com.develhope.spring.Vehicles.Request;
 
-import com.develhope.spring.Vehicles.Entities.VehicleStatus;
-import com.develhope.spring.Vehicles.Entities.VehicleType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -22,6 +20,6 @@ public class VehicleRequest {
     private BigDecimal discount;
     private List<String> accessories;
     private Boolean isNew;
-    private VehicleStatus vehicleStatus;
-    private VehicleType vehicleType;
+    private String vehicleStatus;
+    private String vehicleType;
 }
