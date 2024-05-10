@@ -34,7 +34,8 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, UserDetails userDetails) {
+
+    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, User userDetails) {
         // Check vehicle availability
         VehicleStatus vehicleStatus = vehicleRepository.findStatusById(rentRequest.getVehicleId());
         if (vehicleStatus != VehicleStatus.ORDERABLE) {
@@ -56,7 +57,7 @@ public class RentService {
         return Either.right(savedRentDTO);
     }
 
-    public List<RentDTO> getRentList(UserDetails userDetails) {
+    public List<RentDTO> getRentList(User userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user.getUserType() == UserTypes.BUYER) {
             return rentRepository.findAllByUserId(user.getId()).stream().map(rentEntity -> {
@@ -76,7 +77,7 @@ public class RentService {
         }
     }
 
-    public RentDTO getRentById(Long id, UserDetails userDetails) {
+    public RentDTO getRentById(Long id, User userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user.getUserType() == UserTypes.BUYER) {
             Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserId(id, user.getId());
@@ -99,7 +100,7 @@ public class RentService {
         }
     }
 
-    public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, UserDetails userDetails) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, User userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         RentEntity rentEntity = rentRepository.findById(id).orElse(null);
         if (rentEntity == null) {
@@ -117,7 +118,7 @@ public class RentService {
         return Either.right(updatedRentDTO);
     }
 
-    public Either<RentResponse, Void> deleteRent(Long id, UserDetails userDetails) {
+    public Either<RentResponse, Void> deleteRent(Long id, User userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         RentEntity rentEntity = rentRepository.findById(id).orElse(null);
         if (rentEntity == null) {
@@ -130,7 +131,7 @@ public class RentService {
         return Either.right(null);
     }
 
-    public Either<RentResponse, String> payRent(Long id, UserDetails userDetails) {
+    public Either<RentResponse, String> payRent(Long id, User userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         RentEntity rentEntity = rentRepository.findById(id).orElse(null);
         if (rentEntity == null) {
