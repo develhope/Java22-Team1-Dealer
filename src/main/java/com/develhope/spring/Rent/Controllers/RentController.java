@@ -34,8 +34,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Requester or Receiver not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @AuthenticationPrincipal User userDetails) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userDetails);
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal User userDetails) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -102,13 +102,13 @@ public class RentController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
-    @PostMapping("/pay/{id}")
-    public ResponseEntity<String> payRent(@PathVariable Long id, @AuthenticationPrincipal User userDetails) {
-        Either<RentResponse, String> result = rentService.payRent(id, userDetails);
+    @PostMapping("/pay")
+    public ResponseEntity<?> payRent(@RequestParam("id") Long id, @RequestParam("userId") Long userId) {
+        Either<RentResponse, String> result = rentService.payRent(id, userId);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
-            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage());
+            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
         }
     }
 }
