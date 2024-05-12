@@ -30,8 +30,9 @@ public class OrderController {
             @ApiResponse(
                     responseCode = "200", description = "Successfully created order",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Deposit is negative"),
-            @ApiResponse(responseCode = "404", description = "Specified user not found")})
+            @ApiResponse(responseCode = "400", description = "Invalid Input parameters"),
+            @ApiResponse(responseCode = "403", description = "Vehicle is not orderable"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found")})
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody OrderRequest orderRequest) {
@@ -49,8 +50,8 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Successfully found order",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
-            @ApiResponse(responseCode = "404", description = "Specified order not found"),
-            @ApiResponse(responseCode = "404", description = "Specified user not found")})
+            @ApiResponse(responseCode = "404", description = "Specified order not found")})
+
     @GetMapping("/get/{orderId}")
     public ResponseEntity<?> getSingle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
         Either<OrderResponse, OrderDTO> result = orderService.getSingle(userEntity, orderId);
@@ -66,8 +67,8 @@ public class OrderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found orders",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
-            @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "404", description = "No orders found for specified user")})
+
     @GetMapping("/get")
     public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity user) {
         Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(user);
@@ -84,12 +85,13 @@ public class OrderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully modified order",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid input parameters"),
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
-            @ApiResponse(responseCode = "404", description = "Specified order not found"),
-            @ApiResponse(responseCode = "404", description = "Specified user not found")})
+            @ApiResponse(responseCode = "404", description = "Specified order not found")})
+
     @PutMapping("/update/{orderId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity,null, orderId,  orderRequest);
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId,  orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -103,11 +105,11 @@ public class OrderController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
             @ApiResponse(responseCode = "403", description = "Specified user is not an admin"),
-            @ApiResponse(responseCode = "404", description = "Specified order not found"),
-            @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PutMapping("/update/admin/{targetId}/{orderId}")
+            @ApiResponse(responseCode = "404", description = "Specified order not found")})
+
+    @PutMapping("/update/admin/{orderId}")
     public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity,@PathVariable Long targetId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity,targetId, orderId, orderRequest);
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -118,9 +120,9 @@ public class OrderController {
     @Operation(summary = "Deletes user's specified order")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully deleted order"),
+            @ApiResponse(responseCode = "400", description = "Invalid input parameters"),
             @ApiResponse(responseCode = "403", description = "Order does not belong to specified user"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
-            @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping("/delete/{orderId}")
     public ResponseEntity<?> delete(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
@@ -136,8 +138,8 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
-    @DeleteMapping("/admin/delete/{orderId}")
-    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
+    @DeleteMapping("/admin/delete/{targetId}/{orderId}")
+    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity,@PathVariable Long targetId, @PathVariable Long orderId) {
         OrderResponse result = orderService.deleteOrder(userEntity, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }

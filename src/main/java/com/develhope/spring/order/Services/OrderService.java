@@ -29,7 +29,7 @@ public class OrderService {
     UserRepository userRepository;
 
     public Either<OrderResponse, OrderDTO> create(UserEntity buyer, OrderRequest orderRequest) {
-        if(orderRequest == null) {
+        if(orderRequest == null || orderRequest.getDeposit() < 0) {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
 
         }
@@ -86,12 +86,13 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(UserEntity userEntity, Long target, Long orderId, OrderRequest orderRequest) {
+    public Either<OrderResponse, OrderDTO> update(UserEntity userEntity, Long orderId, OrderRequest orderRequest) {
         if (orderId == null || orderRequest == null) {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
 
-        Either<OrderResponse, OrderDTO> foundOrder = target != null ? getSingleById(target, orderId) : getSingle(userEntity, orderId);
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userEntity, orderId);
+
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
