@@ -1,6 +1,6 @@
 package com.develhope.spring.Autentication.Service;
 
-import com.develhope.spring.Autentication.Entities.DTO.RefreshToken;
+import com.develhope.spring.Autentication.Entities.RefreshToken;
 import com.develhope.spring.Autentication.Entities.DTO.Request.RefreshTokenRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Request.SigninRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Request.SignupRequest;

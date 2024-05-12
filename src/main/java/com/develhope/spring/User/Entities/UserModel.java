@@ -27,13 +27,12 @@ public class UserModel {
 
     private List<RentEntity> rentEntities;
 
-    public UserModel(Long id, String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
+    public UserModel(Long id, String name, String surname, String phoneNumber, String email, UserTypes userType) {
         this.id = id;
         this.name = name;
         this.surname = surname;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.password = password;
         this.userType = userType;
     }
 
@@ -48,8 +47,8 @@ public class UserModel {
     }
 
     public static UserDTONoLists modelToDtoWithoutList(UserModel userModel) {
-        return new UserDTONoLists(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getPhoneNumber(), userModel.getEmail(),
-                userModel.getPassword(), userModel.getUserType());
+        return new UserDTONoLists(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getPhoneNumber(), userModel.getEmail()
+                , userModel.getUserType());
     }
 
     public static UserModel entityToModel(UserEntity userEntity) {
@@ -64,6 +63,6 @@ public class UserModel {
 
     public static UserModel dtoToModel(UserDTONoLists userDTO) {
         return new UserModel(userDTO.getId(), userDTO.getName(), userDTO.getSurname(), userDTO.getPhoneNumber(), userDTO.getEmail(),
-                userDTO.getPassword(), userDTO.getUserType());
+                 userDTO.getUserType());
     }
 }

@@ -3,6 +3,7 @@ package com.develhope.spring.Purchase.Entities.DTO;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.User.Entities.UserEntity;
+import com.develhope.spring.User.Entities.UserModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,17 +33,37 @@ public class PurchaseModel {
     }
 
     public static PurchaseEntity modelToEntity(PurchaseModel purchaseModel) {
-        return new PurchaseEntity(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.getIsPaid(), purchaseModel.getStatus(), purchaseModel.getVehicleEntity(), purchaseModel.getBuyer());
+        return new PurchaseEntity(purchaseModel.getId(),
+                purchaseModel.getDeposit(),
+                purchaseModel.getIsPaid(),
+                purchaseModel.getStatus(),
+                purchaseModel.getVehicleEntity(),
+                purchaseModel.getBuyer());
     }
     public static PurchaseDTO modelToDto(PurchaseModel purchaseModel) {
-        return new PurchaseDTO(purchaseModel.getId(), purchaseModel.getDeposit(), purchaseModel.getIsPaid(), purchaseModel.getStatus(), purchaseModel.getVehicleEntity(), purchaseModel.getBuyer());
+        return new PurchaseDTO(purchaseModel.getId(),
+                purchaseModel.getDeposit(),
+                purchaseModel.getIsPaid(),
+                purchaseModel.getStatus(),
+                UserModel.modelToDtoWithoutList(UserModel.entityToModel(purchaseModel.getBuyer())),
+                purchaseModel.getVehicleEntity());
     }
 
     public static PurchaseModel entityToModel(PurchaseEntity purchaseEntity) {
-        return new PurchaseModel(purchaseEntity.getPurchaseId(),purchaseEntity.getDeposit(), purchaseEntity.getIsPaid(), purchaseEntity.getStatus(), purchaseEntity.getVehicleEntity(), purchaseEntity.getPurchaseBuyer());
+        return new PurchaseModel(purchaseEntity.getPurchaseId(),
+                purchaseEntity.getDeposit(),
+                purchaseEntity.getIsPaid(),
+                purchaseEntity.getStatus(),
+                purchaseEntity.getVehicleEntity(),
+                purchaseEntity.getPurchaseBuyer());
     }
 
     public static PurchaseModel dtoToModel(PurchaseDTO purchaseDTO) {
-        return new PurchaseModel(purchaseDTO.getId(),purchaseDTO.getDeposit(), purchaseDTO.getIsPaid(), purchaseDTO.getStatus(), purchaseDTO.getVehicleEntity(), purchaseDTO.getBuyer());
+        return new PurchaseModel(purchaseDTO.getId(),
+                purchaseDTO.getDeposit(),
+                purchaseDTO.getIsPaid(),
+                purchaseDTO.getStatus(),
+                purchaseDTO.getVehicleEntity(),
+                UserModel.modelToEntity(UserModel.dtoToModel(purchaseDTO.getUser())));
     }
 }

@@ -6,10 +6,7 @@ import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +17,8 @@ import java.util.List;
 @Builder
 @Entity
 @Table
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEntity implements UserDetails {
@@ -41,12 +39,15 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
+    @Column(name = "user's orders")
     @OneToMany(mappedBy = "orderBuyer", fetch = FetchType.EAGER)
     private List<OrderEntity> orderEntities;
 
+    @Column(name = "user's purchases")
     @OneToMany(mappedBy = "purchaseBuyer", fetch = FetchType.EAGER)
     private List<PurchaseEntity> purchaseEntities;
 
+    @Column(name = "user's rents")
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
     private List<RentEntity> rentEntities;
 

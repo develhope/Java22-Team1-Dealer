@@ -1,6 +1,6 @@
 package com.develhope.spring.Autentication.Service;
 
-import com.develhope.spring.Autentication.Entities.DTO.RefreshToken;
+import com.develhope.spring.Autentication.Entities.RefreshToken;
 import com.develhope.spring.Autentication.Repositories.RefreshTokenRepository;
 import com.develhope.spring.User.Entities.UserEntity;
 import io.jsonwebtoken.Claims;
@@ -36,7 +36,7 @@ public class JWTService {
     public RefreshToken generateRefreshToken(UserEntity userEntity) {
         Instant refreshTokenExpiredAt = OffsetDateTime.now().plusMonths(1).toInstant();
 
-        List<RefreshToken> tokens = refreshTokenRepository.findByUserInfo(userEntity);
+        List<RefreshToken> tokens = refreshTokenRepository.findByUserEntityInfo(userEntity);
         for (RefreshToken token : tokens) {
             refreshTokenRepository.delete(token);
         }

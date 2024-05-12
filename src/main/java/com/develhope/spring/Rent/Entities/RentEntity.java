@@ -4,7 +4,8 @@ import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +13,8 @@ import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "rentals")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class RentEntity {
 

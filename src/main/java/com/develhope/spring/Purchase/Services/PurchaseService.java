@@ -9,7 +9,6 @@ import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
-import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import io.vavr.control.Either;
@@ -24,19 +23,16 @@ public class PurchaseService {
     @Autowired
     PurchaseRepository purchaseRepository;
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     VehicleRepository vehicleRepository;
 
-    public Either<PurchaseResponse, PurchaseDTO> createPurchase(UserEntity userEntity, PurchaseRequest purchaseRequest) {
+    public Either<PurchaseResponse, PurchaseDTO> createPurchase(UserEntity buyer, PurchaseRequest purchaseRequest) {
         //check if user has the necessary role
-        if (userEntity.getUserType() != UserTypes.BUYER && userEntity.getUserType() != UserTypes.ADMIN) {
+        if (buyer.getUserType() != UserTypes.BUYER && buyer.getUserType() != UserTypes.ADMIN) {
             return Either.left(new PurchaseResponse(403, "This user does not have permission to create a purchase"));
         }
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(purchaseRequest.getVehicleId());
-        if(vehicleEntity.isEmpty()) {
+        if (vehicleEntity.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "No vehicle found with such Id"));
         }
 
@@ -46,7 +42,7 @@ public class PurchaseService {
         }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
-                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), vehicleEntity.get(), userEntity);
+                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), vehicleEntity.get(), buyer);
         PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(result);
@@ -54,9 +50,8 @@ public class PurchaseService {
     }
 
     public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(UserEntity userEntity, Long purchadeId) {
-        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
-        Optional<PurchaseEntity> purchaseEntity = userOptional.get().getPurchaseEntities().stream().filter(pe -> pe.getPurchaseId().equals(purchadeId)).findFirst();
-        if(purchaseEntity.isEmpty()) {
+        Optional<PurchaseEntity> purchaseEntity = userEntity.getPurchaseEntities().stream().filter(pe -> pe.getPurchaseId().equals(purchadeId)).findFirst();
+        if (purchaseEntity.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchase not found"));
         }
 
@@ -65,10 +60,8 @@ public class PurchaseService {
     }
 
     public Either<PurchaseResponse, List<PurchaseDTO>> getAllPurchases(UserEntity userEntity) {
-        //checks if user exists
-        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
-        List<PurchaseEntity> userPurchase = userOptional.get().getPurchaseEntities();
-        if(userPurchase.isEmpty()) {
+        List<PurchaseEntity> userPurchase = userEntity.getPurchaseEntities();
+        if (userPurchase.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchases not found"));
         }
 
@@ -102,13 +95,11 @@ public class PurchaseService {
     }
 
     public PurchaseResponse deletePurchase(UserEntity userEntity, Long purchaseId) {
-        //checks if purchase and user exists and they belong to each other
         Either<PurchaseResponse, PurchaseDTO> singlePurchaseResult = getSinglePurchase(userEntity, purchaseId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }
 
-        //if it exists proceed with deletion
         Optional<PurchaseEntity> purchaseEntity = purchaseRepository.findById(purchaseId);
         if (purchaseEntity.isEmpty()) {
             return new PurchaseResponse(404, "Purchase with id " + purchaseId + " not found");

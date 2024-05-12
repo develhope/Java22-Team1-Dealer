@@ -38,50 +38,49 @@ public class OrderModel {
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
-        OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setOrderId(orderModel.getOrderId());
-        orderEntity.setDeposit(orderModel.getDeposit());
-        orderEntity.setIsPaid(orderModel.getPaid());
-        orderEntity.setStatus(orderModel.getStatus());
-        orderEntity.setIsSold(orderModel.getIsSold());
-        orderEntity.setOrderBuyer(orderModel.getBuyer());
-        return orderEntity;
+        return new OrderEntity(
+                orderModel.getOrderId(),
+                orderModel.getDeposit(),
+                orderModel.getPaid(),
+                orderModel.getStatus(),
+                orderModel.getIsSold(),
+                orderModel.getBuyer(),
+                orderModel.getVehicleEntity()
+        );
     }
 
     public static OrderDTO modelToDto(OrderModel orderModel) {
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setOrderId(orderModel.getOrderId());
-        orderDTO.setDeposit(orderModel.getDeposit());
-        orderDTO.setPaid(orderModel.getPaid());
-        orderDTO.setStatus(orderModel.getStatus());
-        orderDTO.setIsSold(orderModel.getIsSold());
-        UserModel userModel = UserModel.entityToModel(orderModel.getBuyer());
-        orderDTO.setUser(UserModel.modelToDtoWithoutList(userModel));
-
-        return orderDTO;
+        return new OrderDTO(
+                orderModel.getOrderId(),
+                orderModel.getDeposit(),
+                orderModel.getPaid(),
+                orderModel.getStatus(),
+                orderModel.getIsSold(),
+                UserModel.modelToDtoWithoutList(UserModel.entityToModel(orderModel.getBuyer())),
+                orderModel.getVehicleEntity()
+        );
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
-        OrderModel orderModel = new OrderModel();
-        orderModel.setOrderId(orderEntity.getOrderId());
-        orderModel.setDeposit(orderEntity.getDeposit());
-        orderModel.setPaid(orderEntity.getIsPaid());
-        orderModel.setStatus(orderEntity.getStatus());
-        orderModel.setIsSold(orderEntity.getIsSold());
-        orderModel.setBuyer(orderEntity.getOrderBuyer());
-
-        return orderModel;
+        return new OrderModel(
+                orderEntity.getOrderId(),
+                orderEntity.getDeposit(),
+                orderEntity.getIsPaid(),
+                orderEntity.getStatus(),
+                orderEntity.getIsSold(),
+                orderEntity.getOrderBuyer(),
+                orderEntity.getVehicleEntity()
+        );
     }
 
+
     public static OrderModel dtoToModel(OrderDTO orderDTO) {
-        OrderModel orderModel = new OrderModel();
-        orderModel.setOrderId(orderDTO.getOrderId());
-        orderModel.setDeposit(orderDTO.getDeposit());
-        orderModel.setPaid(orderDTO.getPaid());
-        orderModel.setStatus(orderDTO.getStatus());
-        orderModel.setIsSold(orderDTO.getIsSold());
-        UserModel userModel = UserModel.dtoToModel(orderDTO.getUser());
-        orderModel.setBuyer(UserModel.modelToEntity(userModel));
-        return orderModel;
+        return new OrderModel(orderDTO.getOrderId(),
+                orderDTO.getDeposit(),
+                orderDTO.getPaid(),
+                orderDTO.getStatus(),
+                orderDTO.getIsSold(),
+                UserModel.modelToEntity(UserModel.dtoToModel(orderDTO.getUser())),
+                orderDTO.getVehicleEntity());
     }
 }

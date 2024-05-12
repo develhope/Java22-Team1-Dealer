@@ -24,5 +24,4 @@ public class OrderDTO {
     private UserDTONoLists user;
 
     private VehicleEntity vehicleEntity;
-
 }

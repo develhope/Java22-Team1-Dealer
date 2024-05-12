@@ -4,14 +4,16 @@ import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +38,6 @@ public class OrderEntity {
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleEntity;
+
 }
 

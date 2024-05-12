@@ -13,6 +13,5 @@ public class UserDTONoLists {
     private String surname;
     private String phoneNumber;
     private String email;
-    private String password;
     private UserTypes userType;
 }

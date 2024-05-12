@@ -89,7 +89,7 @@ public class RentService {
     public List<RentDTO> getRentList(UserEntity userEntityDetails) {
         UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (userEntity.getUserType() == UserTypes.BUYER) {
-            return rentRepository.findAllByUserId(userEntity.getId()).stream().map(rentEntity -> {
+            return rentRepository.findAllByUserEntity_Id(userEntity.getId()).stream().map(rentEntity -> {
                 RentModel rentModel = RentModel.entityToModel(rentEntity);
                 return RentModel.modelToDTO(rentModel);
             }).collect(Collectors.toList());
@@ -109,7 +109,7 @@ public class RentService {
     public RentDTO getRentById(Long id, UserEntity userEntityDetails) {
         UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (userEntity.getUserType() == UserTypes.BUYER) {
-            Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserId(id, userEntity.getId());
+            Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserEntity_Id(id, userEntity.getId());
             if (rentOptional.isPresent()) {
                 RentEntity rentEntity = rentOptional.get();
                 RentModel rentModel = RentModel.entityToModel(rentEntity);

@@ -38,7 +38,7 @@ public class OrderController {
         Either<OrderResponse, OrderDTO> result = orderService.create(userEntity, orderRequest);
 
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -54,9 +54,14 @@ public class OrderController {
     @GetMapping("/get/{orderId}")
     public ResponseEntity<?> getSingle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
         Either<OrderResponse, OrderDTO> result = orderService.getSingle(userEntity, orderId);
-        return createResponseEntity(result);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result.get());
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
     }
 
+    //TODO make pageable
     @Operation(summary = "Gets all user's orders")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found orders",
@@ -64,11 +69,11 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "404", description = "No orders found for specified user")})
     @GetMapping("/get")
-    public ResponseEntity<?> getAll(@PathVariable Long userId) {
-        Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(userId);
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity user) {
+        Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(user);
 
         if (result.isRight()) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.get());
         } else {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         }
@@ -85,7 +90,11 @@ public class OrderController {
     @PutMapping("/update/{orderId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId,  orderRequest);
-        return createResponseEntity(result);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result.get());
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
     }
 
     @Operation(summary = "Admin updates user's specified order")
@@ -96,10 +105,14 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Specified user is not an admin"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PutMapping("/admin/{userId}/{orderId}")
+    @PutMapping("/update/admin/{userId}/{orderId}")
     public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
-        return createResponseEntity(result);
+        if (result.isRight()) {
+            return ResponseEntity.ok(result.get());
+        } else {
+            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
+        }
     }
 
     @Operation(summary = "Deletes user's specified order")
@@ -127,14 +140,6 @@ public class OrderController {
     public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
         OrderResponse result = orderService.deleteOrder(userEntity, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
-    }
-
-    private ResponseEntity<?> createResponseEntity(Either<OrderResponse, OrderDTO> result) {
-        if (result.isRight()) {
-            return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
-        }
     }
 
 }

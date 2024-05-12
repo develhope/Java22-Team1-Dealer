@@ -5,14 +5,16 @@ import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "purchases")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
