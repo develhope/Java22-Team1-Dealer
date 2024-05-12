@@ -1,6 +1,6 @@
 package com.develhope.spring.order.Entities;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class OrderEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User orderBuyer;
+    private UserEntity orderBuyer;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")

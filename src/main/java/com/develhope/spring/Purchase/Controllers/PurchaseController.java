@@ -4,7 +4,7 @@ import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.Purchase.Services.PurchaseService;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,8 +31,8 @@ public class PurchaseController {
             @ApiResponse(responseCode = "419", description = "User with id{useId} not found")})
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getAll(@AuthenticationPrincipal User user) {
-        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(user);
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity userEntity) {
+        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userEntity);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -47,8 +47,8 @@ public class PurchaseController {
             @ApiResponse(responseCode = "419", description = "User with id{userId} not found"),
             @ApiResponse(responseCode = "420", description = "No purchase found with id{id}")})
     @GetMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<?> getSingle(@AuthenticationPrincipal User user, @PathVariable Long purchaseId) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(user, purchaseId);
+    public ResponseEntity<?> getSingle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(userEntity, purchaseId);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -62,8 +62,8 @@ public class PurchaseController {
             @ApiResponse(responseCode = "400", description = "Deposit is negative"),
             @ApiResponse(responseCode = "404", description = "User with id{userId} not found")})
     @PostMapping("/{userId}")
-    public ResponseEntity<?> create(@AuthenticationPrincipal User user, @RequestBody PurchaseRequest purchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(user, purchaseRequest);
+    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userEntity, purchaseRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -78,8 +78,8 @@ public class PurchaseController {
             @ApiResponse(responseCode = "419", description = "User with id{userId} not found"),
             @ApiResponse(responseCode = "420", description = "No purchase found with id{id}")})
     @PutMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<?> update(@AuthenticationPrincipal User user, @PathVariable Long purchaseId, @RequestBody PurchaseRequest purchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(user, purchaseId, purchaseRequest);
+    public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userEntity, purchaseId, purchaseRequest);
 
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -92,8 +92,8 @@ public class PurchaseController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully deleted purchase with id{id}"),
             @ApiResponse(responseCode = "404", description = "No purchase found with id{id}")})
     @DeleteMapping("/{userId}/{purchaseId}")
-    public ResponseEntity<?> delete(@AuthenticationPrincipal User user, @PathVariable Long purchaseId) {
-        PurchaseResponse result = purchaseService.deletePurchase(user, purchaseId);
+    public ResponseEntity<?> delete(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId) {
+        PurchaseResponse result = purchaseService.deletePurchase(userEntity, purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 

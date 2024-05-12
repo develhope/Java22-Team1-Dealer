@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,7 +47,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "purchaseBuyer", fetch = FetchType.EAGER)
     private List<PurchaseEntity> purchaseEntities;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
     private List<RentEntity> rentEntities;
 
     @Override

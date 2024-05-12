@@ -1,7 +1,7 @@
 package com.develhope.spring.Vehicles.Services;
 
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
@@ -29,8 +29,8 @@ public class VehicleCRUDService {
     @Autowired
     UserRepository userRepository;
 
-    public Either<VehicleResponse, VehicleDTO> createVehicle(User user, VehicleRequest vehicleRequest) {
-        Optional<User> userOptional = userRepository.findById(user.getId());
+    public Either<VehicleResponse, VehicleDTO> createVehicle(UserEntity userEntity, VehicleRequest vehicleRequest) {
+        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.isPresent()) {
             if (userOptional.get().getUserType() == UserTypes.ADMIN) {
                 VehicleModel vehicleModel = new VehicleModel(vehicleRequest.getBrand(), vehicleRequest.getModel(),
@@ -47,14 +47,14 @@ public class VehicleCRUDService {
                 return Either.left(new VehicleResponse(400, "only admin can create a vehicle"));
             }
         } else {
-            return Either.left(new VehicleResponse(404, "user with id " + user.getId() + "not found"));
+            return Either.left(new VehicleResponse(404, "user with id " + userEntity.getId() + "not found"));
         }
     }
 
-    public Either<VehicleResponse, VehicleDTO> getSingleVehicle(User user, Long vehicleId) {
-        Optional<User> userOptional = userRepository.findById(user.getId());
+    public Either<VehicleResponse, VehicleDTO> getSingleVehicle(UserEntity userEntity, Long vehicleId) {
+        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + user.getId() + "not found"));
+            return Either.left(new VehicleResponse(404, "user with id" + userEntity.getId() + "not found"));
         }
         if (userOptional.get().getUserType() != UserTypes.BUYER && userOptional.get().getUserType() != UserTypes.SELLER) {
             return Either.left(new VehicleResponse(400, "only buyer and seller can get the vehicle"));
@@ -83,12 +83,12 @@ public class VehicleCRUDService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, VehicleDTO> updateVehicle(User user, Long vehicleId, VehicleRequest request) {
-        Optional<User> userOptional = userRepository.findById(user.getId());
+    public Either<VehicleResponse, VehicleDTO> updateVehicle(UserEntity userEntity, Long vehicleId, VehicleRequest request) {
+        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.get().getUserType() != UserTypes.ADMIN) {
             return Either.left(new VehicleResponse(403, "this user does not have the permission"));
         }
-        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(user, vehicleId);
+        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(userEntity, vehicleId);
         if (foundVehicle.isLeft()) {
             return foundVehicle;
         }
@@ -116,12 +116,12 @@ public class VehicleCRUDService {
     }
 
 
-    public VehicleResponse deleteVehicle(User user, Long vehicleId) {
-        Optional<User> userOptional = userRepository.findById(user.getId());
+    public VehicleResponse deleteVehicle(UserEntity userEntity, Long vehicleId) {
+        Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.get().getUserType() != UserTypes.ADMIN) {
             return new VehicleResponse(403, "this user does not have the permission");
         }
-        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(user, vehicleId);
+        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(userEntity, vehicleId);
         if (foundVehicle.isLeft()) {
             return foundVehicle.getLeft();
         }

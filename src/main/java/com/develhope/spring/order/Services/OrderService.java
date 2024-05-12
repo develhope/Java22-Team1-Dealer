@@ -1,6 +1,6 @@
 package com.develhope.spring.order.Services;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
@@ -27,7 +27,7 @@ public class OrderService {
     @Autowired
     VehicleRepository vehicleRepository;
 
-    public Either<OrderResponse, OrderDTO> create(User buyer, OrderRequest orderRequest) {
+    public Either<OrderResponse, OrderDTO> create(UserEntity buyer, OrderRequest orderRequest) {
         Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
         if(foundVehicle.isEmpty()) {
             return Either.left(new OrderResponse(404, "Vehicle not found"));
@@ -36,13 +36,15 @@ public class OrderService {
             return Either.left(new OrderResponse(403, "Vehicle is not orderable"));
         }
 
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(), buyer, foundVehicle.get());
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(),
+                buyer,
+                foundVehicle.get());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(User user, Long orderId) {
+    public Either<OrderResponse, OrderDTO> getSingle(UserEntity userEntity, Long orderId) {
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
         if (orderEntityOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
@@ -50,7 +52,7 @@ public class OrderService {
 
         //check if order belongs to specified user
         OrderEntity orderEntity = orderEntityOptional.get();
-        if (!(user.getOrderEntities().contains(orderEntity))) {
+        if (!(userEntity.getOrderEntities().contains(orderEntity))) {
             return Either.left(new OrderResponse(403, "This order does not belong to specified user"));
         }
 
@@ -59,7 +61,7 @@ public class OrderService {
     }
 
     public Either<OrderResponse, List<OrderDTO>> getAll(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
         }
@@ -75,8 +77,8 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(User user, Long orderId, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
+    public Either<OrderResponse, OrderDTO> update(UserEntity userEntity, Long orderId, OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userEntity, orderId);
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
@@ -94,8 +96,8 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public OrderResponse deleteOrder(User user, Long orderId) {
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(user, orderId);
+    public OrderResponse deleteOrder(UserEntity userEntity, Long orderId) {
+        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userEntity, orderId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }

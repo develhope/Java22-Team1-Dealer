@@ -7,7 +7,7 @@ import com.develhope.spring.Autentication.Entities.DTO.Request.SignupRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Response.JWTAuthResponse;
 import com.develhope.spring.Autentication.Repositories.RefreshTokenRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class AuthService {
 
 
     public JWTAuthResponse signup(SignupRequest request) {
-        User user = User.builder()
+        UserEntity userEntity = UserEntity.builder()
                 .name(request.getName())
                 .surname(request.getSurname())
                 .email(request.getEmail())
@@ -41,20 +41,20 @@ public class AuthService {
                 .phoneNumber(request.getPhoneNumber())
                 .userType(UserTypes.convertFromString(request.getUserType())).build();
 
-        userRepository.save(user);
-        String jwt = jwtService.generateToken(user);
-        RefreshToken refreshToken = jwtService.generateRefreshToken(user);
+        userRepository.save(userEntity);
+        String jwt = jwtService.generateToken(userEntity);
+        RefreshToken refreshToken = jwtService.generateRefreshToken(userEntity);
         return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.getToken()).build();
     }
 
 
     public JWTAuthResponse signin(SigninRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        User user = userRepository.findByEmail(request.getEmail())
+        UserEntity userEntity = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-        String jwt = jwtService.generateToken(user);
-        RefreshToken refreshToken = jwtService.generateRefreshToken(user);
+        String jwt = jwtService.generateToken(userEntity);
+        RefreshToken refreshToken = jwtService.generateRefreshToken(userEntity);
         return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.getToken()).build();
     }
 
@@ -63,10 +63,10 @@ public class AuthService {
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken());
 
         if (refreshToken.isPresent() && !jwtService.isRefreshTokenExpired(refreshToken.get())) {
-            User user = userRepository.findByEmail(refreshToken.get().getUserInfo().getEmail())
+            UserEntity userEntity = userRepository.findByEmail(refreshToken.get().getUserEntityInfo().getEmail())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-            String jwt = jwtService.generateToken(user);
+            String jwt = jwtService.generateToken(userEntity);
 
             return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.get().getToken()).build();
         } else {

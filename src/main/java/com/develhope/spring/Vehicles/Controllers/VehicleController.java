@@ -1,7 +1,7 @@
 package com.develhope.spring.Vehicles.Controllers;
 
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
@@ -34,9 +34,9 @@ public class VehicleController {
     VehicleResearchService vehicleResearchService;
 
     @GetMapping("/checkUser")
-    public UserTypes controlloUser(@AuthenticationPrincipal User user) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            return user.getUserType();
+    public UserTypes controlloUser(@AuthenticationPrincipal UserEntity userEntity) {
+        if (userEntity.getUserType() == UserTypes.ADMIN) {
+            return userEntity.getUserType();
         }
         return null;
     }
@@ -49,8 +49,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
     @PostMapping("/create")
-    public ResponseEntity<?> createVehicle(@AuthenticationPrincipal User user, @RequestBody VehicleRequest vehicleRequest) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(user, vehicleRequest);
+    public ResponseEntity<?> createVehicle(@AuthenticationPrincipal UserEntity userEntity, @RequestBody VehicleRequest vehicleRequest) {
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(userEntity, vehicleRequest);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -65,8 +65,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
     @GetMapping("/getSingle/{vehicleId}")
-    public ResponseEntity<?> getSingleVehicle(@AuthenticationPrincipal User user, @PathVariable Long vehicleId) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, vehicleId);
+    public ResponseEntity<?> getSingleVehicle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long vehicleId) {
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(userEntity, vehicleId);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -82,7 +82,7 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified vehicle not found")})
 
     @GetMapping("/getAll")
-    public ResponseEntity<?> getAll(@AuthenticationPrincipal User user) {
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity userEntity) {
         Either<VehicleResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -99,8 +99,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
 
     @PutMapping("/update/{vehicleId}")
-    public ResponseEntity<?> updateVehicle(@AuthenticationPrincipal User user, @PathVariable Long vehicleId, @RequestBody VehicleRequest vehicleRequest) {
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(user, vehicleId, vehicleRequest);
+    public ResponseEntity<?> updateVehicle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long vehicleId, @RequestBody VehicleRequest vehicleRequest) {
+        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(userEntity, vehicleId, vehicleRequest);
         if (result.isLeft()) {
             return ResponseEntity.status(result.getLeft().getCode()).body(result.getLeft().getMessage());
         } else {
@@ -116,8 +116,8 @@ public class VehicleController {
             @ApiResponse(responseCode = "500", description = "Internal server error")})
 
     @DeleteMapping("/delete/{vehicleId}")
-    public ResponseEntity<?> deleteVehicle(@AuthenticationPrincipal User user, @PathVariable Long vehicleId) {
-        VehicleResponse result = vehicleCRUDService.deleteVehicle(user, vehicleId);
+    public ResponseEntity<?> deleteVehicle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long vehicleId) {
+        VehicleResponse result = vehicleCRUDService.deleteVehicle(userEntity, vehicleId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 

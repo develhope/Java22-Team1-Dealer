@@ -1,7 +1,7 @@
 package com.develhope.spring.Purchase.Entities.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +19,5 @@ public class PurchaseDTO {
 
     private VehicleEntity vehicleEntity;
 
-    private User buyer;
+    private UserEntity buyer;
 }

@@ -1,6 +1,6 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserDTONoLists;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class OrderDTO {
 
     private Boolean isSold;
 
-    private User user;
+    private UserDTONoLists user;
 
     private VehicleEntity vehicleEntity;
 

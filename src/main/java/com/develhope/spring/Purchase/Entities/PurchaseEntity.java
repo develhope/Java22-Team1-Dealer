@@ -1,7 +1,7 @@
 package com.develhope.spring.Purchase.Entities;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,5 +30,5 @@ public class PurchaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User purchaseBuyer;
+    private UserEntity purchaseBuyer;
 }

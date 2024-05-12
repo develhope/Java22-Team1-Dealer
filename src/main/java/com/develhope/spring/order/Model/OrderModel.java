@@ -1,6 +1,7 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
+import com.develhope.spring.User.Entities.UserModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
@@ -22,12 +23,12 @@ public class OrderModel {
 
     private Boolean isSold;
 
-    private User buyer;
+    private UserEntity buyer;
 
     private VehicleEntity vehicleEntity;
 
 
-    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, User buyer, VehicleEntity vehicleEntity) {
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, UserEntity buyer, VehicleEntity vehicleEntity) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
@@ -54,7 +55,8 @@ public class OrderModel {
         orderDTO.setPaid(orderModel.getPaid());
         orderDTO.setStatus(orderModel.getStatus());
         orderDTO.setIsSold(orderModel.getIsSold());
-        orderDTO.setUser(orderModel.getBuyer());
+        UserModel userModel = UserModel.entityToModel(orderModel.getBuyer());
+        orderDTO.setUser(UserModel.modelToDtoWithoutList(userModel));
 
         return orderDTO;
     }
@@ -78,7 +80,8 @@ public class OrderModel {
         orderModel.setPaid(orderDTO.getPaid());
         orderModel.setStatus(orderDTO.getStatus());
         orderModel.setIsSold(orderDTO.getIsSold());
-        orderModel.setBuyer(orderDTO.getUser());
+        UserModel userModel = UserModel.dtoToModel(orderDTO.getUser());
+        orderModel.setBuyer(UserModel.modelToEntity(userModel));
         return orderModel;
     }
 }

@@ -4,7 +4,7 @@ import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.Rent.Services.RentService;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,8 +34,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Requester or Receiver not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal User userDetails) {
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userDetails);
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -49,8 +49,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping("/list")
-    public List<RentDTO> getRentList(@AuthenticationPrincipal User userDetails) {
-        return rentService.getRentList(userDetails);
+    public List<RentDTO> getRentList(@AuthenticationPrincipal UserEntity userEntityDetails) {
+        return rentService.getRentList(userEntityDetails);
     }
 
     @Operation(summary = "Get a rent by ID")
@@ -59,8 +59,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @GetMapping("/find/{id}")
-    public ResponseEntity<RentDTO> getRentById(@PathVariable Long id, @AuthenticationPrincipal User userDetails) {
-        RentDTO rentDTO = rentService.getRentById(id, userDetails);
+    public ResponseEntity<RentDTO> getRentById(@PathVariable Long id, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        RentDTO rentDTO = rentService.getRentById(id, userEntityDetails);
         if (rentDTO != null) {
             return ResponseEntity.ok(rentDTO);
         } else {
@@ -74,8 +74,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal User userDetails) {
-        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userDetails);
+    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -88,8 +88,8 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRent(@PathVariable Long id, @AuthenticationPrincipal User userDetails) {
-        Either<RentResponse, Void> result = rentService.deleteRent(id, userDetails);
+    public ResponseEntity<?> deleteRent(@PathVariable Long id, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Either<RentResponse, Void> result = rentService.deleteRent(id, userEntityDetails);
         if (result.isRight()) {
             return ResponseEntity.noContent().build();
         } else {

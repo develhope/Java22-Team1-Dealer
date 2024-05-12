@@ -1,6 +1,6 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,15 +26,12 @@ public class RentEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity userEntity;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sold_by_user_id")
-    private User soldBy;
 
     private BigDecimal dailyCost;
     private BigDecimal totalCost;
