@@ -89,7 +89,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
     @PutMapping("/update/{orderId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId,  orderRequest);
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity,null, orderId,  orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -105,9 +105,9 @@ public class OrderController {
             @ApiResponse(responseCode = "403", description = "Specified user is not an admin"),
             @ApiResponse(responseCode = "404", description = "Specified order not found"),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @PutMapping("/update/admin/{userId}/{orderId}")
-    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
+    @PutMapping("/update/admin/{targetId}/{orderId}")
+    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity,@PathVariable Long targetId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity,targetId, orderId, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {

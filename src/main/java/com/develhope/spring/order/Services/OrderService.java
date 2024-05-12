@@ -2,6 +2,7 @@ package com.develhope.spring.order.Services;
 
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
+import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
@@ -24,8 +25,15 @@ public class OrderService {
     OrderRepository orderRepository;
     @Autowired
     VehicleRepository vehicleRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public Either<OrderResponse, OrderDTO> create(UserEntity buyer, OrderRequest orderRequest) {
+        if(orderRequest == null) {
+            return Either.left(new OrderResponse(400, "Invalid input parameters"));
+
+        }
+
         Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
         if (foundVehicle.isEmpty()) {
             return Either.left(new OrderResponse(404, "Vehicle not found"));
@@ -58,6 +66,14 @@ public class OrderService {
         return Either.right(OrderModel.modelToDto(orderModel));
     }
 
+    private Either<OrderResponse, OrderDTO> getSingleById(Long targetId, Long orderId) {
+        Optional<UserEntity> targetUser = userRepository.findById(targetId);
+        if (targetUser.isEmpty()) {
+            return Either.left(new OrderResponse(404, "User with id " + targetId + " was not found"));
+        }
+        return getSingle(targetUser.get(), orderId);
+    }
+
     public Either<OrderResponse, List<OrderDTO>> getAll(UserEntity user) {
         List<OrderEntity> userOrders = user.getOrderEntities();
         if (userOrders.isEmpty()) {
@@ -70,15 +86,21 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(UserEntity userEntity, Long orderId, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(userEntity, orderId);
+    public Either<OrderResponse, OrderDTO> update(UserEntity userEntity, Long target, Long orderId, OrderRequest orderRequest) {
+        if (orderId == null || orderRequest == null) {
+            return Either.left(new OrderResponse(400, "Invalid input parameters"));
+        }
+
+        Either<OrderResponse, OrderDTO> foundOrder = target != null ? getSingleById(target, orderId) : getSingle(userEntity, orderId);
         if (foundOrder.isLeft()) {
             return foundOrder;
         }
+
         Optional<VehicleEntity> vehicleEntity = Optional.empty();
         if(orderRequest.getVehicleId() != null) {
              vehicleEntity = vehicleRepository.findById(orderRequest.getVehicleId());
         }
+
         foundOrder.get().setDeposit(orderRequest.getDeposit() == null ? foundOrder.get().getDeposit() : orderRequest.getDeposit());
         foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
         foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : orderRequest.getStatus());
@@ -92,16 +114,19 @@ public class OrderService {
     }
 
     public OrderResponse deleteOrder(UserEntity userEntity, Long orderId) {
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(userEntity, orderId);
-        if (singlePurchaseResult.isLeft()) {
-            return singlePurchaseResult.getLeft();
+        if (orderId == null) {
+            return new OrderResponse(400, "Invalid input parameters");
+        }
+        Either<OrderResponse, OrderDTO> singleOrderResult = getSingle(userEntity, orderId);
+        if (singleOrderResult.isLeft()) {
+            return singleOrderResult.getLeft();
         }
 
-        Optional<OrderEntity> purchaseEntity = orderRepository.findById(orderId);
+        Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
 
         try {
-            orderRepository.delete(purchaseEntity.get());
-            return new OrderResponse(200, "Purchase deleted successfully");
+            orderRepository.delete(orderEntity.get());
+            return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
             return new OrderResponse(500, "Internal server error");
         }
