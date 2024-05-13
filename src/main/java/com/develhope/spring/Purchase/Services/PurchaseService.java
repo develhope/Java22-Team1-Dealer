@@ -4,7 +4,9 @@ import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
+import com.develhope.spring.Purchase.Entities.PurchasesLink;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
+import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
 import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
@@ -25,6 +27,9 @@ public class PurchaseService {
     @Autowired
     VehicleRepository vehicleRepository;
 
+    @Autowired
+    PurchasesLinkRepository purchasesLinkRepository;
+
     public Either<PurchaseResponse, PurchaseDTO> createPurchase(UserEntity buyer, PurchaseRequest purchaseRequest) {
         if (purchaseRequest == null || purchaseRequest.getDeposit() < 0) {
             return Either.left(new PurchaseResponse(400, "Invalid input parameters"));
@@ -40,8 +45,9 @@ public class PurchaseService {
         }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
-                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), vehicleEntity.get(), buyer);
+                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), vehicleEntity.get());
         PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+        purchasesLinkRepository.saveAndFlush(new PurchasesLink(buyer, result));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(result);
         return Either.right(PurchaseModel.modelToDto(resultModel));
@@ -54,7 +60,9 @@ public class PurchaseService {
         }
 
         if (userEntity.getUserType() != UserTypes.ADMIN) {
-            if (userEntity.getPurchaseEntities().stream().noneMatch(pe -> pe.getPurchaseId().equals(purchaseEntity.get().getPurchaseId()))) {
+            List<PurchaseEntity> userPurchases = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLink::getPurchaseEntity).toList();
+
+            if (userPurchases.stream().noneMatch(pe -> pe.getPurchaseId().equals(purchaseEntity.get().getPurchaseId()))) {
                 return Either.left(new PurchaseResponse(404, "Purchase does not belong to specified user"));
             }
         }
@@ -64,7 +72,7 @@ public class PurchaseService {
     }
 
     public Either<PurchaseResponse, List<PurchaseDTO>> getAllPurchases(UserEntity userEntity) {
-        List<PurchaseEntity> userPurchase = userEntity.getPurchaseEntities();
+        List<PurchaseEntity> userPurchase = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLink::getPurchaseEntity).toList();
         if (userPurchase.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchases not found"));
         }

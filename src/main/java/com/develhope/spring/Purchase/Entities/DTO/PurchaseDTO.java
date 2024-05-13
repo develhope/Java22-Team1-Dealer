@@ -1,6 +1,7 @@
 package com.develhope.spring.Purchase.Entities.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
+import com.develhope.spring.Purchase.Entities.PurchasesLink;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ public class PurchaseDTO {
 
     private PurchaseStatus status;
 
-    private UserDTONoLists user;
-
     private VehicleEntity vehicleEntity;
+
+    private PurchasesLink purchasesLink;
 }

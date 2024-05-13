@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Services;
-
+/*
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentEntity;
@@ -76,7 +76,7 @@ public class RentService {
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         if (userEntity.getUserType() == UserTypes.SELLER || userEntity.getUserType() == UserTypes.ADMIN) {
-            rentEntity.setUserEntity(userEntity);
+//            rentEntity.setUserEntity(userEntity);
         }
 
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
@@ -135,9 +135,9 @@ public class RentService {
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
         }
-        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
-        }
+//        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
+//            return Either.left(new RentResponse(403, "Unauthorized user"));
+//        }
         // Update rental dates
         rentEntity.setStartDate(rentRequest.getStartDate());
         rentEntity.setEndDate(rentRequest.getEndDate());
@@ -153,9 +153,9 @@ public class RentService {
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
         }
-        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
-        }
+//        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
+//            return Either.left(new RentResponse(403, "Unauthorized user"));
+//        }
         rentRepository.delete(rentEntity);
         return Either.right(null);
     }
@@ -165,9 +165,9 @@ public class RentService {
         if (rentEntity == null) {
             return Either.left(new RentResponse(404, "Rent not found"));
         }
-        if (!Objects.equals(rentEntity.getUserEntity().getId(), userId)) {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
-        }
+//        if (!Objects.equals(rentEntity.getUserEntity().getId(), userId)) {
+//            return Either.left(new RentResponse(403, "Unauthorized user"));
+//        }
         rentEntity.setIsPaid(true);
         rentRepository.save(rentEntity);
 
@@ -175,4 +175,4 @@ public class RentService {
         String paymentMessage = String.format("Payment successful. Total amount paid: %s", totalCost);
         return Either.right(paymentMessage);
     }
-}
+}*/

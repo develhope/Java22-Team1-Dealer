@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Entities;
-
+/*
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -52,4 +52,4 @@ public class RentEntity {
         }
         return BigDecimal.ZERO;
     }
-}
+}*/

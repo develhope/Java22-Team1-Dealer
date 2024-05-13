@@ -1,4 +1,4 @@
-package com.develhope.spring.order.Entities;
+package com.develhope.spring.Purchase.Entities;
 
 import com.develhope.spring.User.Entities.UserEntity;
 import jakarta.persistence.*;
@@ -8,28 +8,28 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Table
-@Entity
 @AllArgsConstructor
-public class OrdersLink {
+@Entity
+@Table
+public class PurchasesLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long linkId;
+    Long linkId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_Id", nullable = false)
     UserEntity buyer;
 
     @OneToOne
-    @JoinColumn(name = "order_id", nullable = false)
-    OrderEntity orderEntity;
+    @JoinColumn(name = "purchase_id", nullable = false)
+    PurchaseEntity purchaseEntity;
 
     @OneToOne
     @JoinColumn(name = "seller_id")
     UserEntity seller;
 
-    public OrdersLink(UserEntity buyer, OrderEntity orderEntity) {
+    public PurchasesLink(UserEntity buyer, PurchaseEntity purchaseEntity) {
         this.buyer = buyer;
-        this.orderEntity = orderEntity;
+        this.purchaseEntity = purchaseEntity;
     }
 }

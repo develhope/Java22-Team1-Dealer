@@ -47,9 +47,9 @@ public class OrderService {
         }
 
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(),
-                buyer,
                 foundVehicle.get());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        ordersLinkRepository.saveAndFlush(new OrdersLink(buyer, savedEntity));
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
@@ -62,7 +62,10 @@ public class OrderService {
 
         if(userEntity.getUserType() != UserTypes.ADMIN) {
             OrderEntity orderEntity = orderEntityOptional.get();
-
+            List<OrderEntity> userOrders = ordersLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(OrdersLink::getOrderEntity).toList();
+            if (userOrders.stream().noneMatch(oe -> oe.getOrderId().equals(orderEntity.getOrderId()))) {
+                return Either.left(new OrderResponse(404, "Order does not belong to specified user"));
+            }
         }
 
         OrderModel orderModel = OrderModel.entityToModel(orderEntityOptional.get());

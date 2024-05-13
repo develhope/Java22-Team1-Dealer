@@ -1,6 +1,7 @@
 package com.develhope.spring.User.Entities;
 
 
+import com.develhope.spring.Purchase.Entities.PurchasesLink;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.order.Entities.OrdersLink;
 import jakarta.persistence.*;
@@ -12,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Builder
 @Entity
 @Table
 @Getter
@@ -39,6 +39,9 @@ public class UserEntity implements UserDetails {
     @JoinColumn(name = "order_id")
     OrdersLink ordersLink;
 
+    @OneToOne
+    @JoinColumn(name = "purchase_id")
+    PurchasesLink purchasesLink;
     public UserEntity(Long id, String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
         this.id = id;
         this.name = name;
@@ -48,6 +51,16 @@ public class UserEntity implements UserDetails {
         this.password = password;
         this.userType = userType;
     }
+    public UserEntity( String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,4 +91,6 @@ public class UserEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

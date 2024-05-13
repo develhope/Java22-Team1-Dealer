@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Repositories;
-
+/*
 import com.develhope.spring.Rent.Entities.RentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,3 +19,4 @@ public interface RentRepository extends JpaRepository<RentEntity, Long> {
     Optional<RentEntity> findByIdAndUserEntity_Id(Long id, Long userEntityId);
 
 }
+*/

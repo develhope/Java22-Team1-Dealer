@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Entities.DTO;
-
+/*
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.Data;
 
@@ -31,4 +31,4 @@ public class RentDTO {
         this.totalCost = totalCost;
     }
 
-}
+}*/

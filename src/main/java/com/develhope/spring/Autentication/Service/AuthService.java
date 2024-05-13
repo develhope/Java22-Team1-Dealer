@@ -8,6 +8,7 @@ import com.develhope.spring.Autentication.Entities.DTO.Response.JWTAuthResponse;
 import com.develhope.spring.Autentication.Repositories.RefreshTokenRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
+import com.develhope.spring.User.Entities.UserEntityBuilder;
 import com.develhope.spring.User.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,13 @@ public class AuthService {
 
 
     public JWTAuthResponse signup(SignupRequest request) {
-        UserEntity userEntity = UserEntity.builder()
-                .name(request.getName())
-                .surname(request.getSurname())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phoneNumber(request.getPhoneNumber())
-                .userType(UserTypes.convertFromString(request.getUserType())).build();
+        UserEntity userEntity = new UserEntityBuilder()
+                .setName(request.getName())
+                .setSurname(request.getSurname())
+                .setEmail(request.getEmail())
+                .setPassword(passwordEncoder.encode(request.getPassword()))
+                .setPhoneNumber(request.getPhoneNumber())
+                .setUserType(UserTypes.convertFromString(request.getUserType())).build();
 
         userRepository.save(userEntity);
         String jwt = jwtService.generateToken(userEntity);

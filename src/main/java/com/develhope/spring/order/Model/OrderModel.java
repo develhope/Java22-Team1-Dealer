@@ -1,10 +1,9 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.User.Entities.UserEntity;
-import com.develhope.spring.User.Entities.UserModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.OrdersLink;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,17 +22,16 @@ public class OrderModel {
 
     private Boolean isSold;
 
-    private UserEntity buyer;
-
     private VehicleEntity vehicleEntity;
 
+    private OrdersLink ordersLink;
 
-    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, UserEntity buyer, VehicleEntity vehicleEntity) {
+
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, VehicleEntity vehicleEntity) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
         this.isSold = isSold;
-        this.buyer = buyer;
         this.vehicleEntity = vehicleEntity;
     }
 
@@ -44,8 +42,8 @@ public class OrderModel {
                 orderModel.getPaid(),
                 orderModel.getStatus(),
                 orderModel.getIsSold(),
-                orderModel.getBuyer(),
-                orderModel.getVehicleEntity()
+                orderModel.getVehicleEntity(),
+                orderModel.getOrdersLink()
         );
     }
 
@@ -56,9 +54,8 @@ public class OrderModel {
                 orderModel.getPaid(),
                 orderModel.getStatus(),
                 orderModel.getIsSold(),
-                UserModel.modelToDtoWithoutList(UserModel.entityToModel(orderModel.getBuyer())),
-                orderModel.getVehicleEntity()
-        );
+                orderModel.getVehicleEntity(),
+                orderModel.getOrdersLink());
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
@@ -68,8 +65,8 @@ public class OrderModel {
                 orderEntity.getIsPaid(),
                 orderEntity.getStatus(),
                 orderEntity.getIsSold(),
-                orderEntity.getOrderBuyer(),
-                orderEntity.getVehicleEntity()
+                orderEntity.getVehicleEntity(),
+                orderEntity.getOrdersLink()
         );
     }
 
@@ -80,7 +77,7 @@ public class OrderModel {
                 orderDTO.getPaid(),
                 orderDTO.getStatus(),
                 orderDTO.getIsSold(),
-                UserModel.modelToEntity(UserModel.dtoToModel(orderDTO.getUser())),
-                orderDTO.getVehicleEntity());
+                orderDTO.getVehicleEntity(),
+                orderDTO.getOrdersLink());
     }
 }
