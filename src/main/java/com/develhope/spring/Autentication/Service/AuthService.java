@@ -1,21 +1,21 @@
 package com.develhope.spring.Autentication.Service;
 
-import com.develhope.spring.Autentication.Entities.RefreshToken;
 import com.develhope.spring.Autentication.Entities.DTO.Request.RefreshTokenRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Request.SigninRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Request.SignupRequest;
 import com.develhope.spring.Autentication.Entities.DTO.Response.JWTAuthResponse;
+import com.develhope.spring.Autentication.Entities.RefreshToken;
 import com.develhope.spring.Autentication.Repositories.RefreshTokenRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
-import com.develhope.spring.User.Entities.UserEntityBuilder;
 import com.develhope.spring.User.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 
@@ -34,20 +34,19 @@ public class AuthService {
 
 
     public JWTAuthResponse signup(SignupRequest request) {
-        UserEntity userEntity = new UserEntityBuilder()
-                .setName(request.getName())
-                .setSurname(request.getSurname())
-                .setEmail(request.getEmail())
-                .setPassword(passwordEncoder.encode(request.getPassword()))
-                .setPhoneNumber(request.getPhoneNumber())
-                .setUserType(UserTypes.convertFromString(request.getUserType())).build();
+        UserEntity user = UserEntity.builder()
+                .name(request.getName())
+                .surname(request.getSurname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
+                .userType(UserTypes.convertFromString(request.getUserType())).build();
 
-        userRepository.save(userEntity);
-        String jwt = jwtService.generateToken(userEntity);
-        RefreshToken refreshToken = jwtService.generateRefreshToken(userEntity);
+        userRepository.save(user);
+        String jwt = jwtService.generateToken(user);
+        RefreshToken refreshToken = jwtService.generateRefreshToken(user);
         return JWTAuthResponse.builder().authToken(jwt).refreshToken(refreshToken.getToken()).build();
     }
-
 
     public JWTAuthResponse signin(SigninRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));

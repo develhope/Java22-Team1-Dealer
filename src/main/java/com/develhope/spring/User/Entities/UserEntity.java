@@ -1,11 +1,11 @@
 package com.develhope.spring.User.Entities;
 
 
-import com.develhope.spring.Purchase.Entities.PurchasesLink;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.order.Entities.OrdersLink;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Builder
 @Entity
 @Table
 @Getter
@@ -35,13 +36,6 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @OneToOne
-    @JoinColumn(name = "order_id")
-    OrdersLink ordersLink;
-
-    @OneToOne
-    @JoinColumn(name = "purchase_id")
-    PurchasesLink purchasesLink;
     public UserEntity(Long id, String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
         this.id = id;
         this.name = name;
