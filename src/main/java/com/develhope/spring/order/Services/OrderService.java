@@ -31,7 +31,6 @@ public class OrderService {
     public Either<OrderResponse, OrderDTO> create(UserEntity buyer, OrderRequest orderRequest) {
         if(orderRequest == null || orderRequest.getDeposit() < 0) {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
-
         }
 
         Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
@@ -53,8 +52,9 @@ public class OrderService {
     public Either<OrderResponse, OrderDTO> getSingle(UserEntity userEntity, Long orderId) {
         Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
         if (orderEntityOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
+            return Either.left(new OrderResponse(404, "Order with id " + orderId + " not found"));
         }
+
         if(userEntity.getUserType() != UserTypes.ADMIN) {
             OrderEntity orderEntity = orderEntityOptional.get();
             if (userEntity.getOrderEntities().stream().noneMatch(oe -> oe.getOrderId().equals(orderEntity.getOrderId()))) {

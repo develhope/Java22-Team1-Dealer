@@ -26,7 +26,10 @@ public class PurchaseService {
     VehicleRepository vehicleRepository;
 
     public Either<PurchaseResponse, PurchaseDTO> createPurchase(UserEntity buyer, PurchaseRequest purchaseRequest) {
-        //check if user has the necessary role
+        if (purchaseRequest == null || purchaseRequest.getDeposit() < 0) {
+            return Either.left(new PurchaseResponse(400, "Invalid input parameters"));
+        }
+
         if (buyer.getUserType() != UserTypes.BUYER && buyer.getUserType() != UserTypes.ADMIN) {
             return Either.left(new PurchaseResponse(403, "This user does not have permission to create a purchase"));
         }
@@ -34,11 +37,6 @@ public class PurchaseService {
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(purchaseRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "No vehicle found with such Id"));
-        }
-
-        //check if deposit is not negative
-        if (purchaseRequest.getDeposit() < 0) {
-            return Either.left(new PurchaseResponse(400, "Deposit cannot be negative"));
         }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
@@ -50,9 +48,15 @@ public class PurchaseService {
     }
 
     public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(UserEntity userEntity, Long purchadeId) {
-        Optional<PurchaseEntity> purchaseEntity = userEntity.getPurchaseEntities().stream().filter(pe -> pe.getPurchaseId().equals(purchadeId)).findFirst();
+        Optional<PurchaseEntity> purchaseEntity = purchaseRepository.findById(purchadeId);
         if (purchaseEntity.isEmpty()) {
-            return Either.left(new PurchaseResponse(404, "Purchase not found"));
+            return Either.left(new PurchaseResponse(404, "Purchase with id " + purchadeId + " not found"));
+        }
+
+        if (userEntity.getUserType() != UserTypes.ADMIN) {
+            if (userEntity.getPurchaseEntities().stream().noneMatch(pe -> pe.getPurchaseId().equals(purchaseEntity.get().getPurchaseId()))) {
+                return Either.left(new PurchaseResponse(404, "Purchase does not belong to specified user"));
+            }
         }
 
         PurchaseModel purchaseModel = PurchaseModel.entityToModel(purchaseEntity.get());
