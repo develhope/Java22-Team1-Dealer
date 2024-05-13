@@ -1,6 +1,5 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,10 +24,6 @@ public class RentEntity {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean active;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")

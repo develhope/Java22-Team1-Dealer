@@ -1,6 +1,5 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.User.Entities.UserDTONoLists;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;

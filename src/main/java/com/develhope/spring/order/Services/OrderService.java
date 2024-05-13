@@ -8,9 +8,11 @@ import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.OrdersLink;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
+import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import com.develhope.spring.order.Response.OrderResponse;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class OrderService {
     VehicleRepository vehicleRepository;
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    OrdersLinkRepository ordersLinkRepository;
 
     public Either<OrderResponse, OrderDTO> create(UserEntity buyer, OrderRequest orderRequest) {
         if(orderRequest == null || orderRequest.getDeposit() < 0) {
@@ -57,9 +62,7 @@ public class OrderService {
 
         if(userEntity.getUserType() != UserTypes.ADMIN) {
             OrderEntity orderEntity = orderEntityOptional.get();
-            if (userEntity.getOrderEntities().stream().noneMatch(oe -> oe.getOrderId().equals(orderEntity.getOrderId()))) {
-                return Either.left(new OrderResponse(404, "Order does not belong to specified user"));
-            }
+
         }
 
         OrderModel orderModel = OrderModel.entityToModel(orderEntityOptional.get());
@@ -75,7 +78,7 @@ public class OrderService {
     }
 
     public Either<OrderResponse, List<OrderDTO>> getAll(UserEntity user) {
-        List<OrderEntity> userOrders = user.getOrderEntities();
+        List<OrderEntity> userOrders = ordersLinkRepository.findByBuyer_Id(user.getId()).stream().map(OrdersLink::getOrderEntity).toList();
         if (userOrders.isEmpty()) {
             return Either.left(new OrderResponse(404, "No orders found for the user " + user.getId()));
         }

@@ -1,10 +1,8 @@
 package com.develhope.spring.User.Entities;
 
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.OrdersLink;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,8 +17,6 @@ import java.util.List;
 @Table
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,17 +35,19 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @Column(name = "user's orders")
-    @OneToMany(mappedBy = "orderBuyer", fetch = FetchType.EAGER)
-    private List<OrderEntity> orderEntities;
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    OrdersLink ordersLink;
 
-    @Column(name = "user's purchases")
-    @OneToMany(mappedBy = "purchaseBuyer", fetch = FetchType.EAGER)
-    private List<PurchaseEntity> purchaseEntities;
-
-    @Column(name = "user's rents")
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
-    private List<RentEntity> rentEntities;
+    public UserEntity(Long id, String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
