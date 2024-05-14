@@ -1,5 +1,6 @@
 package com.develhope.spring.dealershipStatistics.service;
 
+import com.develhope.spring.Purchase.Entities.PurchasesLinkEntity;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
 import com.develhope.spring.Rent.Entities.RentLink;
@@ -41,6 +42,20 @@ public class DealershipStatisticsService {
         } else {
             List<RentLink> rentLinkList = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
             return rentLinkList.size();
+        }
+    }
+
+    public Integer getPurchasesNumberOfUser(UserEntity user, Long targetId) {
+        if(user.getUserType() == UserTypes.ADMIN) {
+            Optional<UserEntity> userOptional = userRepository.findById(targetId);
+            if(userOptional.isEmpty()) {
+                return null;
+            }
+            List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
+            return purchasesList.size();
+        } else {
+            List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
+            return purchasesList.size();
         }
     }
 
