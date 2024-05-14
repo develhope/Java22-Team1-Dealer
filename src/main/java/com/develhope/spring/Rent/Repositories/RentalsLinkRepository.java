@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface RentalsLinkRepository extends JpaRepository<RentLink, Long> {
     List<RentLink> findAllByBuyer_Id(Long userId);
+    List<RentLink> findAllBySeller_Id(Long userId);
 
     @Query("SELECT rl FROM RentLink rl WHERE rl.rent.id = :rentId")
     Optional<RentLink> findByRentId(Long rentId);
