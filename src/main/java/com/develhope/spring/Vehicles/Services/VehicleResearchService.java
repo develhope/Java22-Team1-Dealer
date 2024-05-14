@@ -1,6 +1,5 @@
 package com.develhope.spring.Vehicles.Services;
 
-import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
@@ -20,10 +19,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class VehicleResearchService {
-
-    @Autowired
-    UserRepository userRepository;
-
     @Autowired
     VehicleRepository vehicleRepository;
 
