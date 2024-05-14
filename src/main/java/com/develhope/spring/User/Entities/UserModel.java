@@ -30,7 +30,7 @@ public class UserModel {
                 userModel.getPassword(), userModel.getUserType());
     }
 
-    public static UserDTO modelToDtoWithList(UserModel userModel) {
+    public static UserDTO modelToDto(UserModel userModel) {
         return new UserDTO(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getPhoneNumber(), userModel.getEmail(),
                  userModel.getUserType());
     }
