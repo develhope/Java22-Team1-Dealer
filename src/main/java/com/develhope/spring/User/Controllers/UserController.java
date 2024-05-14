@@ -29,16 +29,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    VehicleRepository vehicleRepository;
 
     @Autowired
     UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<VehicleEntity> getVehicleById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok().body(vehicleRepository.getReferenceById(id));
-    }
+
 
     @Operation(summary = "Gets single user by id")
     @ApiResponses(value = {
