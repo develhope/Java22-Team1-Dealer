@@ -59,4 +59,18 @@ public class DealershipStatisticsService {
         }
     }
 
+    public Integer getOrdersNumberOfUser(UserEntity user, Long targetId) {
+        if(user.getUserType() == UserTypes.ADMIN) {
+            Optional<UserEntity> userOptional = userRepository.findById(targetId);
+            if(userOptional.isEmpty()) {
+                return null;
+            }
+            List<PurchasesLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
+            return ordersList.size();
+        } else {
+            List<PurchasesLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
+            return ordersList.size();
+        }
+    }
+
 }
