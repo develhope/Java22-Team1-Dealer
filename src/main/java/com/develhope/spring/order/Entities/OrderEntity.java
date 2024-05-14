@@ -13,6 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+//ordinato
+//cancellato
+//spedito
+//consegnato
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

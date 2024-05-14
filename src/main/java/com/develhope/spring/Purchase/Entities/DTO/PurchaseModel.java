@@ -2,7 +2,7 @@ package com.develhope.spring.Purchase.Entities.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,14 +17,14 @@ public class PurchaseModel {
 
     private PurchaseStatus status;
 
-    private VehicleEntity vehicleEntity;
+    private VehicleModel vehicle;
 
 
-    public PurchaseModel(Double deposit, Boolean isPaid, PurchaseStatus status, VehicleEntity vehicleEntity) {
+    public PurchaseModel(Double deposit, Boolean isPaid, PurchaseStatus status, VehicleModel vehicle) {
         this.deposit = deposit;
         this.isPaid = isPaid;
         this.status = status;
-        this.vehicleEntity = vehicleEntity;
+        this.vehicle = vehicle;
     }
 
     public static PurchaseEntity modelToEntity(PurchaseModel purchaseModel) {
@@ -32,14 +32,14 @@ public class PurchaseModel {
                 purchaseModel.getDeposit(),
                 purchaseModel.getIsPaid(),
                 purchaseModel.getStatus(),
-                purchaseModel.getVehicleEntity());
+                VehicleModel.modelToEntity(purchaseModel.getVehicle()));
     }
     public static PurchaseDTO modelToDto(PurchaseModel purchaseModel) {
         return new PurchaseDTO(purchaseModel.getId(),
                 purchaseModel.getDeposit(),
                 purchaseModel.getIsPaid(),
                 purchaseModel.getStatus(),
-                purchaseModel.getVehicleEntity());
+                VehicleModel.modelToDTO(purchaseModel.getVehicle()));
     }
 
     public static PurchaseModel entityToModel(PurchaseEntity purchaseEntity) {
@@ -47,7 +47,7 @@ public class PurchaseModel {
                 purchaseEntity.getDeposit(),
                 purchaseEntity.getIsPaid(),
                 purchaseEntity.getStatus(),
-                purchaseEntity.getVehicleEntity());
+                VehicleModel.entityToModel(purchaseEntity.getVehicle()));
     }
 
     public static PurchaseModel dtoToModel(PurchaseDTO purchaseDTO) {
@@ -55,6 +55,6 @@ public class PurchaseModel {
                 purchaseDTO.getDeposit(),
                 purchaseDTO.getIsPaid(),
                 purchaseDTO.getStatus(),
-                purchaseDTO.getVehicleEntity());
+                VehicleModel.DTOtoModel(purchaseDTO.getVehicle()));
     }
 }

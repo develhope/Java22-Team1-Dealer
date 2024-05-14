@@ -25,14 +25,14 @@ public class PurchaseController {
     @Autowired
     PurchaseService purchaseService;
 
-    @Operation(summary = "Gets all purchases")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returned all purchases",
+    @Operation(summary = "Create a purchase with required data")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully created purchase",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
-            @ApiResponse(responseCode = "419", description = "User with id{useId} not found")})
-
-    @GetMapping("/get")
-    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity userEntity) {
-        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userEntity);
+            @ApiResponse(responseCode = "400", description = "Deposit is negative"),
+            @ApiResponse(responseCode = "404", description = "User with id{userId} not found")})
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userEntity, purchaseRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -56,14 +56,14 @@ public class PurchaseController {
         }
     }
 
-    @Operation(summary = "Create a purchase with required data")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully created purchase",
+    @Operation(summary = "Gets all purchases")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returned all purchases",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Deposit is negative"),
-            @ApiResponse(responseCode = "404", description = "User with id{userId} not found")})
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody PurchaseRequest purchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userEntity, purchaseRequest);
+            @ApiResponse(responseCode = "419", description = "User with id{useId} not found")})
+
+    @GetMapping("/get")
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity userEntity) {
+        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userEntity);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {

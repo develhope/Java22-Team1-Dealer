@@ -68,7 +68,7 @@ public class OrderService {
     }
 
     public Either<OrderResponse, OrderDTO> getSingle(UserEntity userEntity, Long orderId) {
-        OrdersLinkEntity ordersLink = ordersLinkRepository.findByOrder_Id(orderId);
+        OrdersLinkEntity ordersLink = ordersLinkRepository.findByOrder_OrderId(orderId);
         if (ordersLink == null) {
             return Either.left(new OrderResponse(404, "Order with id " + orderId + " not found"));
         }
@@ -105,7 +105,7 @@ public class OrderService {
         Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
 
         if (foundOrder.isLeft()) {
-            return foundOrder;
+            return Either.left(foundOrder.getLeft());
         }
 
         Optional<VehicleEntity> vehicleEntity = Optional.empty();
@@ -135,7 +135,7 @@ public class OrderService {
         }
 
         try {
-            ordersLinkRepository.delete(ordersLinkRepository.findByOrder_Id(orderId));
+            ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
             return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
             return new OrderResponse(500, "Internal server error");

@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table
-public class PurchasesLink {
+public class PurchasesLinkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long linkId;
@@ -28,7 +28,7 @@ public class PurchasesLink {
     @JoinColumn(name = "seller_id")
     UserEntity seller;
 
-    public PurchasesLink(UserEntity buyer, PurchaseEntity purchaseEntity) {
+    public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchaseEntity) {
         this.buyer = buyer;
         this.purchaseEntity = purchaseEntity;
     }

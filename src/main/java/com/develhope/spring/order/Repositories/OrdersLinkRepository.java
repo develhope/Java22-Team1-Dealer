@@ -10,5 +10,5 @@ import java.util.List;
 public interface OrdersLinkRepository extends JpaRepository<OrdersLinkEntity, Long> {
     List<OrdersLinkEntity> findByBuyer_Id(Long buyerId);
 
-    OrdersLinkEntity findByOrder_Id(Long orderId);
+    OrdersLinkEntity findByOrder_OrderId(Long orderId);
 }
