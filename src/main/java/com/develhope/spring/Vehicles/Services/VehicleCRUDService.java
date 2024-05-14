@@ -86,32 +86,30 @@ public class VehicleCRUDService {
     public Either<VehicleResponse, VehicleDTO> updateVehicle(UserEntity userEntity, Long vehicleId, VehicleRequest request) {
         Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.get().getUserType() != UserTypes.ADMIN) {
-            return Either.left(new VehicleResponse(403, "this user does not have the permission"));
+            return Either.left(new VehicleResponse(403, "This user does not have the permission"));
         }
-        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(userEntity, vehicleId);
-        if (foundVehicle.isLeft()) {
-            return foundVehicle;
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
+        if (vehicleEntity.isEmpty()) {
+            return Either.left(new VehicleResponse(404, "No vehicle found"));
         }
-        VehicleModel vehicleModel = new VehicleModel(
-                request.getBrand(),
-                request.getModel(),
-                request.getDisplacement(),
-                request.getColor(),
-                request.getPower(),
-                request.getTransmission(),
-                request.getRegistrationYear(),
-                request.getPowerSupply(),
-                request.getPrice(),
-                request.getDiscount(),
-                request.getAccessories(),
-                request.getIsNew(),
-                VehicleStatus.convertFromString(request.getVehicleStatus()),
-                VehicleType.convertFromString(request.getVehicleType())
-        );
-        VehicleEntity savedEntity = vehicleRepository.saveAndFlush(VehicleModel.modelToEntity(vehicleModel));
+
+        vehicleEntity.get().setBrand(request.getBrand() == null ? vehicleEntity.get().getBrand() : request.getBrand());
+        vehicleEntity.get().setModel(request.getModel() == null ? vehicleEntity.get().getModel() : request.getModel());
+        vehicleEntity.get().setDisplacement(request.getDisplacement() == null ? vehicleEntity.get().getDisplacement() : request.getDisplacement());
+        vehicleEntity.get().setColor(request.getColor() == null ? vehicleEntity.get().getColor() : request.getColor());
+        vehicleEntity.get().setPower(request.getPower() == null ? vehicleEntity.get().getPower() : request.getPower());
+        vehicleEntity.get().setTransmission(request.getTransmission() == null ? vehicleEntity.get().getTransmission() : request.getTransmission());
+        vehicleEntity.get().setPowerSupply(request.getPowerSupply() == null ? vehicleEntity.get().getPowerSupply() : request.getPowerSupply());
+        vehicleEntity.get().setPrice(request.getPrice() == null ? vehicleEntity.get().getPrice() : request.getPrice());
+        vehicleEntity.get().setDiscount(request.getDiscount() == null ? vehicleEntity.get().getDiscount() : request.getDiscount());
+        vehicleEntity.get().setAccessories(request.getAccessories() == null ? vehicleEntity.get().getAccessories() : request.getAccessories());
+        vehicleEntity.get().setIsNew(request.getIsNew() == null ? vehicleEntity.get().getIsNew() : request.getIsNew());
+        vehicleEntity.get().setVehicleStatus(request.getVehicleStatus() == null ? vehicleEntity.get().getVehicleStatus() : VehicleStatus.convertFromString(request.getVehicleStatus()));
+        vehicleEntity.get().setVehicleType(request.getVehicleType() == null ? vehicleEntity.get().getVehicleType() : VehicleType.convertFromString(request.getVehicleType()));
+
+        VehicleEntity savedEntity = vehicleRepository.saveAndFlush(vehicleEntity.get());
         VehicleModel myVehicleModel = VehicleModel.entityToModel(savedEntity);
         return Either.right(VehicleModel.modelToDTO(myVehicleModel));
-
 
     }
 

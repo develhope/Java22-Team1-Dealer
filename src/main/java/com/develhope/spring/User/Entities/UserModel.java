@@ -25,12 +25,14 @@ public class UserModel {
         this.userType = userType;
     }
 
+
+
     public static UserEntity modelToEntity(UserModel userModel) {
         return new UserEntity(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getPhoneNumber(), userModel.getEmail(),
                 userModel.getPassword(), userModel.getUserType());
     }
 
-    public static UserDTO modelToDtoWithList(UserModel userModel) {
+    public static UserDTO modelToDto(UserModel userModel) {
         return new UserDTO(userModel.getId(), userModel.getName(), userModel.getSurname(), userModel.getPhoneNumber(), userModel.getEmail(),
                  userModel.getUserType());
     }
