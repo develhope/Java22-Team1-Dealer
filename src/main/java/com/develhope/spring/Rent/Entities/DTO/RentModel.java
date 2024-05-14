@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Entities.DTO;
-/*
+
 import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.Data;
@@ -43,5 +43,5 @@ public class RentModel {
     public static RentModel entityToModel(RentEntity rentEntity) {
         return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId(), rentEntity.getTotalCost());
     }
-}*/
+}
 

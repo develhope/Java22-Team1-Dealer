@@ -1,5 +1,5 @@
 package com.develhope.spring.Rent.Controllers;
-/*
+
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
@@ -111,4 +111,4 @@ public class RentController {
             return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
         }
     }
-}*/
+}

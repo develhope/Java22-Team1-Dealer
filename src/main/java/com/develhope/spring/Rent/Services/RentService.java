@@ -1,9 +1,11 @@
 package com.develhope.spring.Rent.Services;
-/*
+
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentEntity;
+import com.develhope.spring.Rent.Entities.RentLink;
 import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
@@ -35,9 +37,10 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
+    @Autowired
+    private RentalsLinkRepository rentalsLinkRepository;
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
-
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "User not found"));
@@ -76,69 +79,42 @@ public class RentService {
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         if (userEntity.getUserType() == UserTypes.SELLER || userEntity.getUserType() == UserTypes.ADMIN) {
-//            rentEntity.setUserEntity(userEntity);
+            rentEntity.setUserEntity(userEntity);
         }
 
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
+        RentLink rentLink = new RentLink(userEntity, savedRentEntity);
+        RentLink savedRentLink = rentalsLinkRepository.save(rentLink);
+
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
         RentDTO savedRentDTO = RentModel.modelToDTO(savedRentModel);
         return Either.right(savedRentDTO);
     }
 
-
     public List<RentDTO> getRentList(UserEntity userEntityDetails) {
-        UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (userEntity.getUserType() == UserTypes.BUYER) {
-            return rentRepository.findAllByUserEntity_Id(userEntity.getId()).stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        } else if (userEntity.getUserType() == UserTypes.SELLER) {
-            return rentRepository.findAllActive().stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        } else { // ADMIN
-            return rentRepository.findAll().stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        }
+        return rentalsLinkRepository.findAllByUserEntity_Id(userEntityDetails.getId()).stream()
+                .map(rentLink -> RentModel.entityToModel(rentLink.getRentEntity()))
+                .map(RentModel::modelToDTO)
+                .collect(Collectors.toList());
     }
 
     public RentDTO getRentById(Long id, UserEntity userEntityDetails) {
-        UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (userEntity.getUserType() == UserTypes.BUYER) {
-            Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserEntity_Id(id, userEntity.getId());
-            if (rentOptional.isPresent()) {
-                RentEntity rentEntity = rentOptional.get();
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            } else {
-                return null;
-            }
-        } else { // SELLER or ADMIN
-            Optional<RentEntity> rentOptional = rentRepository.findById(id);
-            if (rentOptional.isPresent()) {
-                RentEntity rentEntity = rentOptional.get();
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            } else {
-                return null;
-            }
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        if (rentLinkOptional.isPresent()) {
+            RentLink rentLink = rentLinkOptional.get();
+            RentModel rentModel = RentModel.entityToModel(rentLink.getRentEntity());
+            return RentModel.modelToDTO(rentModel);
         }
+        return null;
     }
 
     public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, UserEntity userEntityDetails) {
-        UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        if (rentLinkOptional.isEmpty()) {
+            return Either.left(new RentResponse(403, "Unauthorized user"));
         }
-//        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
-//            return Either.left(new RentResponse(403, "Unauthorized user"));
-//        }
-        // Update rental dates
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentEntity.setStartDate(rentRequest.getStartDate());
         rentEntity.setEndDate(rentRequest.getEndDate());
         RentEntity updatedRentEntity = rentRepository.save(rentEntity);
@@ -148,26 +124,23 @@ public class RentService {
     }
 
     public Either<RentResponse, Void> deleteRent(Long id, UserEntity userEntityDetails) {
-        UserEntity userEntity = userRepository.findByEmail(userEntityDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        if (rentLinkOptional.isEmpty()) {
+            return Either.left(new RentResponse(403, "Unauthorized user"));
         }
-//        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUserEntity().getId(), userEntity.getId())) {
-//            return Either.left(new RentResponse(403, "Unauthorized user"));
-//        }
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentRepository.delete(rentEntity);
         return Either.right(null);
     }
 
     public Either<RentResponse, String> payRent(Long id, Long userId) {
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userId);
+        if (rentLinkOptional.isEmpty()) {
+            return Either.left(new RentResponse(403, "Unauthorized user"));
         }
-//        if (!Objects.equals(rentEntity.getUserEntity().getId(), userId)) {
-//            return Either.left(new RentResponse(403, "Unauthorized user"));
-//        }
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentEntity.setIsPaid(true);
         rentRepository.save(rentEntity);
 
@@ -175,4 +148,4 @@ public class RentService {
         String paymentMessage = String.format("Payment successful. Total amount paid: %s", totalCost);
         return Either.right(paymentMessage);
     }
-}*/
+}

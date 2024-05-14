@@ -1,5 +1,6 @@
 package com.develhope.spring.Rent.Entities;
-/*
+
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,9 @@ public class RentEntity {
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private UserEntity userEntity;
 
     private BigDecimal dailyCost;
     private BigDecimal totalCost;
@@ -52,4 +56,4 @@ public class RentEntity {
         }
         return BigDecimal.ZERO;
     }
-}*/
+}
