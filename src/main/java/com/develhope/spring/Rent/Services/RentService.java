@@ -40,7 +40,7 @@ public class RentService {
     @Autowired
     private RentalsLinkRepository rentalsLinkRepository;
 
-    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
+    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity user) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "User not found"));
@@ -92,14 +92,14 @@ public class RentService {
     }
 
     public List<RentDTO> getRentList(UserEntity userEntityDetails) {
-        return rentalsLinkRepository.findAllByUserEntity_Id(userEntityDetails.getId()).stream()
+        return rentalsLinkRepository.findAllByBuyer_Id(userEntityDetails.getId()).stream()
                 .map(rentLink -> RentModel.entityToModel(rentLink.getRentEntity()))
                 .map(RentModel::modelToDTO)
                 .collect(Collectors.toList());
     }
 
     public RentDTO getRentById(Long id, UserEntity userEntityDetails) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
         if (rentLinkOptional.isPresent()) {
             RentLink rentLink = rentLinkOptional.get();
             RentModel rentModel = RentModel.entityToModel(rentLink.getRentEntity());
@@ -109,7 +109,7 @@ public class RentService {
     }
 
     public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, UserEntity userEntityDetails) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
@@ -124,7 +124,7 @@ public class RentService {
     }
 
     public Either<RentResponse, Void> deleteRent(Long id, UserEntity userEntityDetails) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
@@ -135,7 +135,7 @@ public class RentService {
     }
 
     public Either<RentResponse, String> payRent(Long id, Long userId) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByIdAndUserEntity_Id(id, userId);
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userId);
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }

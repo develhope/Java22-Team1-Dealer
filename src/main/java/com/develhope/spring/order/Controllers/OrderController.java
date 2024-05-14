@@ -109,7 +109,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found")})
 
     @PutMapping("/update/admin/{orderId}")
-    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long targetId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -140,7 +140,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping("/admin/delete/{targetId}/{orderId}")
-    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long targetId, @PathVariable Long orderId) {
+    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId) {
         OrderResponse result = orderService.deleteOrder(userEntity, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }

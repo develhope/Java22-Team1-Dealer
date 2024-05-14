@@ -4,6 +4,7 @@ import com.develhope.spring.User.Entities.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Table
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrdersLinkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
