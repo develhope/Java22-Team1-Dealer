@@ -47,7 +47,7 @@ public class RentService {
         }
         UserEntity userEntity = userOptional.get();
 
-        if (userEntity.getUserType() != UserTypes.BUYER && userEntity.getUserType() != UserTypes.SELLER && userEntity.getUserType() != UserTypes.ADMIN) {
+        if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
@@ -60,7 +60,7 @@ public class RentService {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
         }
 
-        if (userEntity.getUserType() == UserTypes.BUYER && !Objects.equals(userEntity.getId(), userId)) {
+        if (userEntityDetails.getUserType() == UserTypes.BUYER && !Objects.equals(userEntityDetails.getId(), userId)) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
@@ -78,7 +78,7 @@ public class RentService {
         );
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
-        if (userEntity.getUserType() == UserTypes.SELLER || userEntity.getUserType() == UserTypes.ADMIN) {
+        if (userEntityDetails.getUserType() == UserTypes.SELLER || userEntityDetails.getUserType() == UserTypes.ADMIN) {
             rentEntity.setUserEntity(userEntity);
         }
 
