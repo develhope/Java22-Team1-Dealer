@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/dealer
-    username: root
-    password: claudio
+    url: jdbc:mysql://mysql-172230-0.cloudclusters.net:19998/padrepio
+    username: admin
+    password: zIQlvlEu
   jpa:
     database: mysql
     show_sql: true
