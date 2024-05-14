@@ -32,10 +32,7 @@ public class OrderEntity {
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicleEntity;
+    private VehicleEntity vehicle;
 
-    @OneToOne
-    @JoinColumn(name = "link_id")
-    OrdersLink ordersLink;
 }
 

@@ -1,9 +1,8 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
-import com.develhope.spring.order.Entities.OrdersLink;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,17 +21,14 @@ public class OrderModel {
 
     private Boolean isSold;
 
-    private VehicleEntity vehicleEntity;
+    private VehicleModel vehicle;
 
-    private OrdersLink ordersLink;
-
-
-    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, VehicleEntity vehicleEntity) {
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, VehicleModel vehicle) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
         this.isSold = isSold;
-        this.vehicleEntity = vehicleEntity;
+        this.vehicle = vehicle;
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
@@ -42,8 +38,7 @@ public class OrderModel {
                 orderModel.getPaid(),
                 orderModel.getStatus(),
                 orderModel.getIsSold(),
-                orderModel.getVehicleEntity(),
-                orderModel.getOrdersLink()
+                VehicleModel.modelToEntity(orderModel.getVehicle())
         );
     }
 
@@ -54,8 +49,7 @@ public class OrderModel {
                 orderModel.getPaid(),
                 orderModel.getStatus(),
                 orderModel.getIsSold(),
-                orderModel.getVehicleEntity(),
-                orderModel.getOrdersLink());
+                VehicleModel.modelToDTO(orderModel.getVehicle()));
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
@@ -65,11 +59,9 @@ public class OrderModel {
                 orderEntity.getIsPaid(),
                 orderEntity.getStatus(),
                 orderEntity.getIsSold(),
-                orderEntity.getVehicleEntity(),
-                orderEntity.getOrdersLink()
+                VehicleModel.entityToModel(orderEntity.getVehicle())
         );
     }
-
 
     public static OrderModel dtoToModel(OrderDTO orderDTO) {
         return new OrderModel(orderDTO.getOrderId(),
@@ -77,7 +69,6 @@ public class OrderModel {
                 orderDTO.getPaid(),
                 orderDTO.getStatus(),
                 orderDTO.getIsSold(),
-                orderDTO.getVehicleEntity(),
-                orderDTO.getOrdersLink());
+                VehicleModel.DTOtoModel(orderDTO.getVehicle()));
     }
 }

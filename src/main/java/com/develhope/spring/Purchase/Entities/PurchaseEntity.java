@@ -28,8 +28,4 @@ public class PurchaseEntity {
     @OneToOne
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleEntity;
-
-    @ManyToOne
-    @JoinColumn(name = "link_id")
-    private PurchasesLink purchasesLink;
 }

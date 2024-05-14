@@ -32,11 +32,12 @@ public class OrderController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OrderDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid Input parameters"),
             @ApiResponse(responseCode = "403", description = "Vehicle is not orderable"),
-            @ApiResponse(responseCode = "404", description = "Vehicle not found")})
+            @ApiResponse(responseCode = "404", description = "Vehicle not found"),
+            @ApiResponse(responseCode = "404", description = "Specified buyer not found")})
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.create(userEntity, orderRequest);
+    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestParam(required = false) Long buyerId, @RequestBody OrderRequest orderRequest) {
+        Either<OrderResponse, OrderDTO> result = orderService.create(userEntity, buyerId, orderRequest);
 
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -91,7 +92,7 @@ public class OrderController {
 
     @PutMapping("/update/{orderId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId,  orderRequest);
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -108,7 +109,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified order not found")})
 
     @PutMapping("/update/admin/{orderId}")
-    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity,@PathVariable Long targetId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<?> updateByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long targetId, @PathVariable Long orderId, @RequestBody OrderRequest orderRequest) {
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, orderId, orderRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -139,7 +140,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "Specified user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping("/admin/delete/{targetId}/{orderId}")
-    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity,@PathVariable Long targetId, @PathVariable Long orderId) {
+    public ResponseEntity<?> deleteByAdmin(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long targetId, @PathVariable Long orderId) {
         OrderResponse result = orderService.deleteOrder(userEntity, orderId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }

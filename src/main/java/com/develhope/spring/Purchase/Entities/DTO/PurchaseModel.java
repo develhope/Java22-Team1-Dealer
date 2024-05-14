@@ -2,7 +2,6 @@ package com.develhope.spring.Purchase.Entities.DTO;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Purchase.Entities.PurchasesLink;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +18,6 @@ public class PurchaseModel {
     private PurchaseStatus status;
 
     private VehicleEntity vehicleEntity;
-    private PurchasesLink purchasesLink;
 
 
     public PurchaseModel(Double deposit, Boolean isPaid, PurchaseStatus status, VehicleEntity vehicleEntity) {
@@ -34,16 +32,14 @@ public class PurchaseModel {
                 purchaseModel.getDeposit(),
                 purchaseModel.getIsPaid(),
                 purchaseModel.getStatus(),
-                purchaseModel.getVehicleEntity(),
-                purchaseModel.getPurchasesLink());
+                purchaseModel.getVehicleEntity());
     }
     public static PurchaseDTO modelToDto(PurchaseModel purchaseModel) {
         return new PurchaseDTO(purchaseModel.getId(),
                 purchaseModel.getDeposit(),
                 purchaseModel.getIsPaid(),
                 purchaseModel.getStatus(),
-                purchaseModel.getVehicleEntity(),
-                purchaseModel.getPurchasesLink());
+                purchaseModel.getVehicleEntity());
     }
 
     public static PurchaseModel entityToModel(PurchaseEntity purchaseEntity) {
@@ -51,8 +47,7 @@ public class PurchaseModel {
                 purchaseEntity.getDeposit(),
                 purchaseEntity.getIsPaid(),
                 purchaseEntity.getStatus(),
-                purchaseEntity.getVehicleEntity(),
-                purchaseEntity.getPurchasesLink());
+                purchaseEntity.getVehicleEntity());
     }
 
     public static PurchaseModel dtoToModel(PurchaseDTO purchaseDTO) {
@@ -60,7 +55,6 @@ public class PurchaseModel {
                 purchaseDTO.getDeposit(),
                 purchaseDTO.getIsPaid(),
                 purchaseDTO.getStatus(),
-                purchaseDTO.getVehicleEntity(),
-                purchaseDTO.getPurchasesLink());
+                purchaseDTO.getVehicleEntity());
     }
 }
