@@ -40,7 +40,7 @@ public class RentService {
     @Autowired
     private RentalsLinkRepository rentalsLinkRepository;
 
-    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity user) {
+    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "User not found"));
