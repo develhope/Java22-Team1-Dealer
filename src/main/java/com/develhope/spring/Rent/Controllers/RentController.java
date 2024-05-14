@@ -26,7 +26,6 @@ public class RentController {
 
     private final RentService rentService;
 
-
     @Operation(summary = "Create a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Successfully created rent", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}),
@@ -34,14 +33,13 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Requester or Receiver not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal UserEntity userEntityDetails) {
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Long userId = userEntityDetails.getId();
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
-        if (result.isRight()) {
-            return ResponseEntity.ok(result.get());
-        } else {
-            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
-        }
+
+        return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
     }
+
 
     @Operation(summary = "Get a list of rents")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully retrieved list of rents", content =
@@ -49,9 +47,14 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping("/list")
-    public List<RentDTO> getRentList(@AuthenticationPrincipal UserEntity userEntityDetails) {
-        return rentService.getRentList(userEntityDetails);
+    public ResponseEntity<List<RentDTO>> getRentList(@AuthenticationPrincipal UserEntity userEntityDetails) {
+        List<RentDTO> rentList = rentService.getRentList(userEntityDetails);
+        if (rentList.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(rentList);
     }
+
 
     @Operation(summary = "Get a rent by ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully retrieved rent by ID", content = {
@@ -68,6 +71,7 @@ public class RentController {
         }
     }
 
+
     @Operation(summary = "Update rent dates")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully updated rent dates", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}),
@@ -76,12 +80,9 @@ public class RentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
-        if (result.isRight()) {
-            return ResponseEntity.ok(result.get());
-        } else {
-            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
-        }
+        return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
     }
+
 
     @Operation(summary = "Delete a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Successfully deleted rent"),
@@ -90,12 +91,11 @@ public class RentController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteRent(@PathVariable Long id, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Either<RentResponse, Void> result = rentService.deleteRent(id, userEntityDetails);
-        if (result.isRight()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
-        }
+        return result.isLeft() ?
+                ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage()) :
+                ResponseEntity.ok().build();
     }
+
 
     @Operation(summary = "Pay a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Payment successful", content = {
@@ -103,12 +103,23 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @PostMapping("/pay")
-    public ResponseEntity<?> payRent(@RequestParam("id") Long id, @RequestParam("userId") Long userId) {
-        Either<RentResponse, String> result = rentService.payRent(id, userId);
-        if (result.isRight()) {
-            return ResponseEntity.ok(result.get());
+    public ResponseEntity<?> payRent(@PathVariable Long id, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Long userId = userEntityDetails.getId();
+        Either<RentResponse, String> result = rentService.payRent(id, userId, userEntityDetails);
+        if (result.isLeft()) {
+            RentResponse errorResponse = result.getLeft();
+            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getMessage());
         } else {
-            return ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
+            String successMessage = result.get();
+            return ResponseEntity.ok(successMessage);
         }
     }
+
+    @DeleteMapping("/deleteBooking/{Id}")
+    public ResponseEntity<String> deleteBooking(@PathVariable Long rentId, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntityDetails);
+        return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage());
+    }
+
+
 }
