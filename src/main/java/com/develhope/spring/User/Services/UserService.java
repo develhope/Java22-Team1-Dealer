@@ -50,8 +50,8 @@ public class UserService {
         return Either.right(UserModel.modelToDto(userModel));
     }
 
-    public Either<UserResponse, List<UserDTO>> findByUserType(UserTypes userType) {
-        List<UserEntity> userEntities = userRepository.findByUserType(userType);
+    public Either<UserResponse, List<UserDTO>> findByUserType(String userType) {
+        List<UserEntity> userEntities = userRepository.findByUserType(UserTypes.convertFromString(userType));
         if (userEntities.isEmpty()) {
             return Either.left(new UserResponse(404, "No users found"));
         }

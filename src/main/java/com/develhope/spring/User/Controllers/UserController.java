@@ -56,7 +56,7 @@ public class UserController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))}),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
     @GetMapping("/findBy/userType")
-    public ResponseEntity<?> findByUserType(@RequestParam UserTypes userType) {
+    public ResponseEntity<?> findByUserType(@RequestParam String userType) {
         Either<UserResponse, List<UserDTO>> result = userService.findByUserType(userType);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -70,8 +70,8 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Successfully found user",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))}),
             @ApiResponse(responseCode = "404", description = "Specified user not found")})
-    @GetMapping("/findBy/userType")
-    public ResponseEntity<?> findByNameAndSurname(@PathVariable String name, String surname) {
+    @GetMapping("/findBy/nameAndSurname")
+    public ResponseEntity<?> findByNameAndSurname(@RequestParam String name, @RequestParam String surname) {
         Either<UserResponse, UserDTO> result = userService.findByNameAndSurname(name, surname);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
