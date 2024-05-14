@@ -1,17 +1,22 @@
 package com.develhope.spring.order.Entities;
 
-import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+//ordinato
+//cancellato
+//spedito
+//consegnato
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +35,8 @@ public class OrderEntity {
     private Boolean isSold;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User orderBuyer;
-
-    @ManyToOne
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicleEntity;
+    private VehicleEntity vehicle;
+
 }
 

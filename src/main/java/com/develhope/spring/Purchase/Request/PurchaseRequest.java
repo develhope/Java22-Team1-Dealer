@@ -12,6 +12,4 @@ public class PurchaseRequest {
     private String status;
 
     private Long vehicleId;
-
-    private Long userId;
 }

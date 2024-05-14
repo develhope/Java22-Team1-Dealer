@@ -1,16 +1,12 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class OrderDTO {
-
     private Long orderId;
 
     private Integer deposit;
@@ -21,8 +17,5 @@ public class OrderDTO {
 
     private Boolean isSold;
 
-    private User user;
-
-    private VehicleEntity vehicleEntity;
-
+    private VehicleDTO vehicle;
 }

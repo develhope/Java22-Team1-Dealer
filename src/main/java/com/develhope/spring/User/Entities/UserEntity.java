@@ -1,15 +1,12 @@
 package com.develhope.spring.User.Entities;
 
 
-import com.develhope.spring.Purchase.Entities.PurchaseEntity;
-import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.order.Entities.OrderEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,10 +17,10 @@ import java.util.List;
 @Builder
 @Entity
 @Table
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,14 +38,25 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "User type")
     private UserTypes userType;
 
-    @OneToMany(mappedBy = "orderBuyer", fetch = FetchType.EAGER)
-    private List<OrderEntity> orderEntities;
+    public UserEntity(Long id, String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
+    public UserEntity( String name, String surname, String phoneNumber, String email, String password, UserTypes userType) {
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
 
-    @OneToMany(mappedBy = "purchaseBuyer", fetch = FetchType.EAGER)
-    private List<PurchaseEntity> purchaseEntities;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<RentEntity> rentEntities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -79,4 +87,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

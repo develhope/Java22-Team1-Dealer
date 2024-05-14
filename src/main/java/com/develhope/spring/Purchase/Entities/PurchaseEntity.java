@@ -1,18 +1,19 @@
 package com.develhope.spring.Purchase.Entities;
 
 import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "purchases")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +27,5 @@ public class PurchaseEntity {
 
     @OneToOne
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicleEntity;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User purchaseBuyer;
+    private VehicleEntity vehicle;
 }

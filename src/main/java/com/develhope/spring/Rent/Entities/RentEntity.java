@@ -1,10 +1,11 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +13,8 @@ import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "rentals")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class RentEntity {
 
@@ -24,17 +26,13 @@ public class RentEntity {
     private LocalDate endDate;
     private boolean active;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sold_by_user_id")
-    private User soldBy;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private UserEntity userEntity;
 
     private BigDecimal dailyCost;
     private BigDecimal totalCost;

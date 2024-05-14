@@ -7,5 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class OrderResponse {
     private int code;
+
     private String message;
 }

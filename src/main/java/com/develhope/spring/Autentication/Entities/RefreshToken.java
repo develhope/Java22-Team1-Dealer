@@ -1,6 +1,6 @@
-package com.develhope.spring.Autentication.Entities.DTO;
+package com.develhope.spring.Autentication.Entities;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +21,6 @@ public class RefreshToken {
     private String token;
     private Instant expDate;
     @OneToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id")
-    private User userInfo;
+    @JoinColumn(name = "userEntity", referencedColumnName = "id")
+    private UserEntity userEntityInfo;
 }

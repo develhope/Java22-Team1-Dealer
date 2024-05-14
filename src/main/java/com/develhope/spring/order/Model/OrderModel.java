@@ -1,7 +1,6 @@
 package com.develhope.spring.order.Model;
 
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import lombok.AllArgsConstructor;
@@ -22,63 +21,54 @@ public class OrderModel {
 
     private Boolean isSold;
 
-    private User buyer;
+    private VehicleModel vehicle;
 
-    private VehicleEntity vehicleEntity;
-
-
-    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, User buyer, VehicleEntity vehicleEntity) {
+    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, VehicleModel vehicle) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
         this.isSold = isSold;
-        this.buyer = buyer;
-        this.vehicleEntity = vehicleEntity;
+        this.vehicle = vehicle;
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
-        OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setOrderId(orderModel.getOrderId());
-        orderEntity.setDeposit(orderModel.getDeposit());
-        orderEntity.setIsPaid(orderModel.getPaid());
-        orderEntity.setStatus(orderModel.getStatus());
-        orderEntity.setIsSold(orderModel.getIsSold());
-        orderEntity.setOrderBuyer(orderModel.getBuyer());
-        return orderEntity;
+        return new OrderEntity(
+                orderModel.getOrderId(),
+                orderModel.getDeposit(),
+                orderModel.getPaid(),
+                orderModel.getStatus(),
+                orderModel.getIsSold(),
+                VehicleModel.modelToEntity(orderModel.getVehicle())
+        );
     }
 
     public static OrderDTO modelToDto(OrderModel orderModel) {
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setOrderId(orderModel.getOrderId());
-        orderDTO.setDeposit(orderModel.getDeposit());
-        orderDTO.setPaid(orderModel.getPaid());
-        orderDTO.setStatus(orderModel.getStatus());
-        orderDTO.setIsSold(orderModel.getIsSold());
-        orderDTO.setUser(orderModel.getBuyer());
-
-        return orderDTO;
+        return new OrderDTO(
+                orderModel.getOrderId(),
+                orderModel.getDeposit(),
+                orderModel.getPaid(),
+                orderModel.getStatus(),
+                orderModel.getIsSold(),
+                VehicleModel.modelToDTO(orderModel.getVehicle()));
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
-        OrderModel orderModel = new OrderModel();
-        orderModel.setOrderId(orderEntity.getOrderId());
-        orderModel.setDeposit(orderEntity.getDeposit());
-        orderModel.setPaid(orderEntity.getIsPaid());
-        orderModel.setStatus(orderEntity.getStatus());
-        orderModel.setIsSold(orderEntity.getIsSold());
-        orderModel.setBuyer(orderEntity.getOrderBuyer());
-
-        return orderModel;
+        return new OrderModel(
+                orderEntity.getOrderId(),
+                orderEntity.getDeposit(),
+                orderEntity.getIsPaid(),
+                orderEntity.getStatus(),
+                orderEntity.getIsSold(),
+                VehicleModel.entityToModel(orderEntity.getVehicle())
+        );
     }
 
     public static OrderModel dtoToModel(OrderDTO orderDTO) {
-        OrderModel orderModel = new OrderModel();
-        orderModel.setOrderId(orderDTO.getOrderId());
-        orderModel.setDeposit(orderDTO.getDeposit());
-        orderModel.setPaid(orderDTO.getPaid());
-        orderModel.setStatus(orderDTO.getStatus());
-        orderModel.setIsSold(orderDTO.getIsSold());
-        orderModel.setBuyer(orderDTO.getUser());
-        return orderModel;
+        return new OrderModel(orderDTO.getOrderId(),
+                orderDTO.getDeposit(),
+                orderDTO.getPaid(),
+                orderDTO.getStatus(),
+                orderDTO.getIsSold(),
+                VehicleModel.DTOtoModel(orderDTO.getVehicle()));
     }
 }

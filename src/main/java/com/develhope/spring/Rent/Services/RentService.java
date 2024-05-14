@@ -3,11 +3,13 @@ package com.develhope.spring.Rent.Services;
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentEntity;
+import com.develhope.spring.Rent.Entities.RentLink;
 import com.develhope.spring.Rent.Repositories.RentRepository;
+import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
@@ -35,16 +37,17 @@ public class RentService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
+    @Autowired
+    private RentalsLinkRepository rentalsLinkRepository;
 
-    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, User userDetails) {
-
-        Optional<User> userOptional = userRepository.findById(userId);
+    public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "User not found"));
         }
-        User user = userOptional.get();
+        UserEntity userEntity = userOptional.get();
 
-        if (user.getUserType() != UserTypes.BUYER && user.getUserType() != UserTypes.SELLER && user.getUserType() != UserTypes.ADMIN) {
+        if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
@@ -57,7 +60,7 @@ public class RentService {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
         }
 
-        if (user.getUserType() == UserTypes.BUYER && !Objects.equals(user.getId(), userId)) {
+        if (userEntityDetails.getUserType() == UserTypes.BUYER && !Objects.equals(userEntityDetails.getId(), userId)) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
@@ -75,70 +78,43 @@ public class RentService {
         );
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
-        if (user.getUserType() == UserTypes.SELLER || user.getUserType() == UserTypes.ADMIN) {
-            rentEntity.setSoldBy(user);
+        if (userEntityDetails.getUserType() == UserTypes.SELLER || userEntityDetails.getUserType() == UserTypes.ADMIN) {
+            rentEntity.setUserEntity(userEntity);
         }
 
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
+        RentLink rentLink = new RentLink(userEntity, savedRentEntity);
+        RentLink savedRentLink = rentalsLinkRepository.save(rentLink);
+
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
         RentDTO savedRentDTO = RentModel.modelToDTO(savedRentModel);
         return Either.right(savedRentDTO);
     }
 
-
-    public List<RentDTO> getRentList(User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (user.getUserType() == UserTypes.BUYER) {
-            return rentRepository.findAllByUserId(user.getId()).stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        } else if (user.getUserType() == UserTypes.SELLER) {
-            return rentRepository.findAllActive().stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        } else { // ADMIN
-            return rentRepository.findAll().stream().map(rentEntity -> {
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            }).collect(Collectors.toList());
-        }
+    public List<RentDTO> getRentList(UserEntity userEntityDetails) {
+        return rentalsLinkRepository.findAllByBuyer_Id(userEntityDetails.getId()).stream()
+                .map(rentLink -> RentModel.entityToModel(rentLink.getRentEntity()))
+                .map(RentModel::modelToDTO)
+                .collect(Collectors.toList());
     }
 
-    public RentDTO getRentById(Long id, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (user.getUserType() == UserTypes.BUYER) {
-            Optional<RentEntity> rentOptional = rentRepository.findByIdAndUserId(id, user.getId());
-            if (rentOptional.isPresent()) {
-                RentEntity rentEntity = rentOptional.get();
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            } else {
-                return null;
-            }
-        } else { // SELLER or ADMIN
-            Optional<RentEntity> rentOptional = rentRepository.findById(id);
-            if (rentOptional.isPresent()) {
-                RentEntity rentEntity = rentOptional.get();
-                RentModel rentModel = RentModel.entityToModel(rentEntity);
-                return RentModel.modelToDTO(rentModel);
-            } else {
-                return null;
-            }
+    public RentDTO getRentById(Long id, UserEntity userEntityDetails) {
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+        if (rentLinkOptional.isPresent()) {
+            RentLink rentLink = rentLinkOptional.get();
+            RentModel rentModel = RentModel.entityToModel(rentLink.getRentEntity());
+            return RentModel.modelToDTO(rentModel);
         }
+        return null;
     }
 
-    public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
-        }
-        if (user.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUser().getId(), user.getId())) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, UserEntity userEntityDetails) {
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+        if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
-        // Update rental dates
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentEntity.setStartDate(rentRequest.getStartDate());
         rentEntity.setEndDate(rentRequest.getEndDate());
         RentEntity updatedRentEntity = rentRepository.save(rentEntity);
@@ -147,27 +123,24 @@ public class RentService {
         return Either.right(updatedRentDTO);
     }
 
-    public Either<RentResponse, Void> deleteRent(Long id, User userDetails) {
-        User user = userRepository.findByEmail(userDetails.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
-        }
-        if (user.getUserType() == UserTypes.BUYER && !Objects.equals(rentEntity.getUser().getId(), user.getId())) {
+    public Either<RentResponse, Void> deleteRent(Long id, UserEntity userEntityDetails) {
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+        if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentRepository.delete(rentEntity);
         return Either.right(null);
     }
 
     public Either<RentResponse, String> payRent(Long id, Long userId) {
-        RentEntity rentEntity = rentRepository.findById(id).orElse(null);
-        if (rentEntity == null) {
-            return Either.left(new RentResponse(404, "Rent not found"));
-        }
-        if (!Objects.equals(rentEntity.getUser().getId(), userId)) {
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userId);
+        if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
+        RentLink rentLink = rentLinkOptional.get();
+        RentEntity rentEntity = rentLink.getRentEntity();
         rentEntity.setIsPaid(true);
         rentRepository.save(rentEntity);
 
