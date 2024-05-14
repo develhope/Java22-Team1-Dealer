@@ -7,11 +7,18 @@ import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.VehicleType;
+import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
+import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.OrdersLinkEntity;
 import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -28,6 +35,9 @@ public class DealershipStatisticsService {
 
     @Autowired
     private RentalsLinkRepository rentalsLinkRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     public Integer getRentsNumberOfUser(UserEntity user, Long targetId) {
         if(user.getUserType() == UserTypes.ADMIN) {
@@ -71,4 +81,36 @@ public class DealershipStatisticsService {
         }
     }
 
+    public Integer getTotalOrders() {
+        List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
+        return orderList.size();
+
+        //TODO implementare il controllo degli users
+    }
+
+    public Integer getTotalPurchases() {
+        List<PurchasesLinkEntity> purchaseList = purchasesLinkRepository.findAll();
+        return purchaseList.size();
+
+        //TODO implementare il controllo degli users
+    }
+
+    public Integer getTotalRentals() {
+        List<RentLink> rentList = rentalsLinkRepository.findAll();
+        return rentList.size();
+
+        //TODO implementare il controllo degli users
+    }
+
+    public Map<VehicleType, Integer> getVehicleCountByType() {
+        List<VehicleEntity> vehicles = vehicleRepository.findAll();
+        Map<VehicleType, Integer> vehicleCountByType = new HashMap<>();
+
+        for (VehicleEntity vehicle : vehicles) {
+            VehicleType vehicleType = vehicle.getVehicleType();
+            vehicleCountByType.put(vehicleType, vehicleCountByType.getOrDefault(vehicleType, 0) + 1);
+        }
+
+        return vehicleCountByType;
+    }
 }
