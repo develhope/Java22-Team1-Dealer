@@ -43,6 +43,7 @@ public class RentService {
     @Autowired
     private VehicleCRUDService vehicleCRUDService;
 
+
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType().equals(UserTypes.BUYER)) {
             if (userId == null) {
