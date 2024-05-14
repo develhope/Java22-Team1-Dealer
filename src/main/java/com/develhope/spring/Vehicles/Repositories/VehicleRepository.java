@@ -19,6 +19,5 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     List<VehicleEntity> findByDiscountBetween(BigDecimal minPrice, BigDecimal maxPrice);
     List<VehicleEntity> findByIsNew(boolean isNew);
     List<VehicleEntity> findByVehicleStatus(VehicleStatus vehicleStatus);
-
     List<VehicleEntity> findByVehicleType(VehicleType vehicleType);
 }
