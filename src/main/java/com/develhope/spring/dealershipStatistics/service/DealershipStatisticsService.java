@@ -1,12 +1,14 @@
 package com.develhope.spring.dealershipStatistics.service;
 
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
+import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
 import com.develhope.spring.Rent.Entities.RentLink;
 import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.order.Repositories.OrderRepository;
+import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +22,13 @@ public class DealershipStatisticsService {
     private UserRepository userRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrdersLinkRepository ordersLinkRepository;
 
     @Autowired
-    private PurchaseRepository purchaseRepository;
+    private PurchasesLinkRepository purchasesLinkRepository;
 
     @Autowired
-    private RentalsLinkRepository rentalRepository;
+    private RentalsLinkRepository rentalsLinkRepository;
 
     public Integer getRentsNumberOfUser(UserEntity user, Long targetId) {
         if(user.getUserType() == UserTypes.ADMIN) {
@@ -34,10 +36,10 @@ public class DealershipStatisticsService {
             if(userOptional.isEmpty()) {
                 return null;
             }
-            List<RentLink> rentLinkList = rentalRepository.findAllBySeller_Id(targetId);
+            List<RentLink> rentLinkList = rentalsLinkRepository.findAllBySeller_Id(targetId);
             return rentLinkList.size();
         } else {
-            List<RentLink> rentLinkList = rentalRepository.findAllByBuyer_Id(user.getId());
+            List<RentLink> rentLinkList = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
             return rentLinkList.size();
         }
     }
