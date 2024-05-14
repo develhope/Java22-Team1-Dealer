@@ -10,7 +10,8 @@ import java.util.List;
 public interface PurchasesLinkRepository extends JpaRepository<PurchasesLinkEntity, Long> {
     List<PurchasesLinkEntity> findByBuyer_Id(Long buyerId);
 
-    List<PurchasesLinkEntity> findAllBySeller_Id(Long targetId);
+    List<PurchasesLinkEntity> findAllBySeller_Id(Long sellerId);
 
-    List<PurchasesLinkEntity> findAllByBuyer_Id(Long id);
+    PurchasesLinkEntity findByPurchase_PurchaseId(Long purchaseId);
+
 }

@@ -11,10 +11,13 @@ import com.develhope.spring.Purchase.Request.PurchaseRequest;
 import com.develhope.spring.Purchase.Response.PurchaseResponse;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
+import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import io.vavr.control.Either;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,8 @@ import java.util.Optional;
 @Service
 public class PurchaseService {
     @Autowired
+    UserRepository userRepository;
+    @Autowired
     PurchaseRepository purchaseRepository;
     @Autowired
     VehicleRepository vehicleRepository;
@@ -31,30 +36,39 @@ public class PurchaseService {
     @Autowired
     PurchasesLinkRepository purchasesLinkRepository;
 
-    public Either<PurchaseResponse, PurchaseDTO> createPurchase(UserEntity buyer, PurchaseRequest purchaseRequest) {
+    public Either<PurchaseResponse, PurchaseDTO> create(UserEntity seller, @Nullable Long buyerId, PurchaseRequest purchaseRequest) {
         if (purchaseRequest == null || purchaseRequest.getDeposit() < 0) {
             return Either.left(new PurchaseResponse(400, "Invalid input parameters"));
-        }
-
-        if (buyer.getUserType() != UserTypes.BUYER && buyer.getUserType() != UserTypes.ADMIN) {
-            return Either.left(new PurchaseResponse(403, "This user does not have permission to create a purchase"));
         }
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(purchaseRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "No vehicle found with such Id"));
         }
+        if(vehicleEntity.get().getVehicleStatus() != VehicleStatus.PURCHASABLE) {
+            return Either.left(new PurchaseResponse(403, "Vehicle is not purchasable"));
+        }
+
+        UserEntity buyer;
+        if (buyerId != null && seller.getUserType() == UserTypes.ADMIN || seller.getUserType() == UserTypes.SELLER) {
+            Optional<UserEntity> optionalBuyer = userRepository.findById(buyerId);
+            if(optionalBuyer.isEmpty()) {
+                return Either.left(new PurchaseResponse(404, "Specified buyer not found"));
+            }
+            buyer = optionalBuyer.get();
+        } else {
+            buyer = seller;
+        }
 
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
                 PurchaseStatus.convertFromString(purchaseRequest.getStatus()), VehicleModel.entityToModel(vehicleEntity.get()));
-        PurchaseEntity result = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
-        purchasesLinkRepository.saveAndFlush(new PurchasesLinkEntity(buyer, result));
-
-        PurchaseModel resultModel = PurchaseModel.entityToModel(result);
+        PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+        purchasesLinkRepository.saveAndFlush(new PurchasesLinkEntity(buyer, savedEntity));
+        PurchaseModel resultModel = PurchaseModel.entityToModel(savedEntity);
         return Either.right(PurchaseModel.modelToDto(resultModel));
     }
 
-    public Either<PurchaseResponse, PurchaseDTO> getSinglePurchase(UserEntity userEntity, Long purchadeId) {
+    public Either<PurchaseResponse, PurchaseDTO> getSingle(UserEntity userEntity, Long purchadeId) {
         Optional<PurchaseEntity> purchaseEntity = purchaseRepository.findById(purchadeId);
         if (purchaseEntity.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchase with id " + purchadeId + " not found"));
@@ -72,7 +86,7 @@ public class PurchaseService {
         return Either.right(PurchaseModel.modelToDto(purchaseModel));
     }
 
-    public Either<PurchaseResponse, List<PurchaseDTO>> getAllPurchases(UserEntity userEntity) {
+    public Either<PurchaseResponse, List<PurchaseDTO>> getAll(UserEntity userEntity) {
         List<PurchaseEntity> userPurchase = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLinkEntity::getPurchaseEntity).toList();
         if (userPurchase.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchases not found"));
@@ -87,8 +101,8 @@ public class PurchaseService {
     }
 
 
-    public Either<PurchaseResponse, PurchaseDTO> updatePurchase(UserEntity userEntity, Long purchaseId, PurchaseRequest updatedPurchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSinglePurchase(userEntity, purchaseId);
+    public Either<PurchaseResponse, PurchaseDTO> update(UserEntity userEntity, Long purchaseId, PurchaseRequest updatedPurchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> singlePurchase = getSingle(userEntity, purchaseId);
         if (singlePurchase.isLeft()) {
             return Either.left(singlePurchase.getLeft());
         }
@@ -107,8 +121,8 @@ public class PurchaseService {
         return Either.right(PurchaseModel.modelToDto(savedModel));
     }
 
-    public PurchaseResponse deletePurchase(UserEntity userEntity, Long purchaseId) {
-        Either<PurchaseResponse, PurchaseDTO> singlePurchaseResult = getSinglePurchase(userEntity, purchaseId);
+    public PurchaseResponse delete(UserEntity userEntity, Long purchaseId) {
+        Either<PurchaseResponse, PurchaseDTO> singlePurchaseResult = getSingle(userEntity, purchaseId);
         if (singlePurchaseResult.isLeft()) {
             return singlePurchaseResult.getLeft();
         }
@@ -119,7 +133,7 @@ public class PurchaseService {
         }
 
         try {
-            purchaseRepository.delete(purchaseEntity.get());
+            purchasesLinkRepository.delete(purchasesLinkRepository.findByPurchase_PurchaseId(purchaseId));
             return new PurchaseResponse(200, "Purchase deleted successfully");
         } catch (Exception e) {
             return new PurchaseResponse(500, "Internal server error");

@@ -29,10 +29,12 @@ public class PurchaseController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully created purchase",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Deposit is negative"),
-            @ApiResponse(responseCode = "404", description = "User with id{userId} not found")})
+            @ApiResponse(responseCode = "403", description = "Vehicle is not purchasable"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found"),
+            @ApiResponse(responseCode = "404", description = "Specified buyer not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestBody PurchaseRequest purchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.createPurchase(userEntity, purchaseRequest);
+    public ResponseEntity<?> create(@AuthenticationPrincipal UserEntity userEntity, @RequestParam(required = false) Long buyerId, @RequestBody PurchaseRequest purchaseRequest) {
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.create(userEntity, buyerId, purchaseRequest);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -43,12 +45,11 @@ public class PurchaseController {
     @Operation(summary = "Gets single purchase by id")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returned purchase with id{id}",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
-            @ApiResponse(responseCode = "403", description = "This purchase does not belong to the specified user"),
-            @ApiResponse(responseCode = "419", description = "User with id{userId} not found"),
-            @ApiResponse(responseCode = "420", description = "No purchase found with id{id}")})
+            @ApiResponse(responseCode = "403", description = "Purchase does not belong to specified user"),
+            @ApiResponse(responseCode = "404", description = "Specified purchase not found")})
     @GetMapping("/get/{purchaseId}")
     public ResponseEntity<?> getSingle(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSinglePurchase(userEntity, purchaseId);
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.getSingle(userEntity, purchaseId);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -59,11 +60,11 @@ public class PurchaseController {
     @Operation(summary = "Gets all purchases")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returned all purchases",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
-            @ApiResponse(responseCode = "419", description = "User with id{useId} not found")})
+            @ApiResponse(responseCode = "404", description = "No purchases found for specified user")})
 
     @GetMapping("/get")
     public ResponseEntity<?> getAll(@AuthenticationPrincipal UserEntity userEntity) {
-        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAllPurchases(userEntity);
+        Either<PurchaseResponse, List<PurchaseDTO>> result = purchaseService.getAll(userEntity);
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
         } else {
@@ -74,12 +75,12 @@ public class PurchaseController {
     @Operation(summary = "Update purchase by id")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Updated purchase with id{id}",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PurchaseDTO.class))}),
-            @ApiResponse(responseCode = "403", description = "This purchase does not belong to the specified user"),
-            @ApiResponse(responseCode = "419", description = "User with id{userId} not found"),
-            @ApiResponse(responseCode = "420", description = "No purchase found with id{id}")})
-    @PutMapping("/delete/{purchaseId}")
+            @ApiResponse(responseCode = "400", description = "Invalid input parameters"),
+            @ApiResponse(responseCode = "403", description = "Purchase does not belong to specified user"),
+            @ApiResponse(responseCode = "404", description = "Specified purchase not found")})
+    @PutMapping("/update/{purchaseId}")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId, @RequestBody PurchaseRequest purchaseRequest) {
-        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.updatePurchase(userEntity, purchaseId, purchaseRequest);
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.update(userEntity, purchaseId, purchaseRequest);
 
         if (result.isRight()) {
             return ResponseEntity.ok(result.get());
@@ -90,10 +91,13 @@ public class PurchaseController {
 
     @Operation(summary = "Delete purchase by id")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully deleted purchase with id{id}"),
-            @ApiResponse(responseCode = "404", description = "No purchase found with id{id}")})
+            @ApiResponse(responseCode = "403", description = "Purchase does not belong to specified user"),
+            @ApiResponse(responseCode = "404", description = "Specified purchase not found"),
+            @ApiResponse(responseCode = "404", description = "Specified user not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping("/delete/{purchaseId}")
     public ResponseEntity<?> delete(@AuthenticationPrincipal UserEntity userEntity, @PathVariable Long purchaseId) {
-        PurchaseResponse result = purchaseService.deletePurchase(userEntity, purchaseId);
+        PurchaseResponse result = purchaseService.delete(userEntity, purchaseId);
         return ResponseEntity.status(result.getCode()).body(result.getMessage());
     }
 
