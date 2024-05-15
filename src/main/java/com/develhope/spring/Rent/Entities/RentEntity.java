@@ -1,10 +1,10 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -16,6 +16,7 @@ import java.time.temporal.ChronoUnit;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class RentEntity {
 
     @Id
@@ -29,10 +30,6 @@ public class RentEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
 
     private BigDecimal dailyCost;
     private BigDecimal totalCost;

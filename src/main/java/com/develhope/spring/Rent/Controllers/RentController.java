@@ -1,6 +1,7 @@
 package com.develhope.spring.Rent.Controllers;
 
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
+import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.Rent.Services.RentService;
@@ -78,9 +79,23 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
-        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
-        return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
+    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest) {
+        UserEntity userEntityDetails = getUserDetailsFromSecurityContext();
+
+        Either<Object, RentEntity> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
+
+        if (result.isLeft()) {
+            RentResponse response = (RentResponse) result.getLeft();
+            return ResponseEntity.status(response.getStatusCode()).body(response.getMessage());
+        } else {
+            RentEntity updatedRent = result.get();
+            return ResponseEntity.ok(updatedRent);
+        }
+    }
+
+    private UserEntity getUserDetailsFromSecurityContext() {
+        // This method should be implemented to extract user details from the security context
+        return new UserEntity(); // Placeholder return
     }
 
 
