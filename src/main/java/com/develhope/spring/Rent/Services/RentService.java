@@ -65,6 +65,8 @@ public class RentService {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
+        vehicleRepository.save(vehicleEntity);
         BigDecimal dailyCost = new BigDecimal(rentRequest.getDailyCost().toString());
         long days = ChronoUnit.DAYS.between(rentRequest.getStartDate(), rentRequest.getEndDate());
         BigDecimal totalCost = dailyCost.multiply(BigDecimal.valueOf(days));
@@ -180,6 +182,13 @@ public class RentService {
         }
 
         rentRepository.delete(rentEntity);
+
+        VehicleEntity vehicleEntity = rentEntity.getVehicleId();
+        if (vehicleEntity != null) {
+            vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(vehicleEntity);
+        }
+
         return Either.right(null);
     }
 
@@ -224,6 +233,12 @@ public class RentService {
 
         if (rentEntity.isActive()) {
             return Either.left(new RentResponse(400, "Rent is Active and cannot be deleted"));
+        }
+
+        VehicleEntity vehicleEntity = rentEntity.getVehicleId();
+        if (vehicleEntity != null) {
+            vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(vehicleEntity);
         }
 
         rentRepository.delete(rentEntity);
