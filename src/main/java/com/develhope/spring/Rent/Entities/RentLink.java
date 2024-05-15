@@ -16,15 +16,15 @@ public class RentLink {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long linkId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_Id", nullable = false)
     UserEntity buyer;
 
     @OneToOne
-    @JoinColumn(name = "purchase_id", nullable = false)
+    @JoinColumn(name = "rent_id", nullable = false)
     RentEntity rentEntity;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "seller_id")
     UserEntity seller;
 

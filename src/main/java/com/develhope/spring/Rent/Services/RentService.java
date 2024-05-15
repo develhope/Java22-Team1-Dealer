@@ -79,9 +79,7 @@ public class RentService {
         );
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
-        if (userEntityDetails.getUserType() == UserTypes.SELLER || userEntityDetails.getUserType() == UserTypes.ADMIN) {
-            rentEntity.setUserEntity(userEntity);
-        }
+        rentEntity.setUserEntity(userEntity);
 
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
         RentLink rentLink = new RentLink(userEntity, savedRentEntity);
