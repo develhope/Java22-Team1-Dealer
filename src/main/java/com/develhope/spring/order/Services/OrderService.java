@@ -138,7 +138,7 @@ public class OrderService {
             ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
             return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
-            return new OrderResponse(500, "Internal server error");
+            return new OrderResponse(500, e.getMessage());
         }
     }
 }

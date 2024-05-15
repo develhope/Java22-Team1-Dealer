@@ -81,21 +81,21 @@ public class DealershipStatisticsService {
         }
     }
 
-    public Integer getTotalOrders() {
+    public Integer getTotalOrders(UserEntity user) {
         List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
         return orderList.size();
 
         //TODO implementare il controllo degli users
     }
 
-    public Integer getTotalPurchases() {
+    public Integer getTotalPurchases(UserEntity user) {
         List<PurchasesLinkEntity> purchaseList = purchasesLinkRepository.findAll();
         return purchaseList.size();
 
         //TODO implementare il controllo degli users
     }
 
-    public Integer getTotalRentals() {
+    public Integer getTotalRentals(UserEntity user) {
         List<RentLink> rentList = rentalsLinkRepository.findAll();
         return rentList.size();
 

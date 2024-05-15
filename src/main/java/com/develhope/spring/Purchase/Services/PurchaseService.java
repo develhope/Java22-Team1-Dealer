@@ -75,7 +75,7 @@ public class PurchaseService {
         }
 
         if (userEntity.getUserType() != UserTypes.ADMIN) {
-            List<PurchaseEntity> userPurchases = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLinkEntity::getPurchaseEntity).toList();
+            List<PurchaseEntity> userPurchases = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLinkEntity::getPurchase).toList();
 
             if (userPurchases.stream().noneMatch(pe -> pe.getPurchaseId().equals(purchaseEntity.get().getPurchaseId()))) {
                 return Either.left(new PurchaseResponse(404, "Purchase does not belong to specified user"));
@@ -87,7 +87,7 @@ public class PurchaseService {
     }
 
     public Either<PurchaseResponse, List<PurchaseDTO>> getAll(UserEntity userEntity) {
-        List<PurchaseEntity> userPurchase = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLinkEntity::getPurchaseEntity).toList();
+        List<PurchaseEntity> userPurchase = purchasesLinkRepository.findByBuyer_Id(userEntity.getId()).stream().map(PurchasesLinkEntity::getPurchase).toList();
         if (userPurchase.isEmpty()) {
             return Either.left(new PurchaseResponse(404, "Purchases not found"));
         }

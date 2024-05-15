@@ -22,7 +22,7 @@ public class PurchasesLinkEntity {
 
     @OneToOne
     @JoinColumn(name = "purchase_id", nullable = false)
-    PurchaseEntity purchaseEntity;
+    PurchaseEntity purchase;
 
     @OneToOne
     @JoinColumn(name = "seller_id")
@@ -30,6 +30,6 @@ public class PurchasesLinkEntity {
 
     public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchaseEntity) {
         this.buyer = buyer;
-        this.purchaseEntity = purchaseEntity;
+        this.purchase = purchaseEntity;
     }
 }
