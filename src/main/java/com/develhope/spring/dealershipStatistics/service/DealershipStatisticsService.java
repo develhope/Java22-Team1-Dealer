@@ -113,4 +113,35 @@ public class DealershipStatisticsService {
 
         return vehicleCountByType;
     }
+
+    public double getCustomerReturnFrequency() {
+    }
+
+    public Map<String, Object> getDealershipStatistics() {
+        // TODO Implementazione per recuperare le statistiche complessive del concessionario dal database
+    }
+
+    public Map<String, Object> getUserStatistics(UserEntity user) {
+        // TODO Implementazione per recuperare le statistiche complessive per un singolo utente dal database
+    }
+
+    public Map<String, Object> getFinancialStatistics() {
+        // TODO Implementazione per recuperare le statistiche monetarie dal database
+    }
+
+    public Map<VehicleType, Integer> getVehicleCountByType() {
+        // TODO Implementazione per recuperare il numero di veicoli per tipo dal database
+    }
+
+    public Map<String, Integer> getVehicleCountByBrandOrModel() {
+        // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
+    }
+
+    public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
+        // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
+    }
+
+    public Map<String, Object> getSellerPerformanceStatistics() {
+        // TODO Implementazione per recuperare le statistiche di performance del personale dal database
+    }
 }
