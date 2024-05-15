@@ -129,10 +129,6 @@ public class DealershipStatisticsService {
         // TODO Implementazione per recuperare le statistiche monetarie dal database
     }
 
-    public Map<VehicleType, Integer> getVehicleCountByType() {
-        // TODO Implementazione per recuperare il numero di veicoli per tipo dal database
-    }
-
     public Map<String, Integer> getVehicleCountByBrandOrModel() {
         // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
     }
