@@ -24,7 +24,7 @@ public class RentLink {
 
     @OneToOne
     @JoinColumn(name = "rent_id", nullable = false)
-    RentEntity rentEntity;
+    RentEntity rent;
 
     @ManyToOne
     @JoinColumn(name = "seller_id")
@@ -33,7 +33,7 @@ public class RentLink {
 
     public RentLink(UserEntity buyer, RentEntity rentEntity) {
         this.buyer = buyer;
-        this.rentEntity = rentEntity;
+        this.rent = rentEntity;
     }
 
 }

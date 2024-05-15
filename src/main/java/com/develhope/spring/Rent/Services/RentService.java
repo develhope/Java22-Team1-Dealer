@@ -96,7 +96,7 @@ public class RentService {
                     .collect(Collectors.toList());
         } else if (userEntityDetails.getUserType() == UserTypes.BUYER) {
             return rentalsLinkRepository.findAllByBuyer_Id(userEntityDetails.getId()).stream()
-                    .map(rentLink -> RentModel.entityToModel(rentLink.getRentEntity()))
+                    .map(rentLink -> RentModel.entityToModel(rentLink.getRent()))
                     .map(RentModel::modelToDTO)
                     .collect(Collectors.toList());
         } else {
@@ -116,7 +116,7 @@ public class RentService {
             if (rentLinkOptional.isPresent()) {
                 RentLink rentLink = rentLinkOptional.get();
                 if (rentLink.getBuyer().getId().equals(userEntityDetails.getId())) {
-                    RentModel rentModel = RentModel.entityToModel(rentLink.getRentEntity());
+                    RentModel rentModel = RentModel.entityToModel(rentLink.getRent());
                     return RentModel.modelToDTO(rentModel);
                 }
             }
@@ -130,11 +130,8 @@ public class RentService {
             return Either.left(new RentResponse(404, "Rent link not found"));
         }
         RentLink rentLink = rentLinkOptional.get();
-        RentEntity rentEntity = rentLink.getRentEntity();
+        RentEntity rentEntity = rentLink.getRent();
 
-        if (!rentEntity.isActive()) {
-            return Either.left(new RentResponse(404, "Rent not active"));
-        }
 
         if (userEntityDetails.getUserType() == UserTypes.ADMIN || userEntityDetails.getUserType() == UserTypes.SELLER) {
             rentEntity.setStartDate(rentRequest.getStartDate());
@@ -143,7 +140,7 @@ public class RentService {
             rentEntity.setTotalCost(rentEntity.calculateTotalCost());
 
             RentEntity updatedRentEntity = rentRepository.save(rentEntity);
-            rentLink.setRentEntity(updatedRentEntity);
+            rentLink.setRent(updatedRentEntity);
             rentalsLinkRepository.save(rentLink);
 
             RentModel updatedRentModel = RentModel.entityToModel(updatedRentEntity);
@@ -156,7 +153,7 @@ public class RentService {
             rentEntity.setTotalCost(rentEntity.calculateTotalCost());
 
             RentEntity updatedRentEntity = rentRepository.save(rentEntity);
-            rentLink.setRentEntity(updatedRentEntity);
+            rentLink.setRent(updatedRentEntity);
             rentalsLinkRepository.save(rentLink);
 
             RentModel updatedRentModel = RentModel.entityToModel(updatedRentEntity);
@@ -178,7 +175,7 @@ public class RentService {
         }
 
         RentLink rentLink = rentLinkOptional.get();
-        RentEntity rentEntity = rentLink.getRentEntity();
+        RentEntity rentEntity = rentLink.getRent();
         if (!rentEntity.isActive()) {
             return Either.left(new RentResponse(400, "Rent is not active"));
         }
@@ -193,7 +190,7 @@ public class RentService {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         RentLink rentLink = rentLinkOptional.get();
-        RentEntity rentEntity = rentLink.getRentEntity();
+        RentEntity rentEntity = rentLink.getRent();
 
         if (rentEntity.getIsPaid()) {
             return Either.left(new RentResponse(400, "Rent already paid"));
@@ -223,7 +220,7 @@ public class RentService {
         }
 
         RentLink rentLink = rentLinkOptional.get();
-        RentEntity rentEntity = rentLink.getRentEntity();
+        RentEntity rentEntity = rentLink.getRent();
 
         if (rentEntity.getIsPaid()) {
             return Either.left(new RentResponse(400, "Rent has already been paid and cannot be deleted"));

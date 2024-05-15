@@ -79,10 +79,9 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest) {
-        UserEntity userEntityDetails = getUserDetailsFromSecurityContext();
+    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity user) {
 
-        Either<Object, RentEntity> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
+        Either<Object, RentEntity> result = rentService.updateRentDates(id, rentRequest, user);
 
         if (result.isLeft()) {
             RentResponse response = (RentResponse) result.getLeft();
