@@ -132,7 +132,6 @@ public class RentService {
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
 
-
         if (userEntityDetails.getUserType() == UserTypes.ADMIN || userEntityDetails.getUserType() == UserTypes.SELLER) {
             rentEntity.setStartDate(rentRequest.getStartDate());
             rentEntity.setEndDate(rentRequest.getEndDate());
@@ -146,7 +145,7 @@ public class RentService {
             RentModel updatedRentModel = RentModel.entityToModel(updatedRentEntity);
             RentDTO updatedRentDTO = RentModel.modelToDTO(updatedRentModel);
             return Either.right(updatedRentEntity);
-        } else if (userEntityDetails.getUserType() == UserTypes.BUYER && rentLink.getBuyer().getId().equals(userEntityDetails.getId())) {
+        } else if (userEntityDetails.getUserType() == UserTypes.BUYER && rentLink.getBuyer().getId().equals(userEntityDetails.getId()) && rentEntity.isActive()) {
             rentEntity.setStartDate(rentRequest.getStartDate());
             rentEntity.setEndDate(rentRequest.getEndDate());
             rentEntity.setIsPaid(false);
@@ -160,7 +159,7 @@ public class RentService {
             RentDTO updatedRentDTO = RentModel.modelToDTO(updatedRentModel);
             return Either.right(updatedRentEntity);
         } else {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
+            return Either.left(new RentResponse(403, "Unauthorized user or rent is not active"));
         }
     }
 
@@ -201,6 +200,7 @@ public class RentService {
         }
 
         rentEntity.setIsPaid(true);
+        rentEntity.setActive(true);
         rentRepository.save(rentEntity);
 
         BigDecimal totalCost = rentEntity.getTotalCost();
@@ -222,8 +222,8 @@ public class RentService {
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
 
-        if (rentEntity.getIsPaid()) {
-            return Either.left(new RentResponse(400, "Rent has already been paid and cannot be deleted"));
+        if (rentEntity.isActive()) {
+            return Either.left(new RentResponse(400, "Rent is Active and cannot be deleted"));
         }
 
         rentRepository.delete(rentEntity);
