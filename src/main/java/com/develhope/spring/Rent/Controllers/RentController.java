@@ -129,7 +129,7 @@ public class RentController {
         }
     }
 
-    @DeleteMapping("/deleteBooking/{Id}")
+    @DeleteMapping("/deleteBooking/{rentId}")
     public ResponseEntity<String> deleteBooking(@PathVariable Long rentId, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntityDetails);
         return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage());
