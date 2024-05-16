@@ -1,7 +1,9 @@
 package com.develhope.spring.dealershipStatistics.service;
 
+import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Entities.PurchasesLinkEntity;
 import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
+import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentLink;
 import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
@@ -10,8 +12,10 @@ import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
+import com.develhope.spring.dealershipStatistics.entities.StatisticsDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
+import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +44,9 @@ public class DealershipStatisticsService {
     private VehicleRepository vehicleRepository;
 
     public Integer getRentsNumberOfUser(UserEntity user, Long targetId) {
-        if(user.getUserType() == UserTypes.ADMIN) {
+        if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if(userOptional.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 return null;
             }
             List<RentLink> rentLinkList = rentalsLinkRepository.findAllBySeller_Id(targetId);
@@ -54,9 +58,9 @@ public class DealershipStatisticsService {
     }
 
     public Integer getPurchasesNumberOfUser(UserEntity user, Long targetId) {
-        if(user.getUserType() == UserTypes.ADMIN) {
+        if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if(userOptional.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 return null;
             }
             List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
@@ -68,38 +72,28 @@ public class DealershipStatisticsService {
     }
 
     public Integer getOrdersNumberOfUser(UserEntity user, Long targetId) {
-        if(user.getUserType() == UserTypes.ADMIN) {
+        if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if(userOptional.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 return null;
             }
-            List<PurchasesLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
+            List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
             return ordersList.size();
         } else {
-            List<PurchasesLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
+            List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
             return ordersList.size();
         }
     }
 
-    public Integer getTotalOrders(UserEntity user) {
+    public StatisticsDTO getTotalDelearshipStatistics(UserEntity user) {
+
         List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
-        return orderList.size();
-
-        //TODO implementare il controllo degli users
-    }
-
-    public Integer getTotalPurchases(UserEntity user) {
-        List<PurchasesLinkEntity> purchaseList = purchasesLinkRepository.findAll();
-        return purchaseList.size();
-
-        //TODO implementare il controllo degli users
-    }
-
-    public Integer getTotalRentals(UserEntity user) {
-        List<RentLink> rentList = rentalsLinkRepository.findAll();
-        return rentList.size();
-
-        //TODO implementare il controllo degli users
+        List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
+        List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
+        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(),
+                orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
+                purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
+                rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
     }
 
     public Map<VehicleType, Integer> getVehicleCountByType() {
