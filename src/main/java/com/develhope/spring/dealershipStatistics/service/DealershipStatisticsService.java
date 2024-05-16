@@ -20,10 +20,13 @@ import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class DealershipStatisticsService {
@@ -90,10 +93,7 @@ public class DealershipStatisticsService {
         List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
         List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
         List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
-        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(),
-                orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
-                purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
-                rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
+        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(), purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(), rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
     }
 
     public Map<VehicleType, Integer> getVehicleCountByType() {
@@ -131,7 +131,43 @@ public class DealershipStatisticsService {
         // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
     }
 
-    public Map<String, Object> getSellerPerformanceStatistics() {
-        // TODO Implementazione per recuperare le statistiche di performance del personale dal database
+    public Map<UserEntity, Integer> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            List<PurchasesLinkEntity> sellerSales = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate);
+            return Map.of(sellerSales.getFirst().getSeller(), sellerSales.size());
+        } else {
+            return null;
+        }
+    }
+
+    public Map<UserEntity, BigDecimal> getSellerRevenueByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            Optional<UserEntity> foundSeller = userRepository.findById(sellerId);
+            if (foundSeller.isEmpty() || foundSeller.get().getUserType() != UserTypes.SELLER) {
+                return null;
+            }
+            BigDecimal sum = BigDecimal.ZERO;
+            BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate).stream()
+                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerSalesRevenue);
+
+            BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBySellerIdBetweenDates(sellerId, startDate, endDate).stream().map(rentLink ->
+                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerRentsRevenue);
+
+            BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBySelleridBetweenDates(sellerId, startDate, endDate).stream().map(
+                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
+            ).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerOrdersRevenue);
+
+
+            return Map.of(
+                    foundSeller.get(),
+                    sum
+            );
+        } else {
+            return null;
+        }
     }
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Entity
-@Table
+@Table(name = "purchases_link")
 public class PurchasesLinkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

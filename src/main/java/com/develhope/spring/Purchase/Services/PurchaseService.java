@@ -2,7 +2,6 @@ package com.develhope.spring.Purchase.Services;
 
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseDTO;
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
-import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
 import com.develhope.spring.Purchase.Entities.PurchaseEntity;
 import com.develhope.spring.Purchase.Entities.PurchasesLinkEntity;
 import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
@@ -21,6 +20,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ public class PurchaseService {
     PurchasesLinkRepository purchasesLinkRepository;
 
     public Either<PurchaseResponse, PurchaseDTO> create(UserEntity seller, @Nullable Long buyerId, PurchaseRequest purchaseRequest) {
-        if (purchaseRequest == null || purchaseRequest.getDeposit() < 0) {
+        if (purchaseRequest == null) {
             return Either.left(new PurchaseResponse(400, "Invalid input parameters"));
         }
 
@@ -60,8 +60,9 @@ public class PurchaseService {
             buyer = seller;
         }
 
-        PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getDeposit(), purchaseRequest.getIsPaid(),
-                PurchaseStatus.convertFromString(purchaseRequest.getStatus()), VehicleModel.entityToModel(vehicleEntity.get()));
+        PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getIsPaid(),
+                 VehicleModel.entityToModel(vehicleEntity.get()),
+                LocalDate.now());
         PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
         purchasesLinkRepository.saveAndFlush(new PurchasesLinkEntity(buyer, savedEntity));
         PurchaseModel resultModel = PurchaseModel.entityToModel(savedEntity);
@@ -109,9 +110,7 @@ public class PurchaseService {
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(updatedPurchaseRequest.getVehicleId());
 
-        singlePurchase.get().setDeposit(updatedPurchaseRequest.getDeposit() == null ? singlePurchase.get().getDeposit() : updatedPurchaseRequest.getDeposit());
         singlePurchase.get().setIsPaid(updatedPurchaseRequest.getIsPaid() == null ? singlePurchase.get().getIsPaid() : updatedPurchaseRequest.getIsPaid());
-        singlePurchase.get().setStatus(updatedPurchaseRequest.getStatus() == null ? singlePurchase.get().getStatus() : PurchaseStatus.convertFromString(updatedPurchaseRequest.getStatus()));
         singlePurchase.get().setVehicle(vehicleEntity.isEmpty() ? singlePurchase.get().getVehicle() : vehicleEntity.map(ve -> VehicleModel.modelToDTO(VehicleModel.entityToModel(ve))).get());
 
 

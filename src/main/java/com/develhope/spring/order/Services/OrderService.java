@@ -10,6 +10,7 @@ import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
+import com.develhope.spring.order.Entities.enums.OrderStatus;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
@@ -20,6 +21,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +38,7 @@ public class OrderService {
     OrdersLinkRepository ordersLinkRepository;
 
     public Either<OrderResponse, OrderDTO> create(UserEntity seller, @Nullable Long buyerId, OrderRequest orderRequest) {
-        if (orderRequest == null || orderRequest.getDeposit() < 0) {
+        if (orderRequest == null || orderRequest.getDeposit().intValue() < 0) {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
 
@@ -59,8 +61,8 @@ public class OrderService {
             buyer = seller;
         }
 
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(),
-                VehicleModel.entityToModel(foundVehicle.get()));
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
+                VehicleModel.entityToModel(foundVehicle.get()), LocalDate.now());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
         ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity));
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
@@ -115,8 +117,7 @@ public class OrderService {
 
         foundOrder.get().setDeposit(orderRequest.getDeposit() == null ? foundOrder.get().getDeposit() : orderRequest.getDeposit());
         foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
-        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : orderRequest.getStatus());
-        foundOrder.get().setIsSold(orderRequest.getIsSold() == null ? foundOrder.get().getIsSold() : orderRequest.getIsSold());
+        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
         foundOrder.get().setVehicle(vehicleEntity.map(entity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(entity))).orElseGet(() -> foundOrder.get().getVehicle()));
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
