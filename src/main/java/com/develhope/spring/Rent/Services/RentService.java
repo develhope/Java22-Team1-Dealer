@@ -42,6 +42,17 @@ public class RentService {
     private RentalsLinkRepository rentalsLinkRepository;
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
+
+        if (userEntityDetails.getUserType() == UserTypes.BUYER) {
+            if (userId == null) {
+                userId = userEntityDetails.getId();
+            } else {
+                return Either.left(new RentResponse(403, "BUYER users can only create rents for themselves"));
+            }
+        } else if (userEntityDetails.getUserType() != UserTypes.ADMIN && userEntityDetails.getUserType() != UserTypes.SELLER) {
+            return Either.left(new RentResponse(403, "Unauthorized user type"));
+        }
+
         Either<RentResponse, UserEntity> userCheck = checkUserExists(userId);
         if (userCheck.isLeft()) {
             return Either.left(userCheck.getLeft());
@@ -53,16 +64,10 @@ public class RentService {
             return Either.left(authorizationCheck.getLeft());
         }
 
-        Either<RentResponse, Void> buyerAuthorizationCheck = checkBuyerAuthorization(userEntityDetails, userId);
-        if (buyerAuthorizationCheck.isLeft()) {
-            return Either.left(buyerAuthorizationCheck.getLeft());
-        }
-
         Optional<VehicleEntity> vehicleEntityOptional = vehicleRepository.findById(rentRequest.getVehicleId());
         if (vehicleEntityOptional.isEmpty()) {
             return Either.left(new RentResponse(400, "Vehicle not found"));
         }
-
         VehicleEntity vehicleEntity = vehicleEntityOptional.get();
         if (vehicleEntity.getVehicleStatus() != VehicleStatus.RENTABLE) {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
@@ -88,6 +93,7 @@ public class RentService {
 
         vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
         vehicleRepository.save(vehicleEntity);
+
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
         RentDTO savedRentDTO = RentModel.modelToDTO(savedRentModel);
         return Either.right(savedRentDTO);
