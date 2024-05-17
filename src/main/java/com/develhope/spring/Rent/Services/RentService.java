@@ -117,7 +117,7 @@ public class RentService {
                 return RentModel.modelToDTO(rentModel);
             }
         } else if (userEntityDetails.getUserType() == UserTypes.BUYER) {
-            Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+            Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
             if (rentLinkOptional.isPresent()) {
                 RentLink rentLink = rentLinkOptional.get();
                 if (rentLink.getBuyer().getId().equals(userEntityDetails.getId())) {
@@ -136,7 +136,7 @@ public class RentService {
         }
 
         //trova il rentlink utilizzando il rentlinkid e lo userid
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(404, "Rent link not found"));
         }
@@ -172,7 +172,7 @@ public class RentService {
             return Either.left(authorizationCheck.getLeft());
         }
 
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(404, "Rent link not found"));
         }
@@ -196,7 +196,7 @@ public class RentService {
     }
 
     public Either<RentResponse, String> payRent(Long id, Long userId, UserEntity userEntityDetails) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userId);
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
@@ -226,7 +226,7 @@ public class RentService {
     }
 
     public Either<RentResponse, String> deleteBooking(Long rentId, UserEntity userEntityDetails) {
-        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(rentId, userEntityDetails.getId());
+        Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(rentId);
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(404, "Rent not found or does not belong to the user"));
         }

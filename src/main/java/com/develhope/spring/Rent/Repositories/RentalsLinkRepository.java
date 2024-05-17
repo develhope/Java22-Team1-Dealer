@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface RentalsLinkRepository extends JpaRepository<RentLink, Long> {
     List<RentLink> findAllByBuyer_Id(Long userId);
 
-    @Query("SELECT rl FROM RentLink rl WHERE rl.rent.id = :rentId AND rl.buyer.id = :buyerId")
-    Optional<RentLink> findByRentIdAndBuyerId(Long rentId, Long buyerId);
+    @Query("SELECT rl FROM RentLink rl WHERE rl.rent.id = :rentId")
+    Optional<RentLink> findByRentId(Long rentId);
 }
