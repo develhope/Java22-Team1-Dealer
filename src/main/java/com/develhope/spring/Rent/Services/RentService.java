@@ -14,17 +14,17 @@ import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
+import com.develhope.spring.Vehicles.Services.VehicleCRUDService;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Collections;
 
 @Service
 public class RentService {
@@ -40,6 +40,8 @@ public class RentService {
 
     @Autowired
     private RentalsLinkRepository rentalsLinkRepository;
+    @Autowired
+    private VehicleCRUDService vehicleCRUDService;
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType().equals(UserTypes.BUYER)) {
@@ -88,14 +90,14 @@ public class RentService {
                 vehicleEntity,
                 totalCost
         );
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
+        vehicleRepository.save(vehicleEntity);
+
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
         RentLink rentLink = new RentLink(userEntity, savedRentEntity);
         RentLink savedRentLink = rentalsLinkRepository.save(rentLink);
-
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
-        vehicleRepository.save(vehicleEntity);
 
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
         RentDTO savedRentDTO = RentModel.modelToDTO(savedRentModel);

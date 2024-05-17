@@ -1,7 +1,6 @@
 package com.develhope.spring.Rent.Controllers;
 
 import com.develhope.spring.Rent.Entities.DTO.RentDTO;
-import com.develhope.spring.Rent.Entities.RentEntity;
 import com.develhope.spring.Rent.Request.RentRequest;
 import com.develhope.spring.Rent.Response.RentResponse;
 import com.develhope.spring.Rent.Services.RentService;
@@ -34,7 +33,7 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Requester or Receiver not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal UserEntity userEntityDetails) {
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam(value = "userId", required = false) Long userId, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
 
         return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());
@@ -99,7 +98,7 @@ public class RentController {
             @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
-    @PostMapping("/pay")
+    @PostMapping("/pay/{id}")
     public ResponseEntity<?> payRent(@PathVariable Long id, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Long userId = userEntityDetails.getId();
         Either<RentResponse, String> result = rentService.payRent(id, userId, userEntityDetails);
