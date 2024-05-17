@@ -42,14 +42,13 @@ public class RentService {
     private RentalsLinkRepository rentalsLinkRepository;
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
-
-        if (userEntityDetails.getUserType() == UserTypes.BUYER) {
+        if (userEntityDetails.getUserType().equals(UserTypes.BUYER)) {
             if (userId == null) {
                 userId = userEntityDetails.getId();
             } else {
                 return Either.left(new RentResponse(403, "BUYER users can only create rents for themselves"));
             }
-        } else if (userEntityDetails.getUserType() != UserTypes.ADMIN && userEntityDetails.getUserType() != UserTypes.SELLER) {
+        } else if (!userEntityDetails.getUserType().equals(UserTypes.ADMIN) && !userEntityDetails.getUserType().equals(UserTypes.SELLER)) {
             return Either.left(new RentResponse(403, "Unauthorized user type"));
         }
 
@@ -71,6 +70,10 @@ public class RentService {
         VehicleEntity vehicleEntity = vehicleEntityOptional.get();
         if (vehicleEntity.getVehicleStatus() != VehicleStatus.RENTABLE) {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
+        }
+
+        if (rentRequest.getStartDate().isAfter(rentRequest.getEndDate())) {
+            return Either.left(new RentResponse(400, "Start date must be before end date"));
         }
 
         BigDecimal dailyCost = rentRequest.getDailyCost();
@@ -265,13 +268,6 @@ public class RentService {
 
     private Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
-        }
-        return Either.right(null);
-    }
-       
-    private Either<RentResponse, Void> checkBuyerAuthorization(UserEntity userEntityDetails, Long userId) {
-        if (userEntityDetails.getUserType() == UserTypes.BUYER && !userEntityDetails.getId().equals(userId)) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         return Either.right(null);
