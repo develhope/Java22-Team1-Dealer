@@ -184,6 +184,9 @@ public class RentService {
         rentRepository.save(rentEntity);
 
         rentalsLinkRepository.delete(rentLink);
+        VehicleEntity vehicle = rentEntity.getVehicleId();
+        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
+        vehicleRepository.save(vehicle);
 
         return Either.right(null);
     }
@@ -239,14 +242,14 @@ public class RentService {
             return Either.left(new RentResponse(400, "Rent is Active and cannot be deleted"));
         }
 
-        VehicleEntity vehicleEntity = rentEntity.getVehicleId();
-        if (vehicleEntity != null) {
-            vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
-            vehicleRepository.save(vehicleEntity);
-        }
+        rentEntity.setActive(false);
+        rentRepository.save(rentEntity);
 
-        rentRepository.delete(rentEntity);
-        return Either.right("Rent booking successfully deleted.");
+        VehicleEntity vehicle = rentEntity.getVehicleId();
+        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
+        vehicleRepository.save(vehicle);
+
+        return Either.right("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.");
     }
 
     private Either<RentResponse, UserEntity> checkUserExists(Long userId) {
