@@ -14,22 +14,28 @@ import lombok.Setter;
 public class PurchasesLinkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long linkId;
+    private Long linkId;
 
     @OneToOne
     @JoinColumn(name = "user_Id", nullable = false)
-    UserEntity buyer;
+    private UserEntity buyer;
 
     @OneToOne
     @JoinColumn(name = "purchase_id", nullable = false)
-    PurchaseEntity purchase;
+    private PurchaseEntity purchase;
 
     @OneToOne
     @JoinColumn(name = "seller_id")
-    UserEntity seller;
+    private UserEntity seller;
 
     public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchaseEntity) {
         this.buyer = buyer;
         this.purchase = purchaseEntity;
+    }
+
+    public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchase, UserEntity seller) {
+        this.buyer = buyer;
+        this.purchase = purchase;
+        this.seller = seller;
     }
 }

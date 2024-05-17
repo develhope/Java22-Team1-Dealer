@@ -53,18 +53,22 @@ public class OrderService {
         UserEntity buyer;
         if (buyerId != null && seller.getUserType() == UserTypes.ADMIN || seller.getUserType() == UserTypes.SELLER) {
             Optional<UserEntity> optionalBuyer = userRepository.findById(buyerId);
-            if(optionalBuyer.isEmpty()) {
+            if (optionalBuyer.isEmpty()) {
                 return Either.left(new OrderResponse(404, "Specified buyer not found"));
             }
             buyer = optionalBuyer.get();
         } else {
             buyer = seller;
         }
-
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
                 VehicleModel.entityToModel(foundVehicle.get()), LocalDate.now());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-        ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity));
+        if (!buyer.getId().equals(seller.getId())) {
+            ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity, seller));
+        } else {
+            ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity));
+        }
+
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
