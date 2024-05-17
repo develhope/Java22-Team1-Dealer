@@ -126,7 +126,7 @@ public class DealershipStatisticsService {
         return statistics;
     }
 
-    public Map<String, Object> getFinancialStatistics() {
+    public Map<String, String> getFinancialStatistics() {
         //TODO implementare il controllo che sara solo ADMIN
 
         BigDecimal totalRentals = rentalsLinkRepository.findAll().stream()
@@ -144,13 +144,41 @@ public class DealershipStatisticsService {
 
         BigDecimal totalRevenue = totalRentals.add(totalPurchases).add(totalOrders);
 
-        Map<String, Object> financialStatistics = new HashMap<>();
+        Map<String, String> financialStatistics = new HashMap<>();
         financialStatistics.put("rentals", totalRentals + "€");
         financialStatistics.put("orders", totalOrders + "€");
         financialStatistics.put("purchases", totalPurchases + "€");
         financialStatistics.put("total", totalRevenue + "€");
 
         return financialStatistics;
+    }
+
+    public Map<String, String> getDealershipRevenueByTimePeriod(UserEntity user,LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            BigDecimal sum = BigDecimal.ZERO;
+            BigDecimal salesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
+                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(salesRevenue);
+
+            BigDecimal rentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(rentLink ->
+                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(rentsRevenue);
+
+            BigDecimal ordersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(
+                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
+            ).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(ordersRevenue);
+
+            Map<String, String> financialStatistics = new HashMap<>();
+            financialStatistics.put("rentals", rentsRevenue + "€");
+            financialStatistics.put("orders", ordersRevenue + "€");
+            financialStatistics.put("purchases", salesRevenue + "€");
+            financialStatistics.put("total", sum + "€");
+            return financialStatistics;
+        } else {
+            return null;
+        }
     }
 
     public Map<String, Map<String, Integer>> getVehicleCountByBrandAndModel() {
@@ -213,4 +241,5 @@ public class DealershipStatisticsService {
             return null;
         }
     }
+
 }
