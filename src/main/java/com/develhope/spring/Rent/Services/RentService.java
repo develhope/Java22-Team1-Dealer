@@ -68,8 +68,6 @@ public class RentService {
             return Either.left(new RentResponse(400, "Vehicle not available for rent"));
         }
 
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
-        vehicleRepository.save(vehicleEntity);
         BigDecimal dailyCost = rentRequest.getDailyCost();
         long days = ChronoUnit.DAYS.between(rentRequest.getStartDate(), rentRequest.getEndDate());
         BigDecimal totalCost = dailyCost.multiply(BigDecimal.valueOf(days));
@@ -82,6 +80,9 @@ public class RentService {
                 vehicleEntity,
                 totalCost
         );
+
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
+        vehicleRepository.save(vehicleEntity);
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
