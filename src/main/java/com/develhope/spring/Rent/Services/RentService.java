@@ -179,18 +179,11 @@ public class RentService {
 
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
-        Either<RentResponse, Boolean> activeCheck = checkRentIsActive(rentEntity);
-        if (activeCheck.isLeft()) {
-            return Either.left(new RentResponse(400, "Rent is not Active"));
-        }
 
-        rentRepository.delete(rentEntity);
+        rentEntity.setActive(false);
+        rentRepository.save(rentEntity);
 
-        VehicleEntity vehicleEntity = rentEntity.getVehicleId();
-        if (vehicleEntity != null) {
-            vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
-            vehicleRepository.save(vehicleEntity);
-        }
+        rentalsLinkRepository.delete(rentLink);
 
         return Either.right(null);
     }
@@ -198,7 +191,8 @@ public class RentService {
     public Either<RentResponse, String> payRent(Long id, Long userId, UserEntity userEntityDetails) {
         Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
-            return Either.left(new RentResponse(403, "Unauthorized user"));
+            System.out.println("No RentLink found for ID: " + id); // Debug log
+            return Either.left(new RentResponse(403, "Unauthorized user - Rent link not found"));
         }
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
@@ -207,7 +201,13 @@ public class RentService {
             return Either.left(new RentResponse(400, "Rent already paid"));
         }
 
-        if (userEntityDetails.getUserType() == UserTypes.BUYER && !userId.equals(rentLink.getBuyer().getId())) {
+        // Enhanced authorization check with detailed logging
+        boolean isAuthorized = userEntityDetails.getUserType() == UserTypes.ADMIN ||
+                userEntityDetails.getUserType() == UserTypes.SELLER ||
+                (userEntityDetails.getUserType() == UserTypes.BUYER && userId.equals(rentLink.getBuyer().getId()));
+
+        System.out.println("User Authorization: " + isAuthorized + " for User ID: " + userId + " with UserType: " + userEntityDetails.getUserType());
+        if (!isAuthorized) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
 
