@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +108,71 @@ public class DealershipStatisticsService {
         return vehicleCountByType;
     }
 
+    public double getCustomerReturnFrequency() {
+    }
+
+    public Map<String, Object> getUserStatistics(UserEntity user) {
+        Map<String, Object> statistics = new HashMap<>();
+
+        List<OrdersLinkEntity> orders = ordersLinkRepository.findAllByBuyer_Id(user.getId());
+        statistics.put("orders", orders.size());
+
+        List<PurchasesLinkEntity> purchases = purchasesLinkRepository.findByBuyer_Id(user.getId());
+        statistics.put("acquisti", purchases.size());
+
+        List<RentLink> rentals = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
+        statistics.put("rentals", rentals.size());
+
+        return statistics;
+    }
+
+    public Map<String, Object> getFinancialStatistics() {
+        //TODO implementare il controllo che sara solo ADMIN
+
+        BigDecimal totalRentals = rentalsLinkRepository.findAll().stream()
+                .map(rentLink -> rentLink.getRent().getTotalCost())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPurchases = purchasesLinkRepository.findAll().stream()
+                .map(purchaseLink -> purchaseLink.getPurchase().getVehicle().getPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalOrders = ordersLinkRepository.findAll().stream()
+                .filter(orderLink -> orderLink.getOrder().getIsPaid())
+                .map(orderLink -> orderLink.getOrder().getVehicle().getPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalRevenue = totalRentals.add(totalPurchases).add(totalOrders);
+
+        Map<String, Object> financialStatistics = new HashMap<>();
+        financialStatistics.put("rentals", totalRentals + "€");
+        financialStatistics.put("orders", totalOrders + "€");
+        financialStatistics.put("purchases", totalPurchases + "€");
+        financialStatistics.put("total", totalRevenue + "€");
+
+        return financialStatistics;
+    }
+
+    public Map<String, Map<String, Integer>> getVehicleCountByBrandAndModel() {
+        List<Object[]> results = vehicleRepository.countVehiclesByBrandAndModel();
+        Map<String, Map<String, Integer>> vehicleCountByBrandAndModel = new HashMap<>();
+
+        for (Object[] result : results) {
+            String brand = (String) result[0];
+            String model = (String) result[1];
+            Integer count = ((Long) result[2]).intValue();
+
+            Map<String, Integer> modelCount = vehicleCountByBrandAndModel.getOrDefault(brand, new HashMap<>());
+            modelCount.put(model, count);
+            vehicleCountByBrandAndModel.put(brand, modelCount);
+        }
+
+        return vehicleCountByBrandAndModel;
+    }
+
+    public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
+        // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
+    }
 
     public Map<UserEntity, Integer> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
         if (user.getUserType() == UserTypes.ADMIN) {
