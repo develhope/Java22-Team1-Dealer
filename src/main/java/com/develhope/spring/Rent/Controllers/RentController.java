@@ -72,31 +72,16 @@ public class RentController {
         }
     }
 
-
     @Operation(summary = "Update rent dates")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully updated rent dates", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Rent not found")})
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity user) {
-
-        Either<Object, RentEntity> result = rentService.updateRentDates(id, rentRequest, user);
-
-        if (result.isLeft()) {
-            RentResponse response = (RentResponse) result.getLeft();
-            return ResponseEntity.status(response.getStatusCode()).body(response.getMessage());
-        } else {
-            RentEntity updatedRent = result.get();
-            return ResponseEntity.ok(updatedRent);
-        }
+    public ResponseEntity<?> updateRentDates(@PathVariable Long id, @RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
+        Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
+        return result.isLeft() ? ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft()) : ResponseEntity.ok(result.get());
     }
-
-    private UserEntity getUserDetailsFromSecurityContext() {
-        // This method should be implemented to extract user details from the security context
-        return new UserEntity(); // Placeholder return
-    }
-
 
     @Operation(summary = "Delete a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Successfully deleted rent"),
@@ -109,7 +94,6 @@ public class RentController {
                 ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage()) :
                 ResponseEntity.ok().build();
     }
-
 
     @Operation(summary = "Pay a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Payment successful", content = {
@@ -134,6 +118,5 @@ public class RentController {
         Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntityDetails);
         return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft().getMessage());
     }
-
 
 }

@@ -129,7 +129,13 @@ public class RentService {
         return null;
     }
 
-    public Either<Object, RentEntity> updateRentDates(Long id, RentRequest rentRequest, UserEntity userEntityDetails) {
+    public Either<RentResponse, RentDTO> updateRentDates(Long id, RentRequest rentRequest, UserEntity userEntityDetails) {
+        //controllo della data, linizio non puo essere dopo la fine
+        if (rentRequest.getStartDate().isAfter(rentRequest.getEndDate())) {
+            return Either.left(new RentResponse(400, "Start date must be before end date"));
+        }
+
+        //trova il rentlink utilizzando il rentlinkid e lo userid
         Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentIdAndBuyerId(id, userEntityDetails.getId());
         if (rentLinkOptional.isEmpty()) {
             return Either.left(new RentResponse(404, "Rent link not found"));
@@ -137,34 +143,26 @@ public class RentService {
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
 
-        if (userEntityDetails.getUserType() == UserTypes.ADMIN || userEntityDetails.getUserType() == UserTypes.SELLER) {
-            rentEntity.setStartDate(rentRequest.getStartDate());
-            rentEntity.setEndDate(rentRequest.getEndDate());
-            rentEntity.setIsPaid(false);
-            rentEntity.setTotalCost(rentEntity.calculateTotalCost());
+        try {
+            //controllo delle autorizzazioni user
+            if (userEntityDetails.getUserType() == UserTypes.ADMIN || userEntityDetails.getUserType() == UserTypes.SELLER) {
+                updateRentEntityDates(rentRequest, rentEntity);
+            } else if (userEntityDetails.getUserType() == UserTypes.BUYER && rentLink.getBuyer().getId().equals(userEntityDetails.getId()) && rentEntity.isActive()) {
+                updateRentEntityDates(rentRequest, rentEntity);
+            } else {
+                return Either.left(new RentResponse(403, "Unauthorized user or rent is not active"));
+            }
 
+            //salvataggio del rent nel repository e nel linkrepository
             RentEntity updatedRentEntity = rentRepository.save(rentEntity);
             rentLink.setRent(updatedRentEntity);
             rentalsLinkRepository.save(rentLink);
 
             RentModel updatedRentModel = RentModel.entityToModel(updatedRentEntity);
             RentDTO updatedRentDTO = RentModel.modelToDTO(updatedRentModel);
-            return Either.right(updatedRentEntity);
-        } else if (userEntityDetails.getUserType() == UserTypes.BUYER && rentLink.getBuyer().getId().equals(userEntityDetails.getId()) && rentEntity.isActive()) {
-            rentEntity.setStartDate(rentRequest.getStartDate());
-            rentEntity.setEndDate(rentRequest.getEndDate());
-            rentEntity.setIsPaid(false);
-            rentEntity.setTotalCost(rentEntity.calculateTotalCost());
-
-            RentEntity updatedRentEntity = rentRepository.save(rentEntity);
-            rentLink.setRent(updatedRentEntity);
-            rentalsLinkRepository.save(rentLink);
-
-            RentModel updatedRentModel = RentModel.entityToModel(updatedRentEntity);
-            RentDTO updatedRentDTO = RentModel.modelToDTO(updatedRentModel);
-            return Either.right(updatedRentEntity);
-        } else {
-            return Either.left(new RentResponse(403, "Unauthorized user or rent is not active"));
+            return Either.right(updatedRentDTO);
+        } catch (Exception e) {
+            return Either.left(new RentResponse(500, "Error updating rent: " + e.getMessage()));
         }
     }
 
@@ -275,5 +273,15 @@ public class RentService {
             return Either.left(new RentResponse(400, "Rent is not active"));
         }
         return Either.right(true);
+    }
+
+    private void updateRentEntityDates(RentRequest rentRequest, RentEntity rentEntity) {
+        rentEntity.setStartDate(rentRequest.getStartDate());
+        rentEntity.setEndDate(rentRequest.getEndDate());
+        rentEntity.setTotalCost(rentEntity.calculateTotalCost());
+
+        if (!rentEntity.getIsPaid()) {
+            rentEntity.setIsPaid(false);
+        }
     }
 }
