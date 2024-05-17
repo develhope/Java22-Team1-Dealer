@@ -1,5 +1,5 @@
 package com.develhope.spring.dealershipStatistics.service;
-
+/*
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Entities.PurchasesLinkEntity;
 import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
@@ -260,4 +260,4 @@ public class DealershipStatisticsService {
     public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
         // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
     }
-}
+}*/
