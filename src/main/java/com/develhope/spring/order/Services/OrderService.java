@@ -123,6 +123,24 @@ public class OrderService {
         foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
         foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
         foundOrder.get().setVehicle(vehicleEntity.map(entity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(entity))).orElseGet(() -> foundOrder.get().getVehicle()));
+        if(foundOrder.get().getStatus() == OrderStatus.DELIVERED) {
+          VehicleModel newVehicle =  new VehicleModel(foundOrder.get().getVehicle().getBrand(),
+                    foundOrder.get().getVehicle().getModel(),
+                    foundOrder.get().getVehicle().getDisplacement(),
+                    foundOrder.get().getVehicle().getColor(),
+                    foundOrder.get().getVehicle().getPower(),
+                    foundOrder.get().getVehicle().getTransmission(),
+                    foundOrder.get().getVehicle().getRegistrationYear(),
+                    foundOrder.get().getVehicle().getPowerSupply(),
+                    foundOrder.get().getVehicle().getPrice(),
+                    foundOrder.get().getVehicle().getDiscount(),
+                    foundOrder.get().getVehicle().getAccessories(),
+                    foundOrder.get().getVehicle().getIsNew(),
+                    VehicleStatus.SOLD,
+                    foundOrder.get().getVehicle().getVehicleType());
+
+            vehicleRepository.save(VehicleModel.modelToEntity(newVehicle));
+        }
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
 
