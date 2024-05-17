@@ -31,6 +31,15 @@ public class RentModel {
         this.id = id;
     }
 
+    public RentModel(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, boolean isPaid, VehicleEntity vehicleEntity, BigDecimal totalCost) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.dailyCost = dailyCost;
+        this.isPaid = isPaid;
+        this.vehicleEntity = vehicleEntity;
+        this.totalCost = totalCost;
+    }
+
     public static RentEntity modelToEntity(RentModel rentModel) {
         return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.isPaid(), rentModel.getVehicleEntity(), rentModel.getTotalCost(), rentModel.getId());
     }
