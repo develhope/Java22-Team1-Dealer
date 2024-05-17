@@ -17,31 +17,33 @@ public class RentModel {
     private boolean isPaid;
     private VehicleEntity vehicleEntity;
     private BigDecimal totalCost;
+    private Long id;
 
 
 
-    public RentModel(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, boolean isPaid, VehicleEntity vehicleEntity, BigDecimal totalCost) {
+    public RentModel(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, boolean isPaid, VehicleEntity vehicleEntity, BigDecimal totalCost, Long id) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.dailyCost = dailyCost;
         this.isPaid = isPaid;
         this.vehicleEntity = vehicleEntity;
         this.totalCost = totalCost;
+        this.id = id;
     }
 
     public static RentEntity modelToEntity(RentModel rentModel) {
-        return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.isPaid(), rentModel.getVehicleEntity(), rentModel.getTotalCost());
+        return new RentEntity(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.isPaid(), rentModel.getVehicleEntity(), rentModel.getTotalCost(), rentModel.getId());
     }
     public static RentDTO modelToDTO(RentModel rentModel) {
-        return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.isPaid(), rentModel.getVehicleEntity(), rentModel.getTotalCost());
+        return new RentDTO(rentModel.getStartDate(), rentModel.getEndDate(), rentModel.getDailyCost(), rentModel.isPaid(), rentModel.getVehicleEntity(), rentModel.getTotalCost(), rentModel.getId());
     }
 
     public static RentModel dtoToModel(RentDTO rentDTO) {
-        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity(), rentDTO.getTotalCost());
+        return new RentModel(rentDTO.getStartDate(), rentDTO.getEndDate(), rentDTO.getDailyCost(), rentDTO.getIsPaid(), rentDTO.getVehicleEntity(), rentDTO.getTotalCost(), rentDTO.getId());
     }
 
     public static RentModel entityToModel(RentEntity rentEntity) {
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId(), rentEntity.getTotalCost());
+        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId(), rentEntity.getTotalCost(), rentEntity.getId());
     }
 }
 

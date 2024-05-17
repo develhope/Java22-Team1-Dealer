@@ -263,10 +263,6 @@ public class RentService {
         }
         return Either.right(null);
     }
-
-
-
-
        
     private Either<RentResponse, Void> checkBuyerAuthorization(UserEntity userEntityDetails, Long userId) {
         if (userEntityDetails.getUserType() == UserTypes.BUYER && !userEntityDetails.getId().equals(userId)) {

@@ -21,14 +21,16 @@ public class RentDTO {
     private BigDecimal totalCost;
 
     private VehicleEntity vehicleEntity;
+    private Long id;
 
-    public RentDTO(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, Boolean isPaid, VehicleEntity vehicleEntity, BigDecimal totalCost) {
+    public RentDTO(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, Boolean isPaid, VehicleEntity vehicleEntity, BigDecimal totalCost, Long id) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
         this.vehicleEntity = vehicleEntity;
         this.totalCost = totalCost;
+        this.id = id;
     }
 
 }

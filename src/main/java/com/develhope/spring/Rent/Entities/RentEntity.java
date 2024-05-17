@@ -36,13 +36,14 @@ public class RentEntity {
     private Boolean isPaid;
 
 
-    public RentEntity(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, Boolean isPaid, VehicleEntity vehicleId, BigDecimal totalCost) {
+    public RentEntity(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, Boolean isPaid, VehicleEntity vehicleId, BigDecimal totalCost, Long id) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
         this.vehicleId = vehicleId;
         this.totalCost = totalCost;
+        this.id = id;
     }
 
     public BigDecimal calculateTotalCost() {
