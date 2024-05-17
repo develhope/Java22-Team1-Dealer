@@ -34,8 +34,7 @@ public class RentController {
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Requester or Receiver not found")})
     @PostMapping("/create")
-    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @AuthenticationPrincipal UserEntity userEntityDetails) {
-        Long userId = userEntityDetails.getId();
+    public ResponseEntity<?> createRent(@RequestBody RentRequest rentRequest, @RequestParam("userId") Long userId, @AuthenticationPrincipal UserEntity userEntityDetails) {
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
 
         return result.isRight() ? ResponseEntity.ok(result.get()) : ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft());

@@ -81,14 +81,13 @@ public class RentService {
                 totalCost
         );
 
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
-        vehicleRepository.save(vehicleEntity);
-
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
         RentLink rentLink = new RentLink(userEntity, savedRentEntity);
         RentLink savedRentLink = rentalsLinkRepository.save(rentLink);
 
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
+        vehicleRepository.save(vehicleEntity);
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
         RentDTO savedRentDTO = RentModel.modelToDTO(savedRentModel);
         return Either.right(savedRentDTO);
@@ -265,6 +264,10 @@ public class RentService {
         return Either.right(null);
     }
 
+
+
+
+       
     private Either<RentResponse, Void> checkBuyerAuthorization(UserEntity userEntityDetails, Long userId) {
         if (userEntityDetails.getUserType() == UserTypes.BUYER && !userEntityDetails.getId().equals(userId)) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
