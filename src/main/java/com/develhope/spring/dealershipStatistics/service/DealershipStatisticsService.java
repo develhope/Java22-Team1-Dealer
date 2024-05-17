@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -108,28 +109,6 @@ public class DealershipStatisticsService {
         return vehicleCountByType;
     }
 
-    public double getCustomerReturnFrequency() {
-    }
-
-    public Map<String, Object> getDealershipStatistics() {
-        // TODO Implementazione per recuperare le statistiche complessive del concessionario dal database
-    }
-
-    public Map<String, Object> getUserStatistics(UserEntity user) {
-        // TODO Implementazione per recuperare le statistiche complessive per un singolo utente dal database
-    }
-
-    public Map<String, Object> getFinancialStatistics() {
-        // TODO Implementazione per recuperare le statistiche monetarie dal database
-    }
-
-    public Map<String, Integer> getVehicleCountByBrandOrModel() {
-        // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
-    }
-
-    public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
-        // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
-    }
 
     public Map<UserEntity, Integer> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
         if (user.getUserType() == UserTypes.ADMIN) {
@@ -169,5 +148,52 @@ public class DealershipStatisticsService {
         } else {
             return null;
         }
+    }
+
+    public BigDecimal getDealershipRevenueByTimePeriod(UserEntity user,LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            BigDecimal sum = BigDecimal.ZERO;
+            BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
+                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerSalesRevenue);
+
+            BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(rentLink ->
+                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerRentsRevenue);
+
+            BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(
+                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
+            ).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerOrdersRevenue);
+
+            return sum;
+        } else {
+            return null;
+        }
+    }
+
+
+    public double getCustomerReturnFrequency() {
+    }
+
+    public Map<String, Object> getDealershipStatistics() {
+        // TODO Implementazione per recuperare le statistiche complessive del concessionario dal database
+    }
+
+    public Map<String, Object> getUserStatistics(UserEntity user) {
+        // TODO Implementazione per recuperare le statistiche complessive per un singolo utente dal database
+    }
+
+    public Map<String, Object> getFinancialStatistics() {
+        // TODO Implementazione per recuperare le statistiche monetarie dal database
+    }
+
+    public Map<String, Integer> getVehicleCountByBrandOrModel() {
+        // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
+    }
+
+    public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
+        // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
     }
 }

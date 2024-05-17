@@ -22,4 +22,7 @@ public interface OrdersLinkRepository extends JpaRepository<OrdersLinkEntity, Lo
 
     @Query(value = "SELECT * FROM order_link_entity ole WHERE ole.seller.id = :id AND ole.order.startDate BETWEEN :startDate AND :endDate", nativeQuery = true)
     List<OrdersLinkEntity> findAllBySelleridBetweenDates(Long id, LocalDate startDate, LocalDate endDate);
+
+    @Query(value = "SELECT * FROM order_link_entity ole WHERE ole.order.startDate BETWEEN :startDate AND :endDate", nativeQuery = true)
+    List<OrdersLinkEntity> findAllBetweenDates( LocalDate startDate, LocalDate endDate);
 }

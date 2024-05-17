@@ -17,6 +17,9 @@ public interface PurchasesLinkRepository extends JpaRepository<PurchasesLinkEnti
     @Query(value = "SELECT * FROM purchases_link WHERE purchases_link.seller.id = :sellerId AND purchases_link.purchase.purchaseDate BETWEEN :startDate AND :endDate", nativeQuery = true)
     List<PurchasesLinkEntity> findAllBySellerIdInBetweenDates(Long sellerId, LocalDate startDate, LocalDate endDate);
 
+    @Query(value = "SELECT * FROM purchases_link WHERE purchases_link.purchase.purchaseDate BETWEEN :startDate AND :endDate", nativeQuery = true)
+    List<PurchasesLinkEntity> findAllInBetweenDates( LocalDate startDate, LocalDate endDate);
+
     PurchasesLinkEntity findByPurchase_PurchaseId(Long purchaseId);
 
 }
