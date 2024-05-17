@@ -15,9 +15,4 @@ public class OrdersLinkModel {
 
     private OrderModel order;
 
-    public OrdersLinkModel(Long id, UserModel buyer, OrderModel order) {
-        this.id = id;
-        this.buyer = buyer;
-        this.order = order;
-    }
 }

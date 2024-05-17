@@ -70,6 +70,7 @@ public class RentController {
         }
     }
 
+
     @Operation(summary = "Update rent dates")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully updated rent dates", content = {
             @Content(mediaType = "application/json", schema = @Schema(implementation = RentDTO.class))}),
@@ -80,6 +81,7 @@ public class RentController {
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(id, rentRequest, userEntityDetails);
         return result.isLeft() ? ResponseEntity.status(result.getLeft().getStatusCode()).body(result.getLeft()) : ResponseEntity.ok(result.get());
     }
+
 
     @Operation(summary = "Delete a rent")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Successfully deleted rent"),

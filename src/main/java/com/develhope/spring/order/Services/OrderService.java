@@ -10,6 +10,7 @@ import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
+import com.develhope.spring.order.Entities.enums.OrderStatus;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
@@ -20,6 +21,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +38,7 @@ public class OrderService {
     OrdersLinkRepository ordersLinkRepository;
 
     public Either<OrderResponse, OrderDTO> create(UserEntity seller, @Nullable Long buyerId, OrderRequest orderRequest) {
-        if (orderRequest == null || orderRequest.getDeposit() < 0) {
+        if (orderRequest == null || orderRequest.getDeposit().intValue() < 0) {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
 
@@ -51,18 +53,22 @@ public class OrderService {
         UserEntity buyer;
         if (buyerId != null && seller.getUserType() == UserTypes.ADMIN || seller.getUserType() == UserTypes.SELLER) {
             Optional<UserEntity> optionalBuyer = userRepository.findById(buyerId);
-            if(optionalBuyer.isEmpty()) {
+            if (optionalBuyer.isEmpty()) {
                 return Either.left(new OrderResponse(404, "Specified buyer not found"));
             }
             buyer = optionalBuyer.get();
         } else {
             buyer = seller;
         }
-
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(),
-                VehicleModel.entityToModel(foundVehicle.get()));
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
+                VehicleModel.entityToModel(foundVehicle.get()), LocalDate.now());
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-        ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity));
+        if (!buyer.getId().equals(seller.getId())) {
+            ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity, seller));
+        } else {
+            ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity));
+        }
+
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
@@ -115,9 +121,26 @@ public class OrderService {
 
         foundOrder.get().setDeposit(orderRequest.getDeposit() == null ? foundOrder.get().getDeposit() : orderRequest.getDeposit());
         foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
-        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : orderRequest.getStatus());
-        foundOrder.get().setIsSold(orderRequest.getIsSold() == null ? foundOrder.get().getIsSold() : orderRequest.getIsSold());
+        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
         foundOrder.get().setVehicle(vehicleEntity.map(entity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(entity))).orElseGet(() -> foundOrder.get().getVehicle()));
+        if(foundOrder.get().getStatus() == OrderStatus.DELIVERED) {
+          VehicleModel newVehicle =  new VehicleModel(foundOrder.get().getVehicle().getBrand(),
+                    foundOrder.get().getVehicle().getModel(),
+                    foundOrder.get().getVehicle().getDisplacement(),
+                    foundOrder.get().getVehicle().getColor(),
+                    foundOrder.get().getVehicle().getPower(),
+                    foundOrder.get().getVehicle().getTransmission(),
+                    foundOrder.get().getVehicle().getRegistrationYear(),
+                    foundOrder.get().getVehicle().getPowerSupply(),
+                    foundOrder.get().getVehicle().getPrice(),
+                    foundOrder.get().getVehicle().getDiscount(),
+                    foundOrder.get().getVehicle().getAccessories(),
+                    foundOrder.get().getVehicle().getIsNew(),
+                    VehicleStatus.SOLD,
+                    foundOrder.get().getVehicle().getVehicleType());
+
+            vehicleRepository.save(VehicleModel.modelToEntity(newVehicle));
+        }
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
 
@@ -138,7 +161,7 @@ public class OrderService {
             ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
             return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
-            return new OrderResponse(500, "Internal server error");
+            return new OrderResponse(500, e.getMessage());
         }
     }
 }

@@ -20,18 +20,24 @@ public class OrdersLinkEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    UserEntity buyer;
+    private UserEntity buyer;
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
-    OrderEntity order;
+    private OrderEntity order;
 
     @OneToOne
     @JoinColumn(name = "seller_id")
-    UserEntity seller;
+    private UserEntity seller;
 
     public OrdersLinkEntity(UserEntity buyer, OrderEntity order) {
         this.buyer = buyer;
         this.order = order;
+    }
+
+    public OrdersLinkEntity(UserEntity buyer, OrderEntity order, UserEntity seller) {
+        this.buyer = buyer;
+        this.order = order;
+        this.seller = seller;
     }
 }

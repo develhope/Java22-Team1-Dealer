@@ -3,9 +3,13 @@ package com.develhope.spring.order.Model;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -13,22 +17,22 @@ import lombok.NoArgsConstructor;
 public class OrderModel {
     private Long orderId;
 
-    private Integer deposit;
+    private BigDecimal deposit;
 
     private Boolean paid;
 
-    private String status;
-
-    private Boolean isSold;
+    private OrderStatus status;
 
     private VehicleModel vehicle;
+    private LocalDate orderDate;
 
-    public OrderModel(Integer deposit, Boolean paid, String status, Boolean isSold, VehicleModel vehicle) {
+
+    public OrderModel(BigDecimal deposit, Boolean paid, OrderStatus status, VehicleModel vehicle, LocalDate orderDate) {
         this.deposit = deposit;
         this.paid = paid;
         this.status = status;
-        this.isSold = isSold;
         this.vehicle = vehicle;
+        this.orderDate = orderDate;
     }
 
     public static OrderEntity modelToEntity(OrderModel orderModel) {
@@ -37,8 +41,8 @@ public class OrderModel {
                 orderModel.getDeposit(),
                 orderModel.getPaid(),
                 orderModel.getStatus(),
-                orderModel.getIsSold(),
-                VehicleModel.modelToEntity(orderModel.getVehicle())
+                VehicleModel.modelToEntity(orderModel.getVehicle()),
+                orderModel.getOrderDate()
         );
     }
 
@@ -48,8 +52,8 @@ public class OrderModel {
                 orderModel.getDeposit(),
                 orderModel.getPaid(),
                 orderModel.getStatus(),
-                orderModel.getIsSold(),
-                VehicleModel.modelToDTO(orderModel.getVehicle()));
+                VehicleModel.modelToDTO(orderModel.getVehicle()),
+                orderModel.getOrderDate());
     }
 
     public static OrderModel entityToModel(OrderEntity orderEntity) {
@@ -58,9 +62,8 @@ public class OrderModel {
                 orderEntity.getDeposit(),
                 orderEntity.getIsPaid(),
                 orderEntity.getStatus(),
-                orderEntity.getIsSold(),
-                VehicleModel.entityToModel(orderEntity.getVehicle())
-        );
+                VehicleModel.entityToModel(orderEntity.getVehicle()),
+                orderEntity.getOrderDate());
     }
 
     public static OrderModel dtoToModel(OrderDTO orderDTO) {
@@ -68,7 +71,7 @@ public class OrderModel {
                 orderDTO.getDeposit(),
                 orderDTO.getPaid(),
                 orderDTO.getStatus(),
-                orderDTO.getIsSold(),
-                VehicleModel.DTOtoModel(orderDTO.getVehicle()));
+                VehicleModel.DTOtoModel(orderDTO.getVehicle()),
+                orderDTO.getOrderDate());
     }
 }
