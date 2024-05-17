@@ -6,6 +6,7 @@ public enum VehicleStatus {
     PURCHASABLE,
     RENTED,
     SOLD,
+    ORDERED,
     NOT_AVAILABLE;
 
     public static VehicleStatus convertFromString(String status) {
@@ -14,6 +15,7 @@ public enum VehicleStatus {
             case "purchasable" -> VehicleStatus.PURCHASABLE;
             case "rented" -> VehicleStatus.RENTED;
             case "sold" -> VehicleStatus.SOLD;
+            case "ordered" -> VehicleStatus.ORDERED;
             default -> VehicleStatus.NOT_AVAILABLE;
         };
     }

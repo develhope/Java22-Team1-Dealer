@@ -13,7 +13,6 @@ import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleType;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.dealershipStatistics.entities.StatisticsDTO;
-import com.develhope.spring.order.Entities.OrderEntity;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.Repositories.OrdersLinkRepository;
@@ -26,11 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class DealershipStatisticsService {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -173,23 +170,24 @@ public class DealershipStatisticsService {
         }
     }
 
-    public double getCustomerReturnFrequency() {
-    }
-
     public Map<String, Object> getDealershipStatistics() {
         // TODO Implementazione per recuperare le statistiche complessive del concessionario dal database
+        return null;
     }
 
     public Map<String, Object> getUserStatistics(UserEntity user) {
         // TODO Implementazione per recuperare le statistiche complessive per un singolo utente dal database
+        return null;
     }
 
 
-    public double getCustomerReturnFrequency() {
+    public Double getCustomerReturnFrequency() {
+        return null;
     }
 
     public Map<String, Integer> getVehicleCountByBrandOrModel() {
         // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
+        return null;
     }
 
 }

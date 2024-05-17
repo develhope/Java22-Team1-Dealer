@@ -59,7 +59,8 @@ public class PurchaseService {
         } else {
             buyer = seller;
         }
-
+        vehicleEntity.get().setVehicleStatus(VehicleStatus.SOLD);
+        vehicleRepository.save(vehicleEntity.get());
         PurchaseModel purchaseModel = new PurchaseModel(purchaseRequest.getIsPaid(),
                  VehicleModel.entityToModel(vehicleEntity.get()),
                 LocalDate.now());
@@ -137,6 +138,8 @@ public class PurchaseService {
         }
 
         try {
+            purchaseEntity.get().getVehicle().setVehicleStatus(VehicleStatus.PURCHASABLE);
+            vehicleRepository.save(purchaseEntity.get().getVehicle());
             purchasesLinkRepository.delete(purchasesLinkRepository.findByPurchase_PurchaseId(purchaseId));
             return new PurchaseResponse(200, "Purchase deleted successfully");
         } catch (Exception e) {

@@ -60,9 +60,29 @@ public class OrderService {
         } else {
             buyer = seller;
         }
+
+        VehicleModel newVehicle = new VehicleModel(foundVehicle.get().getBrand(),
+                foundVehicle.get().getModel(),
+                foundVehicle.get().getDisplacement(),
+                foundVehicle.get().getColor(),
+                foundVehicle.get().getPower(),
+                foundVehicle.get().getTransmission(),
+                foundVehicle.get().getRegistrationYear(),
+                foundVehicle.get().getPowerSupply(),
+                foundVehicle.get().getPrice(),
+                foundVehicle.get().getDiscount(),
+                foundVehicle.get().getAccessories(),
+                foundVehicle.get().getIsNew(),
+                VehicleStatus.ORDERED,
+                foundVehicle.get().getVehicleType());
+
+        VehicleEntity savedVehicle = vehicleRepository.save(VehicleModel.modelToEntity(newVehicle));
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
-                VehicleModel.entityToModel(foundVehicle.get()), LocalDate.now());
+                VehicleModel.entityToModel(savedVehicle)
+                , LocalDate.now());
+
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        vehicleRepository.save(savedEntity.getVehicle());
         if (!buyer.getId().equals(seller.getId())) {
             ordersLinkRepository.saveAndFlush(new OrdersLinkEntity(buyer, savedEntity, seller));
         } else {
@@ -123,28 +143,16 @@ public class OrderService {
         foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
         foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
         foundOrder.get().setVehicle(vehicleEntity.map(entity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(entity))).orElseGet(() -> foundOrder.get().getVehicle()));
-        if(foundOrder.get().getStatus() == OrderStatus.DELIVERED) {
-          VehicleModel newVehicle =  new VehicleModel(foundOrder.get().getVehicle().getBrand(),
-                    foundOrder.get().getVehicle().getModel(),
-                    foundOrder.get().getVehicle().getDisplacement(),
-                    foundOrder.get().getVehicle().getColor(),
-                    foundOrder.get().getVehicle().getPower(),
-                    foundOrder.get().getVehicle().getTransmission(),
-                    foundOrder.get().getVehicle().getRegistrationYear(),
-                    foundOrder.get().getVehicle().getPowerSupply(),
-                    foundOrder.get().getVehicle().getPrice(),
-                    foundOrder.get().getVehicle().getDiscount(),
-                    foundOrder.get().getVehicle().getAccessories(),
-                    foundOrder.get().getVehicle().getIsNew(),
-                    VehicleStatus.SOLD,
-                    foundOrder.get().getVehicle().getVehicleType());
-
-            vehicleRepository.save(VehicleModel.modelToEntity(newVehicle));
-        }
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
-
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
+
+        if(savedModel.getStatus() == OrderStatus.DELIVERED) {
+            VehicleModel vehicleModel = savedModel.getVehicle();
+            vehicleModel.setVehicleStatus(VehicleStatus.SOLD);
+            vehicleRepository.save(VehicleModel.modelToEntity(vehicleModel));
+        }
+
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
@@ -156,8 +164,17 @@ public class OrderService {
         if (singleOrderResult.isLeft()) {
             return singleOrderResult.getLeft();
         }
-
         try {
+            OrderModel orderModel = OrderModel.dtoToModel(singleOrderResult.get());
+            orderModel.setStatus(OrderStatus.CANCELED);
+
+            VehicleModel vehicle = orderModel.getVehicle();
+            vehicle.setVehicleStatus(VehicleStatus.NOT_AVAILABLE);
+            vehicleRepository.save(VehicleModel.modelToEntity(vehicle));
+
+            orderModel.setVehicle(null);
+            orderRepository.save(OrderModel.modelToEntity(orderModel));
+
             ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
             return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
