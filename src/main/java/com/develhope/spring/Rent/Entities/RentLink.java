@@ -36,4 +36,10 @@ public class RentLink {
         this.rent = rentEntity;
     }
 
+    public RentLink(UserEntity buyer, RentEntity rentEntity, UserEntity seller) {
+        this.buyer = buyer;
+        this.rent = rentEntity;
+        this.seller = seller;
+    }
+
 }

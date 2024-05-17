@@ -96,7 +96,13 @@ public class RentService {
 
         RentEntity rentEntity = RentModel.modelToEntity(rentModel);
         RentEntity savedRentEntity = rentRepository.save(rentEntity);
-        RentLink rentLink = new RentLink(userEntity, savedRentEntity);
+
+        RentLink rentLink;
+        if (userEntityDetails.getUserType() == UserTypes.SELLER) {
+            rentLink = new RentLink(userEntity, savedRentEntity, userEntityDetails);
+        } else {
+            rentLink = new RentLink(userEntity, savedRentEntity);
+        }
         RentLink savedRentLink = rentalsLinkRepository.save(rentLink);
 
         RentModel savedRentModel = RentModel.entityToModel(savedRentEntity);
@@ -192,6 +198,7 @@ public class RentService {
         RentEntity rentEntity = rentLink.getRent();
 
         rentEntity.setActive(false);
+        rentEntity.setVehicleId(null);
         rentRepository.save(rentEntity);
 
         rentalsLinkRepository.delete(rentLink);
@@ -254,6 +261,7 @@ public class RentService {
         }
 
         rentEntity.setActive(false);
+        rentEntity.setVehicleId(null);
         rentRepository.save(rentEntity);
 
         VehicleEntity vehicle = rentEntity.getVehicleId();
