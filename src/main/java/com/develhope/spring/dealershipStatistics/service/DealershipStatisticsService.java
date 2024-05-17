@@ -88,12 +88,14 @@ public class DealershipStatisticsService {
         }
     }
 
-    public StatisticsDTO getTotalDelearshipStatistics(UserEntity user) {
+    public StatisticsDTO getAllDelearshipStatistics(UserEntity user) {
 
         List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
         List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
         List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
-        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(), purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(), rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
+        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
+                purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
+                rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
     }
 
     public Map<VehicleType, Integer> getVehicleCountByType() {
@@ -106,100 +108,6 @@ public class DealershipStatisticsService {
         }
 
         return vehicleCountByType;
-    }
-
-    public double getCustomerReturnFrequency() {
-    }
-
-    public Map<String, Object> getUserStatistics(UserEntity user) {
-        Map<String, Object> statistics = new HashMap<>();
-
-        List<OrdersLinkEntity> orders = ordersLinkRepository.findAllByBuyer_Id(user.getId());
-        statistics.put("orders", orders.size());
-
-        List<PurchasesLinkEntity> purchases = purchasesLinkRepository.findByBuyer_Id(user.getId());
-        statistics.put("acquisti", purchases.size());
-
-        List<RentLink> rentals = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
-        statistics.put("rentals", rentals.size());
-
-        return statistics;
-    }
-
-    public Map<String, String> getFinancialStatistics() {
-        //TODO implementare il controllo che sara solo ADMIN
-
-        BigDecimal totalRentals = rentalsLinkRepository.findAll().stream()
-                .map(rentLink -> rentLink.getRent().getTotalCost())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPurchases = purchasesLinkRepository.findAll().stream()
-                .map(purchaseLink -> purchaseLink.getPurchase().getVehicle().getPrice())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalOrders = ordersLinkRepository.findAll().stream()
-                .filter(orderLink -> orderLink.getOrder().getIsPaid())
-                .map(orderLink -> orderLink.getOrder().getVehicle().getPrice())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalRevenue = totalRentals.add(totalPurchases).add(totalOrders);
-
-        Map<String, String> financialStatistics = new HashMap<>();
-        financialStatistics.put("rentals", totalRentals + "€");
-        financialStatistics.put("orders", totalOrders + "€");
-        financialStatistics.put("purchases", totalPurchases + "€");
-        financialStatistics.put("total", totalRevenue + "€");
-
-        return financialStatistics;
-    }
-
-    public Map<String, String> getDealershipRevenueByTimePeriod(UserEntity user,LocalDate startDate, LocalDate endDate) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            BigDecimal sum = BigDecimal.ZERO;
-            BigDecimal salesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
-                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(salesRevenue);
-
-            BigDecimal rentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(rentLink ->
-                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(rentsRevenue);
-
-            BigDecimal ordersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(
-                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
-            ).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(ordersRevenue);
-
-            Map<String, String> financialStatistics = new HashMap<>();
-            financialStatistics.put("rentals", rentsRevenue + "€");
-            financialStatistics.put("orders", ordersRevenue + "€");
-            financialStatistics.put("purchases", salesRevenue + "€");
-            financialStatistics.put("total", sum + "€");
-            return financialStatistics;
-        } else {
-            return null;
-        }
-    }
-
-    public Map<String, Map<String, Integer>> getVehicleCountByBrandAndModel() {
-        List<Object[]> results = vehicleRepository.countVehiclesByBrandAndModel();
-        Map<String, Map<String, Integer>> vehicleCountByBrandAndModel = new HashMap<>();
-
-        for (Object[] result : results) {
-            String brand = (String) result[0];
-            String model = (String) result[1];
-            Integer count = ((Long) result[2]).intValue();
-
-            Map<String, Integer> modelCount = vehicleCountByBrandAndModel.getOrDefault(brand, new HashMap<>());
-            modelCount.put(model, count);
-            vehicleCountByBrandAndModel.put(brand, modelCount);
-        }
-
-        return vehicleCountByBrandAndModel;
-    }
-
-    public Map<String, Object> getStatisticsByTimePeriod(String timePeriod) {
-        // TODO Implementazione per recuperare le statistiche per periodo di tempo dal database
     }
 
     public Map<UserEntity, Integer> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
@@ -240,6 +148,48 @@ public class DealershipStatisticsService {
         } else {
             return null;
         }
+    }
+
+    public BigDecimal getDealershipRevenueByTimePeriod(UserEntity user,LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            BigDecimal sum = BigDecimal.ZERO;
+            BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
+                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerSalesRevenue);
+
+            BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(rentLink ->
+                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerRentsRevenue);
+
+            BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(
+                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
+            ).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sum = sum.add(sellerOrdersRevenue);
+
+            return sum;
+        } else {
+            return null;
+        }
+    }
+
+    public double getCustomerReturnFrequency() {
+    }
+
+    public Map<String, Object> getDealershipStatistics() {
+        // TODO Implementazione per recuperare le statistiche complessive del concessionario dal database
+    }
+
+    public Map<String, Object> getUserStatistics(UserEntity user) {
+        // TODO Implementazione per recuperare le statistiche complessive per un singolo utente dal database
+    }
+
+
+    public double getCustomerReturnFrequency() {
+    }
+
+    public Map<String, Integer> getVehicleCountByBrandOrModel() {
+        // TODO Implementazione per recuperare il numero di veicoli per marca o modello dal database
     }
 
 }

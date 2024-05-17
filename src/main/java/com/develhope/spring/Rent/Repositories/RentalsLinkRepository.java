@@ -16,6 +16,8 @@ public interface RentalsLinkRepository extends JpaRepository<RentLink, Long> {
     List<RentLink> findAllBySeller_Id(Long userId);
     @Query(value = "SELECT * FROM rent_link WHERE rent_link.seller.id = :sellerId AND rent_link.rent.startDate BETWEEN :startTime AND :endTime", nativeQuery = true)
     List<RentLink> findAllBySellerIdBetweenDates(Long sellerId, LocalDate startTime, LocalDate endTime);
+    @Query("SELECT rl FROM rent_link rl WHERE rl.rent.startDate BETWEEN :startTime AND :endTime")
+    List<RentLink> findAllBetweenDates( LocalDate startTime, LocalDate endTime);
 
     @Query("SELECT rl FROM RentLink rl WHERE rl.rent.id = :rentId AND rl.buyer.id = :buyerId")
     Optional<RentLink> findByRentIdAndBuyerId(Long rentId, Long buyerId);
