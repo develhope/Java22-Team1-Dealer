@@ -139,7 +139,6 @@ public class OrderService {
     }
 
     private void updateOrderDetails(OrderDTO orderDTO, OrderRequest orderRequest) {
-        orderDTO.setDeposit(orderRequest.getDeposit() == null ? orderDTO.getDeposit() : orderRequest.getDeposit());
         orderDTO.setPaid(orderRequest.getPaid() == null ? orderDTO.getPaid() : orderRequest.getPaid());
         orderDTO.setStatus(orderRequest.getStatus() == null ? orderDTO.getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
         orderDTO.setVehicle(orderRequest.getVehicleId() != null ?
@@ -168,8 +167,9 @@ public class OrderService {
 
             updateVehicleStatus(VehicleModel.modelToEntity(orderModel.getVehicle()), VehicleStatus.NOT_AVAILABLE);
 
-            orderModel.setVehicle(null);
-            orderRepository.save(OrderModel.modelToEntity(orderModel));
+            OrderEntity orderEntity = OrderModel.modelToEntity(orderModel);
+            orderEntity.setVehicle(null);
+            orderRepository.save(orderEntity);
 
             ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
             return new OrderResponse(200, "Order deleted successfully");

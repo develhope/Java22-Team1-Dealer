@@ -156,7 +156,8 @@ public class PurchaseService {
             vehicleRepository.save(vehicleEntity);
 
             purchasesLinkRepository.delete(purchasesLinkRepository.findByPurchase_PurchaseId(purchaseId));
-            purchaseRepository.deleteById(purchaseId);
+            purchaseEntity.get().setIsPaid(false);
+            purchaseEntity.get().setVehicle(null);
 
             return new PurchaseResponse(200, "Purchase deleted successfully");
         } catch (Exception e) {
