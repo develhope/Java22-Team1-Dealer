@@ -66,11 +66,7 @@ public class PurchaseService {
         );
         PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
 
-        if (!buyer.getId().equals(seller.getId())) {
-            purchasesLinkRepository.saveAndFlush(new PurchasesLinkEntity(buyer, savedEntity, seller));
-        } else {
-            purchasesLinkRepository.saveAndFlush(new PurchasesLinkEntity(buyer, savedEntity));
-        }
+        purchasesLinkRepository.save(new PurchasesLinkEntity(buyer, savedEntity, buyer.getId().equals(seller.getId()) ? null : seller));
 
         PurchaseModel resultModel = PurchaseModel.entityToModel(savedEntity);
         return Either.right(PurchaseModel.modelToDto(resultModel));

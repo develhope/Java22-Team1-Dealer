@@ -61,7 +61,7 @@ public class OrderService {
                 , LocalDate.now());
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
-        ordersLinkRepository.save(new OrdersLinkEntity(buyer, savedEntity, seller));
+        ordersLinkRepository.save(new OrdersLinkEntity(buyer, savedEntity, buyer.getId().equals(seller.getId()) ? null : seller));
 
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));

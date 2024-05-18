@@ -28,11 +28,6 @@ public class PurchasesLinkEntity {
     @JoinColumn(name = "seller_id")
     private UserEntity seller;
 
-    public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchaseEntity) {
-        this.buyer = buyer;
-        this.purchase = purchaseEntity;
-    }
-
     public PurchasesLinkEntity(UserEntity buyer, PurchaseEntity purchase, UserEntity seller) {
         this.buyer = buyer;
         this.purchase = purchase;
