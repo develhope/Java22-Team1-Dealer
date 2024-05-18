@@ -25,7 +25,7 @@ public class DealershipStatisticsController {
 
     @GetMapping("/getNumberOfPurchase")
     public ResponseEntity<?> getUserNumberOfPurchase(@AuthenticationPrincipal UserEntity user, @RequestParam(required = false) Long targetId) {
-        return dealershipStatisticsService.getPurchasesNumberOfUser(user, targetId)
+        return dealershipStatisticsService.getPurchasesNumberOfUser(user, targetId);
     }
 
     @GetMapping("/getNumberOfOrders")
