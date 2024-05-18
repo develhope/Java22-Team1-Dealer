@@ -30,10 +30,6 @@ public class OrdersLinkEntity {
     @JoinColumn(name = "seller_id")
     private UserEntity seller;
 
-    public OrdersLinkEntity(UserEntity buyer, OrderEntity order) {
-        this.buyer = buyer;
-        this.order = order;
-    }
 
     public OrdersLinkEntity(UserEntity buyer, OrderEntity order, UserEntity seller) {
         this.buyer = buyer;
