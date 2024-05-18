@@ -1,17 +1,22 @@
 package com.develhope.spring.Rent.Entities;
 
-import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "rentals")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class RentEntity {
 
     @Id
@@ -22,31 +27,31 @@ public class RentEntity {
     private LocalDate endDate;
     private boolean active;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id")
     private VehicleEntity vehicleId;
 
-    private Double dailyCost;
-    private Double totalCost;
+    private BigDecimal dailyCost;
+    private BigDecimal totalCost;
     private Boolean isPaid;
 
-    public RentEntity(LocalDate startDate, LocalDate endDate, Double dailyCost, Boolean isPaid, VehicleEntity vehicleId) {
+
+    public RentEntity(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, Boolean isPaid, VehicleEntity vehicleId, BigDecimal totalCost, Long id) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isPaid = isPaid;
         this.dailyCost = dailyCost;
         this.vehicleId = vehicleId;
+        this.totalCost = totalCost;
+        this.id = id;
     }
 
-    public Double calculateTotalCost() {
+    public BigDecimal calculateTotalCost() {
         if (dailyCost != null && startDate != null && endDate != null) {
-            long days = endDate.toEpochDay() - startDate.toEpochDay();
-            return days * dailyCost;
+            long days = ChronoUnit.DAYS.between(startDate, endDate);
+            BigDecimal daysBigDecimal = BigDecimal.valueOf(days);
+            return dailyCost.multiply(daysBigDecimal);
         }
-        return null;
+        return BigDecimal.ZERO;
     }
 }

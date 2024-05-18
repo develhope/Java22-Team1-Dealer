@@ -1,34 +1,31 @@
 package com.develhope.spring.Purchase.Entities;
 
-import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.User.Entities.User;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "purchases")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PurchaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long purchaseId;
-    @Column(nullable = false, name = "deposito")
-    private Double deposit;
-    @Column(nullable = false, name = "pagato")
+    @Column(nullable = false)
     private Boolean isPaid;
-    @Column(nullable = false, name = "stato_ordine")
-    private PurchaseStatus status;
-
     @OneToOne
     @JoinColumn(name = "vehicle_id")
-    private VehicleEntity vehicleEntity;
+    private VehicleEntity vehicle;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User purchaseBuyer;
+    @Column(nullable = false)
+    private LocalDate purchaseDate;
+
 }

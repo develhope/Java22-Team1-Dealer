@@ -1,8 +1,5 @@
 package com.develhope.spring.Vehicles.Services;
 
-import com.develhope.spring.User.Entities.Enum.UserTypes;
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.User.Repositories.UserRepository;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
@@ -18,15 +15,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class VehicleResearchService {
-
-    @Autowired
-    UserRepository userRepository;
-
     @Autowired
     VehicleRepository vehicleRepository;
 

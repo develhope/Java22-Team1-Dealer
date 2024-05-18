@@ -1,23 +1,20 @@
 package com.develhope.spring.Purchase.Entities.DTO;
 
-import com.develhope.spring.Purchase.Entities.Enums.PurchaseStatus;
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 public class PurchaseDTO {
     private Long id;
 
-    private Double deposit;
-
     private Boolean isPaid;
 
-    private PurchaseStatus status;
+    private VehicleDTO vehicle;
 
-    private VehicleEntity vehicleEntity;
+    private LocalDate purchaseDate;
 
-    private User buyer;
 }

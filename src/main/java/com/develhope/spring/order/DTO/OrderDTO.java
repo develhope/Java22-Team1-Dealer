@@ -1,28 +1,26 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.User.Entities.User;
-import com.develhope.spring.Vehicles.Entities.VehicleEntity;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
+import com.develhope.spring.order.Entities.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class OrderDTO {
-
     private Long orderId;
 
-    private Integer deposit;
+    private BigDecimal deposit;
 
     private Boolean paid;
 
-    private String status;
+    private OrderStatus status;
 
-    private Boolean isSold;
+    private VehicleDTO vehicle;
 
-    private User user;
-
-    private VehicleEntity vehicleEntity;
+    private LocalDate orderDate;
 
 }

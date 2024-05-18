@@ -1,72 +1,110 @@
 package com.develhope.spring.order.Services;
 
-import com.develhope.spring.User.Entities.User;
+import com.develhope.spring.User.Entities.Enum.UserTypes;
+import com.develhope.spring.User.Entities.UserEntity;
 import com.develhope.spring.User.Repositories.UserRepository;
+import com.develhope.spring.Vehicles.Entities.DTO.VehicleModel;
 import com.develhope.spring.Vehicles.Entities.VehicleEntity;
 import com.develhope.spring.Vehicles.Entities.VehicleStatus;
 import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.Entities.OrderEntity;
+import com.develhope.spring.order.Entities.OrdersLinkEntity;
+import com.develhope.spring.order.Entities.enums.OrderStatus;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.OrderRequest.OrderRequest;
 import com.develhope.spring.order.Repositories.OrderRepository;
+import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import com.develhope.spring.order.Response.OrderResponse;
 import io.vavr.control.Either;
+import jakarta.annotation.Nullable;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService {
     @Autowired
     OrderRepository orderRepository;
     @Autowired
-    UserRepository userRepository;
-    @Autowired
     VehicleRepository vehicleRepository;
+    @Autowired
+    UserRepository userRepository;
 
-    public Either<OrderResponse, OrderDTO> create(User buyer, OrderRequest orderRequest) {
-        Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
-        if(foundVehicle.isEmpty()) {
-            return Either.left(new OrderResponse(404, "Vehicle not found"));
-        }
-        if(foundVehicle.get().getVehicleStatus() != VehicleStatus.NOT_AVAILABLE) {
-            return Either.left(new OrderResponse(403, "Vehicle is not orderable"));
+    @Autowired
+    OrdersLinkRepository ordersLinkRepository;
+
+    @Transactional
+    public Either<OrderResponse, OrderDTO> create(UserEntity seller, @Nullable Long buyerId, OrderRequest orderRequest) {
+        if (orderRequest == null || orderRequest.getDeposit().intValue() < 0) {
+            return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
 
-        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), orderRequest.getStatus(), orderRequest.getIsSold(), buyer, foundVehicle.get());
+        VehicleEntity foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId()).orElse(null);
+        if (foundVehicle == null || foundVehicle.getVehicleStatus() != VehicleStatus.NOT_AVAILABLE) {
+            return Either.left(new OrderResponse(foundVehicle == null ? 404 : 403, foundVehicle == null ? "Specified vehicle not found" : "Vehicle is not orderable"));
+        }
+
+        UserEntity buyer = resolveWhosBuyer(seller, buyerId);
+        if (buyer == null) {
+            return Either.left(new OrderResponse(404, "Specified buyer not found"));
+        }
+
+        VehicleModel newVehicle = createVehicleFromExistingOne(foundVehicle);
+
+        VehicleEntity savedVehicle = vehicleRepository.save(VehicleModel.modelToEntity(newVehicle));
+        OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
+                VehicleModel.entityToModel(savedVehicle)
+                , LocalDate.now());
+
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        ordersLinkRepository.save(new OrdersLinkEntity(buyer, savedEntity, buyer.getId().equals(seller.getId()) ? null : seller));
+
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public Either<OrderResponse, OrderDTO> getSingle(User user, Long orderId) {
-        Optional<OrderEntity> orderEntityOptional = orderRepository.findById(orderId);
-        if (orderEntityOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "Order with id" + orderId + " not found"));
+    private VehicleModel createVehicleFromExistingOne(VehicleEntity vehicleEntity) {
+        return new VehicleModel(vehicleEntity.getBrand(),
+                vehicleEntity.getModel(),
+                vehicleEntity.getDisplacement(),
+                vehicleEntity.getColor(),
+                vehicleEntity.getPower(),
+                vehicleEntity.getTransmission(),
+                vehicleEntity.getRegistrationYear(),
+                vehicleEntity.getPowerSupply(),
+                vehicleEntity.getPrice(),
+                vehicleEntity.getDiscount(),
+                vehicleEntity.getAccessories(),
+                vehicleEntity.getIsNew(),
+                VehicleStatus.ORDERED,
+                vehicleEntity.getVehicleType());
+    }
+
+    private UserEntity resolveWhosBuyer(UserEntity seller, @Nullable Long buyerId) {
+        if (buyerId != null && (seller.getUserType() == UserTypes.ADMIN || seller.getUserType() == UserTypes.SELLER)) {
+            return userRepository.findById(buyerId).orElse(null);
+        }
+        return seller;
+    }
+
+    public Either<OrderResponse, OrderDTO> getSingle(UserEntity userEntity, Long orderId) {
+        OrdersLinkEntity ordersLink = ordersLinkRepository.findByOrder_OrderId(orderId);
+        if (ordersLink == null || (!userEntity.getUserType().equals(UserTypes.ADMIN) && !ordersLink.getBuyer().getId().equals(userEntity.getId()))) {
+            return Either.left(new OrderResponse(404, "Order with id " + orderId + " not found or does not belong to specified user"));
         }
 
-        //check if order belongs to specified user
-        OrderEntity orderEntity = orderEntityOptional.get();
-        if (!(user.getOrderEntities().contains(orderEntity))) {
-            return Either.left(new OrderResponse(403, "This order does not belong to specified user"));
-        }
-
-        OrderModel orderModel = OrderModel.entityToModel(orderEntity);
+        OrderModel orderModel = OrderModel.entityToModel(ordersLink.getOrder());
         return Either.right(OrderModel.modelToDto(orderModel));
     }
 
-    public Either<OrderResponse, List<OrderDTO>> getAll(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return Either.left(new OrderResponse(404, "User with id" + userId + " not found"));
-        }
-
-        List<OrderEntity> userOrders = userOptional.get().getOrderEntities();
+    public Either<OrderResponse, List<OrderDTO>> getAll(UserEntity user) {
+        List<OrderEntity> userOrders = ordersLinkRepository.findByBuyer_Id(user.getId()).stream().map(OrdersLinkEntity::getOrder).toList();
         if (userOrders.isEmpty()) {
-            return Either.left(new OrderResponse(404, "No orders found for the user " + userId));
+            return Either.left(new OrderResponse(404, "No orders found for the user " + user.getId()));
         }
 
         return Either.right(userOrders.stream().map(orderEntity -> {
@@ -75,38 +113,68 @@ public class OrderService {
         }).toList());
     }
 
-    public Either<OrderResponse, OrderDTO> update(User user, Long orderId, OrderRequest orderRequest) {
-        Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
-        if (foundOrder.isLeft()) {
-            return foundOrder;
+    @Transactional
+    public Either<OrderResponse, OrderDTO> update(UserEntity user, Long orderId, OrderRequest orderRequest) {
+        if (orderId == null || orderRequest == null) {
+            return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
-        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(orderRequest.getVehicleId());
 
-        foundOrder.get().setDeposit(orderRequest.getDeposit() == null ? foundOrder.get().getDeposit() : orderRequest.getDeposit());
-        foundOrder.get().setPaid(orderRequest.getPaid() == null ? foundOrder.get().getPaid() : orderRequest.getPaid());
-        foundOrder.get().setStatus(orderRequest.getStatus() == null ? foundOrder.get().getStatus() : orderRequest.getStatus());
-        foundOrder.get().setIsSold(orderRequest.getIsSold() == null ? foundOrder.get().getIsSold() : orderRequest.getIsSold());
-        foundOrder.get().setVehicleEntity(vehicleEntity.orElseGet(() -> foundOrder.get().getVehicleEntity()));
+        Either<OrderResponse, OrderDTO> foundOrder = getSingle(user, orderId);
 
-        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(foundOrder.get())));
+        if (foundOrder.isLeft()) {
+            return Either.left(foundOrder.getLeft());
+        }
 
+        OrderDTO orderDTO = foundOrder.get();
+        updateOrderDetails(orderDTO, orderRequest);
+
+        OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(orderDTO)));
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
+
+        if (savedModel.getStatus() == OrderStatus.DELIVERED) {
+            updateVehicleStatus(savedEntity.getVehicle(), VehicleStatus.SOLD);
+        }
+
         return Either.right(OrderModel.modelToDto(savedModel));
     }
 
-    public OrderResponse deleteOrder(User user, Long orderId) {
-        Either<OrderResponse, OrderDTO> singlePurchaseResult = getSingle(user, orderId);
-        if (singlePurchaseResult.isLeft()) {
-            return singlePurchaseResult.getLeft();
+    private void updateOrderDetails(OrderDTO orderDTO, OrderRequest orderRequest) {
+        orderDTO.setDeposit(orderRequest.getDeposit() == null ? orderDTO.getDeposit() : orderRequest.getDeposit());
+        orderDTO.setPaid(orderRequest.getPaid() == null ? orderDTO.getPaid() : orderRequest.getPaid());
+        orderDTO.setStatus(orderRequest.getStatus() == null ? orderDTO.getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
+        orderDTO.setVehicle(orderRequest.getVehicleId() != null ?
+                vehicleRepository.findById(orderRequest.getVehicleId()).map(
+                        vehicleEntity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(vehicleEntity))
+                ).orElse(orderDTO.getVehicle()) : orderDTO.getVehicle());
+    }
+
+    private VehicleEntity updateVehicleStatus(VehicleEntity vehicle, VehicleStatus vehicleStatus) {
+        vehicle.setVehicleStatus(vehicleStatus);
+        return vehicleRepository.save(vehicle);
+    }
+
+    @Transactional
+    public OrderResponse deleteOrder(UserEntity userEntity, Long orderId) {
+        if (orderId == null) {
+            return new OrderResponse(400, "Invalid input parameters");
         }
-
-        Optional<OrderEntity> purchaseEntity = orderRepository.findById(orderId);
-
+        Either<OrderResponse, OrderDTO> singleOrderResult = getSingle(userEntity, orderId);
+        if (singleOrderResult.isLeft()) {
+            return singleOrderResult.getLeft();
+        }
         try {
-            orderRepository.delete(purchaseEntity.get());
-            return new OrderResponse(200, "Purchase deleted successfully");
+            OrderModel orderModel = OrderModel.dtoToModel(singleOrderResult.get());
+            orderModel.setStatus(OrderStatus.CANCELED);
+
+            updateVehicleStatus(VehicleModel.modelToEntity(orderModel.getVehicle()), VehicleStatus.NOT_AVAILABLE);
+
+            orderModel.setVehicle(null);
+            orderRepository.save(OrderModel.modelToEntity(orderModel));
+
+            ordersLinkRepository.delete(ordersLinkRepository.findByOrder_OrderId(orderId));
+            return new OrderResponse(200, "Order deleted successfully");
         } catch (Exception e) {
-            return new OrderResponse(500, "Internal server error");
+            return new OrderResponse(500, e.getMessage());
         }
     }
 }
