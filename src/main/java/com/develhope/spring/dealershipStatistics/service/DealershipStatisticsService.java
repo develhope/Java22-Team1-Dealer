@@ -16,7 +16,9 @@ import com.develhope.spring.dealershipStatistics.entities.StatisticsDTO;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
 import com.develhope.spring.order.Model.OrderModel;
 import com.develhope.spring.order.Repositories.OrdersLinkRepository;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,58 +45,60 @@ public class DealershipStatisticsService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Integer getRentsNumberOfUser(UserEntity user, Long targetId) {
+    public ResponseEntity<?> getRentsNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
             if (userOptional.isEmpty()) {
-                return null;
+                return ResponseEntity.notFound().build();
             }
             List<RentLink> rentLinkList = rentalsLinkRepository.findAllBySeller_Id(targetId);
-            return rentLinkList.size();
+            return ResponseEntity.ok(rentLinkList.size());
         } else {
             List<RentLink> rentLinkList = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
-            return rentLinkList.size();
+            return ResponseEntity.ok(rentLinkList.size());
         }
     }
 
-    public Integer getPurchasesNumberOfUser(UserEntity user, Long targetId) {
+    public ResponseEntity<?> getPurchasesNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
             if (userOptional.isEmpty()) {
-                return null;
+                return ResponseEntity.notFound().build();
             }
             List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
-            return purchasesList.size();
+            return ResponseEntity.ok(purchasesList.size());
         } else {
             List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findByBuyer_Id(user.getId()); //TODO fixare nel repository la query
-            return purchasesList.size();
+            return ResponseEntity.ok(purchasesList.size());
         }
     }
 
-    public Integer getOrdersNumberOfUser(UserEntity user, Long targetId) {
+    public ResponseEntity<?> getOrdersNumberOfUser(UserEntity user,@Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
             if (userOptional.isEmpty()) {
-                return null;
+                return ResponseEntity.notFound().build();
             }
             List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
-            return ordersList.size();
+            return ResponseEntity.ok(ordersList.size());
         } else {
             List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
-            return ordersList.size();
+            return ResponseEntity.ok(ordersList.size());
         }
     }
 
     public StatisticsDTO getAllDelearshipStatistics(UserEntity user) {
+        if (user.getUserType() == UserTypes.ADMIN) {
 
-        List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
-        List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
-        List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
-        return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
-                purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
-                rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
+            List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
+            List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
+            List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
+            return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
+                    purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
+                    rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
+        }
+        return null;
     }
-
     public Map<VehicleType, Integer> getVehicleCountByType() {
         List<VehicleEntity> vehicles = vehicleRepository.findAll();
         Map<VehicleType, Integer> vehicleCountByType = new HashMap<>();
