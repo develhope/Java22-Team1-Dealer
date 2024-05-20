@@ -7,7 +7,8 @@ public enum VehicleStatus {
     RENTED,
     SOLD,
     ORDERED,
-    NOT_AVAILABLE;
+    ORDERABLE,
+    NOT_SET;
 
     public static VehicleStatus convertFromString(String status) {
         return switch (status.toLowerCase()) {
@@ -16,7 +17,8 @@ public enum VehicleStatus {
             case "rented" -> VehicleStatus.RENTED;
             case "sold" -> VehicleStatus.SOLD;
             case "ordered" -> VehicleStatus.ORDERED;
-            default -> VehicleStatus.NOT_AVAILABLE;
+            case "orderable" -> VehicleStatus.ORDERABLE;
+            default -> VehicleStatus.NOT_SET;
         };
     }
 }

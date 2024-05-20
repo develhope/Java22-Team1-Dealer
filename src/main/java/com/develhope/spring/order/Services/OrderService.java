@@ -44,7 +44,7 @@ public class OrderService {
         }
 
         VehicleEntity foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId()).orElse(null);
-        if (foundVehicle == null || foundVehicle.getVehicleStatus() != VehicleStatus.NOT_AVAILABLE) {
+        if (foundVehicle == null || foundVehicle.getVehicleStatus() != VehicleStatus.ORDERABLE) {
             return Either.left(new OrderResponse(foundVehicle == null ? 404 : 403, foundVehicle == null ? "Specified vehicle not found" : "Vehicle is not orderable"));
         }
 

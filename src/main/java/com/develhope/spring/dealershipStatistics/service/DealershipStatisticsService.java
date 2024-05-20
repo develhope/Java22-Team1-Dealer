@@ -2,9 +2,11 @@ package com.develhope.spring.dealershipStatistics.service;
 
 import com.develhope.spring.Purchase.Entities.DTO.PurchaseModel;
 import com.develhope.spring.Purchase.Entities.PurchasesLinkEntity;
+import com.develhope.spring.Purchase.Repositories.PurchaseRepository;
 import com.develhope.spring.Purchase.Repositories.PurchasesLinkRepository;
 import com.develhope.spring.Rent.Entities.DTO.RentModel;
 import com.develhope.spring.Rent.Entities.RentLink;
+import com.develhope.spring.Rent.Repositories.RentRepository;
 import com.develhope.spring.Rent.Repositories.RentalsLinkRepository;
 import com.develhope.spring.User.Entities.Enum.UserTypes;
 import com.develhope.spring.User.Entities.UserEntity;
@@ -15,6 +17,7 @@ import com.develhope.spring.Vehicles.Repositories.VehicleRepository;
 import com.develhope.spring.dealershipStatistics.entities.StatisticsDTO;
 import com.develhope.spring.order.Entities.OrdersLinkEntity;
 import com.develhope.spring.order.Model.OrderModel;
+import com.develhope.spring.order.Repositories.OrderRepository;
 import com.develhope.spring.order.Repositories.OrdersLinkRepository;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,15 @@ public class DealershipStatisticsService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private RentRepository rentRepository;
+
+    // TODO VEICOLO PIU VENDUTO, VENDUTO PIU ALTO, PIU RICERCATO ,ORDINATO
 
     public ResponseEntity<?> getRentsNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
@@ -169,6 +181,18 @@ public class DealershipStatisticsService {
             sum = sum.add(sellerOrdersRevenue);
 
             return sum;
+        } else {
+            return null;
+        }
+    }
+    public BigDecimal getDealershipRevenue(UserEntity user) {
+        if (user.getUserType() == UserTypes.ADMIN) {
+            BigDecimal sellerSalesRevenue = purchaseRepository.getFullPurchasePriceCount();
+            BigDecimal sellerRentsRevenue = rentRepository.getTotalCostSum();
+            BigDecimal sellerOrdersRevenue = orderRepository.getDepositOrderSum();
+            BigDecimal sellerOrdersRevenue1 = orderRepository.getFullPaidOrderSum();
+
+            return BigDecimal.ZERO.add(sellerSalesRevenue).add(sellerRentsRevenue).add(sellerOrdersRevenue).add(sellerOrdersRevenue1);
         } else {
             return null;
         }
