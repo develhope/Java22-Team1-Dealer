@@ -1,6 +1,6 @@
-package com.develhope.spring.User.request;
+package com.develhope.spring.user.request;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.Enum.UserTypes;
 import lombok.Data;
 
 @Data

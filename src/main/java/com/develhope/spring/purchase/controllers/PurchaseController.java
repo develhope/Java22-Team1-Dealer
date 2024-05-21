@@ -4,7 +4,7 @@ import com.develhope.spring.purchase.DTO.PurchaseDTO;
 import com.develhope.spring.purchase.request.PurchaseRequest;
 import com.develhope.spring.purchase.response.PurchaseResponse;
 import com.develhope.spring.purchase.services.PurchaseService;
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

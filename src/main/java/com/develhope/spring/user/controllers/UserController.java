@@ -1,11 +1,11 @@
-package com.develhope.spring.User.controllers;
+package com.develhope.spring.user.controllers;
 
 
-import com.develhope.spring.User.DTO.UserDTO;
-import com.develhope.spring.User.entities.UserEntity;
-import com.develhope.spring.User.request.UserRequest;
-import com.develhope.spring.User.response.UserResponse;
-import com.develhope.spring.User.services.UserService;
+import com.develhope.spring.user.DTO.UserDTO;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.request.UserRequest;
+import com.develhope.spring.user.response.UserResponse;
+import com.develhope.spring.user.services.UserService;
 import com.develhope.spring.vehicles.DTO.VehicleDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

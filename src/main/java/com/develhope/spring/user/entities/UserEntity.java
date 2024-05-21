@@ -1,7 +1,7 @@
-package com.develhope.spring.User.entities;
+package com.develhope.spring.user.entities;
 
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.Enum.UserTypes;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

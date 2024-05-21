@@ -1,6 +1,6 @@
 package com.develhope.spring.order.model;
 
-import com.develhope.spring.User.model.UserModel;
+import com.develhope.spring.user.model.UserModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

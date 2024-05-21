@@ -1,9 +1,9 @@
 package com.develhope.spring.order.controllers;
 
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.orderRequest.OrderRequest;
-import com.develhope.spring.order.Response.OrderResponse;
+import com.develhope.spring.order.response.OrderResponse;
 import com.develhope.spring.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

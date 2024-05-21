@@ -1,6 +1,6 @@
 package com.develhope.spring.rent.entities;
 
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

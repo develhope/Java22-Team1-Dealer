@@ -1,6 +1,6 @@
 package com.develhope.spring.dealershipstatistics.controllers;
 
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.dealershipstatistics.entities.StatisticsDTO;
 import com.develhope.spring.dealershipstatistics.service.DealershipStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;

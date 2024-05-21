@@ -1,8 +1,8 @@
 package com.develhope.spring.order.service;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.entities.UserEntity;
-import com.develhope.spring.User.repositories.UserRepository;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.model.VehicleModel;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.entities.VehicleStatus;
@@ -15,7 +15,7 @@ import com.develhope.spring.order.model.OrderModel;
 import com.develhope.spring.order.orderRequest.OrderRequest;
 import com.develhope.spring.order.repositories.OrderRepository;
 import com.develhope.spring.order.repositories.OrdersLinkRepository;
-import com.develhope.spring.order.Response.OrderResponse;
+import com.develhope.spring.order.response.OrderResponse;
 import io.vavr.control.Either;
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
