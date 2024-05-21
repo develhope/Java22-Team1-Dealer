@@ -1,9 +1,9 @@
 package com.develhope.spring.autentication.service;
 
-import com.develhope.spring.autentication.entities.DTO.request.RefreshTokenRequest;
-import com.develhope.spring.autentication.entities.DTO.request.SigninRequest;
-import com.develhope.spring.autentication.entities.DTO.request.SignupRequest;
-import com.develhope.spring.autentication.entities.DTO.response.JWTAuthResponse;
+import com.develhope.spring.autentication.DTO.request.RefreshTokenRequest;
+import com.develhope.spring.autentication.DTO.request.SigninRequest;
+import com.develhope.spring.autentication.DTO.request.SignupRequest;
+import com.develhope.spring.autentication.DTO.response.JWTAuthResponse;
 import com.develhope.spring.autentication.entities.RefreshToken;
 import com.develhope.spring.autentication.repositories.RefreshTokenRepository;
 import com.develhope.spring.user.entities.Enum.UserTypes;

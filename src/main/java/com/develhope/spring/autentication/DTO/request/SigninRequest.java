@@ -1,4 +1,4 @@
-package com.develhope.spring.autentication.entities.DTO.response;
+package com.develhope.spring.autentication.DTO.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class JWTAuthResponse {
-    private String authToken;
-    private String refreshToken;
+public class SigninRequest {
+    private String email;
+    private String password;
 }
