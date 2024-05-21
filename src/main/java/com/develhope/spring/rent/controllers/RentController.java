@@ -2,7 +2,7 @@ package com.develhope.spring.rent.controllers;
 
 import com.develhope.spring.rent.DTO.RentDTO;
 import com.develhope.spring.rent.request.RentRequest;
-import com.develhope.spring.rent.Response.RentResponse;
+import com.develhope.spring.rent.response.RentResponse;
 import com.develhope.spring.rent.services.RentService;
 import com.develhope.spring.user.entities.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;

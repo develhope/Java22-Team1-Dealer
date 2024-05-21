@@ -7,7 +7,7 @@ import com.develhope.spring.rent.entities.RentLink;
 import com.develhope.spring.rent.repositories.RentRepository;
 import com.develhope.spring.rent.repositories.RentalsLinkRepository;
 import com.develhope.spring.rent.request.RentRequest;
-import com.develhope.spring.rent.Response.RentResponse;
+import com.develhope.spring.rent.response.RentResponse;
 import com.develhope.spring.user.entities.Enum.UserTypes;
 import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.user.repositories.UserRepository;
