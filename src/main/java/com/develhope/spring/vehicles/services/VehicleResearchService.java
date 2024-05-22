@@ -83,7 +83,7 @@ public class VehicleResearchService {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getModel(), transmission)) {
+            if (Objects.equals(vehicleEntity.getTransmission(), transmission)) {
                 myVehicleEntity.add(vehicleEntity);
             }
         }
@@ -102,7 +102,7 @@ public class VehicleResearchService {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getModel(), powerSupply)) {
+            if (Objects.equals(vehicleEntity.getPowerSupply(), powerSupply)) {
                 myVehicleEntity.add(vehicleEntity);
             }
         }

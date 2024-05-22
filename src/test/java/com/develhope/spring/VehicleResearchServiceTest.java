@@ -187,7 +187,7 @@ public class VehicleResearchServiceTest {
     public void testFindByBrand_NoVehicles() {
         when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
 
-        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("BrandX");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Tesla");
 
         assertTrue(result.isRight());
         assertTrue(result.get().isEmpty());
@@ -253,7 +253,77 @@ public class VehicleResearchServiceTest {
         assertEquals(3L, vehicleDTOs.get(1).getVehicleId());
     }
 
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
+    @Test
+    public void testFindByTransmission_NoVehicles() {
+        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
 
-    //TODO findByTransmission - findByPowerSupply - findByAccessories - findByDisplacement - findByPower
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Automatic");
+
+        assertTrue(result.isRight());
+        assertTrue(result.get().isEmpty());
+    }
+
+    // Verifica il comportamento del metodo quando nessun veicolo corrisponde al tipo di cambio specificato.
+    @Test
+    public void testFindByTransmission_NoMatchingTransmission() {
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Automatic");
+
+        assertTrue(result.isRight());
+        assertTrue(result.get().isEmpty());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al tipo di cambio specificato.
+    @Test
+    public void testFindByTransmission_MatchingTransmission() {
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Manual");
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli con tipologie di cambio differenti, ma solo alcuni corrispondono al tipo di cambio specificato
+    @Test
+    public void testFindByTransmission_MixedTransmissions() {
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle3 = new VehicleEntity(3L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Manual");
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(3L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    //TODO findByPowerSupply - findByAccessories - findByDisplacement - findByPower
     // - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
 }
