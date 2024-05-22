@@ -5,7 +5,7 @@ import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.entities.VehicleStatus;
 import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
-import com.develhope.spring.vehicles.response.VehicleResponse;
+import com.develhope.spring.vehicles.response.VehicleErrorResponse;
 import com.develhope.spring.vehicles.services.VehicleResearchService;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class VehicleResearchServiceTest {
     public void testFindByColor_NoVehicles() {
         when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
         assertTrue(result.isRight());
         assertTrue(result.get().isEmpty());
@@ -59,7 +59,7 @@ public class VehicleResearchServiceTest {
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
         assertTrue(result.isRight());
         assertTrue(result.get().isEmpty());
@@ -76,7 +76,7 @@ public class VehicleResearchServiceTest {
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
         assertTrue(result.isRight());
         List<VehicleDTO> vehicleDTOs = result.get();
@@ -99,7 +99,7 @@ public class VehicleResearchServiceTest {
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
         assertTrue(result.isRight());
         List<VehicleDTO> vehicleDTOs = result.get();
@@ -113,7 +113,7 @@ public class VehicleResearchServiceTest {
     public void testFindByModel_NoVehicles() {
         when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
 
         assertTrue(result.isRight());
         assertTrue(result.get().isEmpty());
@@ -130,7 +130,7 @@ public class VehicleResearchServiceTest {
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
 
         assertTrue(result.isRight());
         assertTrue(result.get().isEmpty());
@@ -147,7 +147,7 @@ public class VehicleResearchServiceTest {
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
 
         assertTrue(result.isRight());
         List<VehicleDTO> vehicleDTOs = result.get();
@@ -173,7 +173,7 @@ public class VehicleResearchServiceTest {
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
         when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
 
         assertTrue(result.isRight());
         List<VehicleDTO> vehicleDTOs = result.get();
@@ -182,6 +182,6 @@ public class VehicleResearchServiceTest {
         assertEquals(3L, vehicleDTOs.get(1).getVehicleId());
     }
 
-    //TODO findByModel - findByBrand - findByTransmission - findByPowerSupply - findByAccessories - findByDisplacement - findByPower
+    //TODO findByBrand - findByTransmission - findByPowerSupply - findByAccessories - findByDisplacement - findByPower
     // - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
 }

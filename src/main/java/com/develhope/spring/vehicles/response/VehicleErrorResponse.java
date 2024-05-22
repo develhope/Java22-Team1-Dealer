@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleResponse {
+public class VehicleErrorResponse {
     private int code;
     private String message;
 

@@ -8,7 +8,7 @@ import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.model.VehicleModel;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import com.develhope.spring.vehicles.request.VehicleRequest;
-import com.develhope.spring.vehicles.response.VehicleResponse;
+import com.develhope.spring.vehicles.response.VehicleErrorResponse;
 import com.develhope.spring.vehicles.services.VehicleCRUDService;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ public class VehicleCRUDServiceTest {
         when(userRepository.findById(adminUser.getId())).thenReturn(Optional.of(adminUser));
         when(vehicleRepository.save(any(VehicleEntity.class))).thenReturn(savedVehicle);
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(adminUser, vehicleRequest);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(adminUser, vehicleRequest);
 
         assertTrue(result.isRight());
         verify(userRepository, times(1)).findById(adminUser.getId());
@@ -91,7 +91,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(regularUser.getId())).thenReturn(Optional.of(regularUser));
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(regularUser, vehicleRequest);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(regularUser, vehicleRequest);
 
         assertTrue(result.isLeft());
         assertEquals(400, result.getLeft().getCode());
@@ -109,7 +109,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(user, vehicleRequest);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.createVehicle(user, vehicleRequest);
 
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
@@ -125,7 +125,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
 
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
@@ -142,7 +142,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
 
         assertTrue(result.isLeft());
         assertEquals(400, result.getLeft().getCode());
@@ -160,7 +160,7 @@ public class VehicleCRUDServiceTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(vehicleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
 
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
@@ -181,7 +181,7 @@ public class VehicleCRUDServiceTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicleEntity));
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.getSingleVehicle(user, 1L);
 
         assertTrue(result.isRight());
         verify(userRepository, times(1)).findById(user.getId());
@@ -193,7 +193,7 @@ public class VehicleCRUDServiceTest {
     void testGetAllVehicle_NoVehiclesFound() {
         when(vehicleRepository.findAll()).thenReturn(new ArrayList<>());
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
 
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
@@ -224,7 +224,7 @@ public class VehicleCRUDServiceTest {
                 .map(VehicleModel::modelToDTO)
                 .toList();
 
-        Either<VehicleResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleCRUDService.getAllVehicle();
 
         assertTrue(result.isRight());
         assertEquals(expectedVehicleDTOs.size(), result.get().size());
@@ -242,7 +242,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(user, 1L, request);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(user, 1L, request);
 
         assertTrue(result.isLeft());
         assertEquals(403, result.getLeft().getCode());
@@ -262,7 +262,7 @@ public class VehicleCRUDServiceTest {
         when(userRepository.findById(adminUser.getId())).thenReturn(Optional.of(adminUser));
         when(vehicleRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(adminUser, 1L, request);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(adminUser, 1L, request);
 
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
@@ -300,7 +300,7 @@ public class VehicleCRUDServiceTest {
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicleEntity));
         when(vehicleRepository.saveAndFlush(any(VehicleEntity.class))).thenReturn(vehicleEntity);
 
-        Either<VehicleResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(adminUser, 1L, request);
+        Either<VehicleErrorResponse, VehicleDTO> result = vehicleCRUDService.updateVehicle(adminUser, 1L, request);
 
         assertTrue(result.isRight());
         verify(userRepository, times(1)).findById(adminUser.getId());
@@ -317,7 +317,7 @@ public class VehicleCRUDServiceTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        VehicleResponse result = vehicleCRUDService.deleteVehicle(user, 1L);
+        VehicleErrorResponse result = vehicleCRUDService.deleteVehicle(user, 1L);
 
         assertEquals(403, result.getCode());
         verify(userRepository, times(1)).findById(user.getId());
@@ -339,7 +339,7 @@ public class VehicleCRUDServiceTest {
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicleEntity));
         doReturn(Either.right(new VehicleDTO())).when(vehicleCRUDService).getSingleVehicle(adminUser, 1L);
 
-        VehicleResponse result = vehicleCRUDService.deleteVehicle(adminUser, 1L);
+        VehicleErrorResponse result = vehicleCRUDService.deleteVehicle(adminUser, 1L);
 
         assertEquals(200, result.getCode());
         verify(userRepository, times(1)).findById(adminUser.getId());
@@ -362,7 +362,7 @@ public class VehicleCRUDServiceTest {
         doReturn(Either.right(new VehicleDTO())).when(vehicleCRUDService).getSingleVehicle(adminUser, 1L);
         doThrow(new RuntimeException("Error deleting vehicle")).when(vehicleRepository).delete(vehicleEntity);
 
-        VehicleResponse result = vehicleCRUDService.deleteVehicle(adminUser, 1L);
+        VehicleErrorResponse result = vehicleCRUDService.deleteVehicle(adminUser, 1L);
 
         assertEquals(500, result.getCode());
         verify(userRepository, times(1)).findById(adminUser.getId());
