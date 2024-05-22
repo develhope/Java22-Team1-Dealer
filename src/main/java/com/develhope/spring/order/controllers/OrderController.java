@@ -1,6 +1,6 @@
 package com.develhope.spring.order.controllers;
 
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.order.DTO.OrderDTO;
 import com.develhope.spring.order.orderRequest.OrderRequest;
 import com.develhope.spring.order.Response.OrderResponse;

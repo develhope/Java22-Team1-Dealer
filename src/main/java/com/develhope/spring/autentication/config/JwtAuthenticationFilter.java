@@ -2,7 +2,7 @@ package com.develhope.spring.autentication.config;
 
 
 import com.develhope.spring.autentication.service.JWTService;
-import com.develhope.spring.User.services.UserService;
+import com.develhope.spring.user.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

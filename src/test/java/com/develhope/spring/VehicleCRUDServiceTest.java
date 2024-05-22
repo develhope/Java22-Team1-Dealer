@@ -1,8 +1,8 @@
 package com.develhope.spring;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.entities.UserEntity;
-import com.develhope.spring.User.repositories.UserRepository;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.DTO.VehicleDTO;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.model.VehicleModel;

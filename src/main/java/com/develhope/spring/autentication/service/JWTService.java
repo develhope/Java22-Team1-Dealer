@@ -2,7 +2,7 @@ package com.develhope.spring.autentication.service;
 
 import com.develhope.spring.autentication.entities.RefreshToken;
 import com.develhope.spring.autentication.repositories.RefreshTokenRepository;
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

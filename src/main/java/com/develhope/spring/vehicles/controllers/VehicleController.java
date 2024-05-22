@@ -1,7 +1,7 @@
 package com.develhope.spring.vehicles.controllers;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.vehicles.DTO.VehicleDTO;
 import com.develhope.spring.vehicles.entities.VehicleStatus;
 import com.develhope.spring.vehicles.entities.VehicleType;
