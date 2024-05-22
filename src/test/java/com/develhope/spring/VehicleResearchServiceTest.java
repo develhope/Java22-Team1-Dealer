@@ -16,12 +16,14 @@ import org.mockito.MockitoAnnotations;
 
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 public class VehicleResearchServiceTest {
@@ -396,6 +398,63 @@ public class VehicleResearchServiceTest {
         assertEquals(3L, vehicleDTOs.get(1).getVehicleId());
     }
 
-    //TODO findByAccessories - findByDisplacement - findByPower
+    // Verifica che findByAccessories ritorni un VehicleErrorResponse quando vehicleRepository restituisce una lista vuota.
+    @Test
+    void testFindByAccessories_NoVehiclesFound() {
+        when(vehicleRepository.findByAccessoriesIn(anyList())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(Arrays.asList("GPS", "Airbag"));
+
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicles found with the specified accessories", result.getLeft().getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando nessun veicolo corrisponde agli accessori specificati.
+    @Test
+    public void testFindByAccessories_NoMatchingAccessories() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByAccessoriesIn(anyList())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(Arrays.asList("Cruise control", "Parking sensors"));
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found with the specified accessories", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono agli accessori specificati.
+    @Test
+    public void testFindByAccessories_MatchingAccessories() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Arrays.asList("Air Conditioning", "Cruise Control", "Parking Sensors"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Arrays.asList("Air Conditioning", "Cruise Control", "Parking Sensors"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByAccessoriesIn(anyList())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByAccessories(List.of("Air Conditioning", "Cruise Control", "Parking Sensors"));
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    //TODO findByDisplacement - findByPower
     // - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
 }
