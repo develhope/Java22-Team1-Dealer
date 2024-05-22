@@ -64,7 +64,7 @@ public class VehicleResearchService {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
         List<VehicleEntity> myVehicleEntity = new ArrayList<>();
         for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getModel(), brand)) {
+            if (Objects.equals(vehicleEntity.getBrand(), brand)) {
                 myVehicleEntity.add(vehicleEntity);
             }
         }
