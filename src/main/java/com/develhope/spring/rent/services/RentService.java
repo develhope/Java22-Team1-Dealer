@@ -272,26 +272,26 @@ public class RentService {
         return Either.right("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.");
     }
 
-    private Either<RentResponse, UserEntity> checkUserExists(Long userId) {
+    public Either<RentResponse, UserEntity> checkUserExists(Long userId) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         return userOptional.<Either<RentResponse, UserEntity>>map(Either::right).orElseGet(() -> Either.left(new RentResponse(403, "User not found")));
     }
 
-    private Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
+    public Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         return Either.right(null);
     }
 
-    private Either<RentResponse, Boolean> checkRentIsActive(RentEntity rentEntity) {
+    public Either<RentResponse, Boolean> checkRentIsActive(RentEntity rentEntity) {
         if (rentEntity.isActive()) {
             return Either.left(new RentResponse(400, "Rent is not active"));
         }
         return Either.right(true);
     }
 
-    private void updateRentEntityDates(RentRequest rentRequest, RentEntity rentEntity) {
+    public void updateRentEntityDates(RentRequest rentRequest, RentEntity rentEntity) {
         rentEntity.setStartDate(rentRequest.getStartDate());
         rentEntity.setEndDate(rentRequest.getEndDate());
         rentEntity.setTotalCost(rentEntity.calculateTotalCost());

@@ -14,4 +14,13 @@ public class RentRequest {
     private boolean paid;
     private Long vehicleId;
     private Long userId;
+
+    public RentRequest(LocalDate startDate, LocalDate endDate, BigDecimal dailyCost, boolean paid, Long vehicleId, Long userId) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.dailyCost = dailyCost;
+        this.paid = paid;
+        this.vehicleId = vehicleId;
+        this.userId = userId;
+    }
 }

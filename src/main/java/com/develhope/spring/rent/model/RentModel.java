@@ -53,7 +53,19 @@ public class RentModel {
     }
 
     public static RentModel entityToModel(RentEntity rentEntity) {
-        return new RentModel(rentEntity.getStartDate(), rentEntity.getEndDate(), rentEntity.getDailyCost(), rentEntity.getIsPaid(), rentEntity.getVehicleId(), rentEntity.getTotalCost(), rentEntity.getId());
+        if (rentEntity == null) {
+            return null;
+        }
+
+        return new RentModel(
+                rentEntity.getStartDate(),
+                rentEntity.getEndDate(),
+                rentEntity.getDailyCost(),
+                rentEntity.getIsPaid() != null ? rentEntity.getIsPaid() : false,
+                rentEntity.getVehicleId(),
+                rentEntity.getTotalCost(),
+                rentEntity.getId()
+        );
     }
 }
 

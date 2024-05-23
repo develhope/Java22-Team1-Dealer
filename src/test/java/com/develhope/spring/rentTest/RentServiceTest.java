@@ -18,7 +18,9 @@ import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class RentServiceTest {
 
     @Mock
@@ -54,55 +57,98 @@ public class RentServiceTest {
     }
 
     @Test
-    void createRent_UserIsBuyer_Success() {
-        UserEntity buyer = new UserEntity();
-        buyer.setId(1L);
-        buyer.setUserType(UserTypes.BUYER);
-
-        VehicleEntity vehicle = new VehicleEntity();
-        vehicle.setVehicleId(5L);
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
-
+    public void createRent_UserIsBuyer_Success() {
+        // Mocking rent request and user details
         RentRequest rentRequest = new RentRequest();
         rentRequest.setStartDate(LocalDate.now());
         rentRequest.setEndDate(LocalDate.now().plusDays(3));
         rentRequest.setDailyCost(BigDecimal.valueOf(50));
         rentRequest.setPaid(true);
-        rentRequest.setVehicleId(vehicle.getVehicleId());
+        rentRequest.setVehicleId(1L); // Assuming valid vehicle ID
 
-        // Configura il comportamento del mock per ritornare un oggetto VehicleEntity
-        when(vehicleRepository.findById(5L)).thenReturn(Optional.of(new VehicleEntity()));
-        when(rentRepository.save(any())).thenReturn(new RentEntity());
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+        userEntity.setUserType(UserTypes.BUYER); // User is a buyer
 
-        // Esegui il metodo sotto test
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, buyer.getId(), buyer);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
 
-        // Verifica che il metodo findById sia stato chiamato esattamente una volta con l'ID del veicolo
-        verify(vehicleRepository, times(1)).findById(eq(5L));
-        // Verifica che il metodo save del rentRepository sia stato chiamato una volta con qualsiasi oggetto RentEntity
-        verify(rentRepository, times(1)).save(any());
-        // Verifica che il risultato sia un'istanza di Either.Right
-        assertEquals(Either.Right.class, result.getClass());
+        // Mocking vehicle entity
+        VehicleEntity vehicleEntity = new VehicleEntity();
+        vehicleEntity.setVehicleId(1L);
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE); // Vehicle is rentable
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicleEntity));
+
+        // Mocking save methods
+        when(vehicleRepository.save(any(VehicleEntity.class))).thenReturn(vehicleEntity);
+        when(rentRepository.save(any(RentEntity.class))).thenReturn(new RentEntity());
+
+        // Call the method
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, userEntity);
+
+        // Verify interactions
+        verify(vehicleRepository, times(1)).findById(1L);
+        verify(vehicleRepository, times(1)).save(any(VehicleEntity.class));
+        verify(rentRepository, times(1)).save(any(RentEntity.class));
+        verify(rentalsLinkRepository, times(1)).save(any(RentLink.class));
+
+        // Assert result
+        assertTrue(result.isRight()); // Result should be on the right side
     }
 
     @Test
     void createRent_UserIsNotBuyer_Failure() {
-        UserEntity seller = new UserEntity();
-        seller.setId(1L);
-        seller.setUserType(UserTypes.SELLER);
+        // Mocking userEntityDetails
+        UserEntity userEntityDetails = new UserEntity();
+        userEntityDetails.setUserType(UserTypes.ADMIN); // Assuming user is not a buyer
 
-        RentRequest rentRequest = new RentRequest();
-        rentRequest.setStartDate(LocalDate.now());
-        rentRequest.setEndDate(LocalDate.now().plusDays(3));
-        rentRequest.setDailyCost(BigDecimal.valueOf(50));
-        rentRequest.setPaid(true);
-        rentRequest.setVehicleId(1L);
+        // Mocking userId
+        Long userId = 123L;
 
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, seller);
+        // Mocking rentRequest
+        RentRequest rentRequest = new RentRequest(
+                LocalDate.now(), LocalDate.now().plusDays(3),
+                BigDecimal.valueOf(50), true, 1L, userId);
 
-        assertEquals(Either.Left.class, result.getClass());
-        assertEquals(403, result.getLeft().getStatusCode());
-        assertEquals("BUYER users can only create rents for themselves", result.getLeft().getMessage());
+        // Mocking userCheck
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        Either<RentResponse, UserEntity> userCheck = Either.right(userEntity);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(rentService.checkUserExists(userId)).thenReturn(userCheck);
+        when(rentService.checkUserAuthorization(userEntityDetails)).thenReturn(Either.right(null)); // Assuming user is authorized
+
+        // Mocking vehicleEntityOptional
+        VehicleEntity vehicleEntity = new VehicleEntity();
+        vehicleEntity.setVehicleId(1L);
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
+        Optional<VehicleEntity> vehicleEntityOptional = Optional.of(vehicleEntity);
+
+        when(vehicleRepository.findById(rentRequest.getVehicleId())).thenReturn(vehicleEntityOptional);
+
+        // Mocking savedRentEntity
+        RentEntity savedRentEntity = new RentEntity();
+        savedRentEntity.setId(1L);
+        savedRentEntity.setStartDate(rentRequest.getStartDate());
+        savedRentEntity.setEndDate(rentRequest.getEndDate());
+        savedRentEntity.setDailyCost(rentRequest.getDailyCost());
+        savedRentEntity.setIsPaid(rentRequest.isPaid());
+        savedRentEntity.setVehicleId(vehicleEntity);
+        savedRentEntity.setTotalCost(BigDecimal.valueOf(150)); // Assuming totalCost
+
+        when(rentRepository.save(any(RentEntity.class))).thenReturn(savedRentEntity);
+
+        // Call the method under test
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
+
+        // Verify the result
+        assertEquals(Either.left(new RentResponse(403, "BUYER users can only create rents for themselves")), result);
+        verify(userRepository, times(1)).findById(userId);
+        verify(rentService, times(1)).checkUserAuthorization(userEntityDetails);
+        verify(vehicleRepository, times(1)).findById(rentRequest.getVehicleId());
+        verify(rentRepository, times(0)).save(any(RentEntity.class)); // No rent should be saved
     }
 
     @Test
