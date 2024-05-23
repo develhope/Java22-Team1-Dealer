@@ -210,6 +210,8 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
 
         when(vehicleRepository.findByBrand(anyString())).thenReturn(Collections.emptyList());
 
@@ -285,12 +287,13 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
 
         when(vehicleRepository.findByTransmission("Automatic")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Automatic");
 
-        // Verifica
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
         assertEquals("No vehicle Found", result.getLeft().getMessage());
@@ -361,6 +364,8 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
 
         when(vehicleRepository.findByPowerSupply("Electric")).thenReturn(Collections.emptyList());
 
