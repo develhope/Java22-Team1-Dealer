@@ -8,6 +8,7 @@ import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import com.develhope.spring.vehicles.response.VehicleErrorResponse;
 import com.develhope.spring.vehicles.services.VehicleResearchService;
 import io.vavr.control.Either;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,15 +39,18 @@ public class VehicleResearchServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @AfterEach
+    public void deleteAll() {
+        vehicleRepository.deleteAll();
+    }
+
     // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
     @Test
     public void testFindByColor_NoVehicles() {
-        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
-
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
     }
 
     // Verifica il comportamento del metodo quando nessun veicolo corrisponde al colore specificato.
@@ -58,12 +62,13 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Toyota", "Yaris", 1618, "Black",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
     }
 
     // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al colore specificato.
@@ -75,8 +80,8 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
+        when(vehicleRepository.findByColor("Red")).thenReturn(Arrays.asList(vehicle1, vehicle2));
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
         assertTrue(result.isRight());
@@ -98,7 +103,8 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+        when(vehicleRepository.findByColor(anyString())).thenReturn(Arrays.asList(vehicle1, vehicle3));
+
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByColor("Red");
 
@@ -107,34 +113,33 @@ public class VehicleResearchServiceTest {
         assertEquals(2, vehicleDTOs.size());
         assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
         assertEquals(3L, vehicleDTOs.get(1).getVehicleId());
+        assertEquals(vehicleDTOs.get(0).getColor(), "Red");
     }
 
     // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
     @Test
     public void testFindByModel_NoVehicles() {
-        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
+        when(vehicleRepository.findByModel("ModelX")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando nessun veicolo corrisponde al modello specificato.
+
     @Test
     public void testFindByModel_NoMatchingModel() {
-        VehicleEntity vehicle1 = new VehicleEntity(1L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
-                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
-                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
-                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
-                BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        when(vehicleRepository.findByModel("ModelX")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("ModelX");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicle Found", errorResponse.getMessage());
     }
 
     // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al modello specificato.
@@ -146,7 +151,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        when(vehicleRepository.findByModel("Panda")).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
 
@@ -172,7 +177,8 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle4 = new VehicleEntity(4L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3, vehicle4));
+
+        when(vehicleRepository.findByModel("Panda")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
 
@@ -186,12 +192,13 @@ public class VehicleResearchServiceTest {
     // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
     @Test
     public void testFindByBrand_NoVehicles() {
-        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
+        when(vehicleRepository.findByBrand("Tesla")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Tesla");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando nessun veicolo corrisponde al brand specificato.
@@ -203,12 +210,15 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+
+        when(vehicleRepository.findByBrand(anyString())).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Toyota");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al brand specificato.
@@ -220,7 +230,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        when(vehicleRepository.findByBrand("Fiat")).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Fiat");
 
@@ -243,7 +253,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+        when(vehicleRepository.findByBrand("Fiat")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Fiat");
 
@@ -257,12 +267,13 @@ public class VehicleResearchServiceTest {
     // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
     @Test
     public void testFindByTransmission_NoVehicles() {
-        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
+        when(vehicleRepository.findByTransmission("Automatic")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Automatic");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando nessun veicolo corrisponde al tipo di cambio specificato.
@@ -274,12 +285,15 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+
+        when(vehicleRepository.findByTransmission("Automatic")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Automatic");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        // Verifica
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al tipo di cambio specificato.
@@ -291,7 +305,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        when(vehicleRepository.findByTransmission("Manual")).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Manual");
 
@@ -314,7 +328,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+        when(vehicleRepository.findByTransmission("Manual")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Manual");
 
@@ -328,12 +342,14 @@ public class VehicleResearchServiceTest {
     // Verifica il comportamento del metodo quando non ci sono veicoli nel repository.
     @Test
     public void testFindByPowerSupply_NoVehicles() {
-        when(vehicleRepository.findAll()).thenReturn(Collections.emptyList());
+        when(vehicleRepository.findByPowerSupply("Electric")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply("Electric");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicle Found", errorResponse.getMessage());
     }
 
     // Verifica il comportamento del metodo quando nessun veicolo corrisponde alla tipologia di alimentazione specificata.
@@ -345,15 +361,18 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+
+        when(vehicleRepository.findByPowerSupply("Electric")).thenReturn(Collections.emptyList());
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply("Electric");
 
-        assertTrue(result.isRight());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("No vehicle Found", result.getLeft().getMessage());
     }
 
     // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono alla tipologia di alimentazione specificata.
+
     @Test
     public void testFindByPowerSupply_MatchingPowerSupply() {
         VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
@@ -362,7 +381,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle2 = new VehicleEntity(2L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2));
+        when(vehicleRepository.findByPowerSupply("Gasoline")).thenReturn(Arrays.asList(vehicle1, vehicle2));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply("Gasoline");
 
@@ -386,7 +405,7 @@ public class VehicleResearchServiceTest {
                 "Automatic", 2021, "Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
 
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+        when(vehicleRepository.findByPowerSupply("Gasoline")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPowerSupply("Gasoline");
 
@@ -851,5 +870,142 @@ public class VehicleResearchServiceTest {
         assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
     }
 
-    //TODO findByVehicleStatus - findByVehicleType
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono allo stato specificato.
+    @Test
+    public void testFindByVehicleStatus_NoVehicles() {
+        when(vehicleRepository.findByVehicleStatus(any(VehicleStatus.class))).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono allo stato specificato.
+    @Test
+    public void testFindByVehicleStatus_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(1500), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByVehicleStatus(VehicleStatus.PURCHASABLE)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        assertTrue(result.isRight());
+        //List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde allo stato specificato.
+    @Test
+    public void testFindByVehicleStatus_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByVehicleStatus(VehicleStatus.PURCHASABLE)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli con lo stato specificato.
+    @Test
+    public void testFindByVehicleStatus_NoMatchingVehicles() {
+        when(vehicleRepository.findByVehicleStatus(VehicleStatus.RENTABLE)).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found", errorResponse.getMessage());
+    }
+
+    // Verifica che il metodo gestisca correttamente il caso in cui non ci sono veicoli nel repository che corrispondono al tipo di veicolo specificato.
+    // Si aspetta di ricevere un errore 404 con un messaggio appropriato.
+    @Test
+    public void testFindByVehicleType_NoVehicles() {
+        when(vehicleRepository.findByVehicleType(any(VehicleType.class))).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(VehicleType.CAR);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found", errorResponse.getMessage());
+    }
+
+    // Verifica che il metodo restituisca correttamente una lista di veicoli quando ci sono veicoli nel repository che corrispondono al tipo di veicolo specificato.
+    // Si aspetta di ricevere una lista di VehicleDTO contenente i dettagli dei veicoli corrispondenti.
+    @Test
+    public void testFindByVehicleType_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(1500), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByVehicleType(VehicleType.CAR)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(VehicleType.CAR);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica che il metodo gestisca correttamente il caso in cui c'è un solo veicolo nel repository che corrisponde al tipo di veicolo specificato.
+    // Si aspetta di ricevere una lista di VehicleDTO contenente i dettagli di quel veicolo.
+    @Test
+    public void testFindByVehicleType_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByVehicleType(VehicleType.CAR)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(VehicleType.CAR);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.get();
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Il test verifica che il metodo findByVehicleType nella classe VehicleResearchService restituisca un errore con il codice 404
+    // e un messaggio appropriato quando viene fornito un tipo di veicolo non definito nell'enumerazione VehicleType.
+    @Test
+    public void testFindByVehicleType_NotDefinedVehicleType() {
+        when(vehicleRepository.findByVehicleType(VehicleType.NOT_DEFINED)).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByVehicleType(VehicleType.NOT_DEFINED);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found", errorResponse.getMessage());
+    }
 }

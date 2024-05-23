@@ -23,14 +23,11 @@ public class VehicleResearchService {
     VehicleRepository vehicleRepository;
 
     public Either<VehicleErrorResponse, List<VehicleDTO>> findByColor(String color) {
-        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
-        List<VehicleEntity> myVehicleEntity = new ArrayList<>();
-        for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getColor(), color)) {
-                myVehicleEntity.add(vehicleEntity);
-            }
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByColor(color);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleErrorResponse(404, "No vehicle Found"));
         }
-        List<VehicleModel> vehicleModels = myVehicleEntity.stream()
+        List<VehicleModel> vehicleModels = vehicleEntities.stream()
                 .map(VehicleModel::entityToModel)
                 .toList();
 
@@ -42,14 +39,11 @@ public class VehicleResearchService {
     }
 
     public Either<VehicleErrorResponse, List<VehicleDTO>> findByModel(String model) {
-        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
-        List<VehicleEntity> myVehicleEntity = new ArrayList<>();
-        for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getModel(), model)) {
-                myVehicleEntity.add(vehicleEntity);
-            }
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByModel(model);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleErrorResponse(404, "No vehicle Found"));
         }
-        List<VehicleModel> vehicleModels = myVehicleEntity.stream()
+        List<VehicleModel> vehicleModels = vehicleEntities.stream()
                 .map(VehicleModel::entityToModel)
                 .toList();
 
@@ -61,14 +55,11 @@ public class VehicleResearchService {
     }
 
     public Either<VehicleErrorResponse, List<VehicleDTO>> findByBrand(String brand) {
-        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
-        List<VehicleEntity> myVehicleEntity = new ArrayList<>();
-        for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getBrand(), brand)) {
-                myVehicleEntity.add(vehicleEntity);
-            }
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByBrand(brand);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleErrorResponse(404, "No vehicle Found"));
         }
-        List<VehicleModel> vehicleModels = myVehicleEntity.stream()
+        List<VehicleModel> vehicleModels = vehicleEntities.stream()
                 .map(VehicleModel::entityToModel)
                 .toList();
 
@@ -80,14 +71,11 @@ public class VehicleResearchService {
     }
 
     public Either<VehicleErrorResponse, List<VehicleDTO>> findByTransmission(String transmission) {
-        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
-        List<VehicleEntity> myVehicleEntity = new ArrayList<>();
-        for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getTransmission(), transmission)) {
-                myVehicleEntity.add(vehicleEntity);
-            }
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByTransmission(transmission);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleErrorResponse(404, "No vehicle Found"));
         }
-        List<VehicleModel> vehicleModels = myVehicleEntity.stream()
+        List<VehicleModel> vehicleModels = vehicleEntities.stream()
                 .map(VehicleModel::entityToModel)
                 .toList();
 
@@ -99,14 +87,11 @@ public class VehicleResearchService {
     }
 
     public Either<VehicleErrorResponse, List<VehicleDTO>> findByPowerSupply(String powerSupply) {
-        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll().stream().toList();
-        List<VehicleEntity> myVehicleEntity = new ArrayList<>();
-        for (VehicleEntity vehicleEntity : vehicleEntities) {
-            if (Objects.equals(vehicleEntity.getPowerSupply(), powerSupply)) {
-                myVehicleEntity.add(vehicleEntity);
-            }
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findByPowerSupply(powerSupply);
+        if (vehicleEntities.isEmpty()) {
+            return Either.left(new VehicleErrorResponse(404, "No vehicle Found"));
         }
-        List<VehicleModel> vehicleModels = myVehicleEntity.stream()
+        List<VehicleModel> vehicleModels = vehicleEntities.stream()
                 .map(VehicleModel::entityToModel)
                 .toList();
 
