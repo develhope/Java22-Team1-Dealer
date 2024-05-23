@@ -24,8 +24,8 @@ public class OrderModel {
     private OrderStatus status;
 
     private VehicleModel vehicle;
-    private LocalDate orderDate;
 
+    private LocalDate orderDate;
 
     public OrderModel(BigDecimal deposit, Boolean paid, OrderStatus status, VehicleModel vehicle, LocalDate orderDate) {
         this.deposit = deposit;

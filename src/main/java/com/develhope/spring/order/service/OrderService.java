@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -43,18 +44,19 @@ public class OrderService {
             return Either.left(new OrderResponse(400, "Invalid input parameters"));
         }
 
-        VehicleEntity foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId()).orElse(null);
-        if (foundVehicle == null || foundVehicle.getVehicleStatus() != VehicleStatus.ORDERABLE) {
-            return Either.left(new OrderResponse(foundVehicle == null ? 404 : 403, foundVehicle == null ? "Specified vehicle not found" : "Vehicle is not orderable"));
+        Optional<VehicleEntity> foundVehicle = vehicleRepository.findById(orderRequest.getVehicleId());
+        if (foundVehicle.isEmpty() || foundVehicle.get().getVehicleStatus() != VehicleStatus.ORDERABLE) {
+            return Either.left(new OrderResponse(foundVehicle.isEmpty() ? 404 : 403, foundVehicle.isEmpty() ? "Specified vehicle not found" : "Vehicle is not orderable"));
         }
 
+        VehicleEntity vehicle = foundVehicle.get();
         UserEntity buyer = resolveWhosBuyer(seller, buyerId);
         if (buyer == null) {
             return Either.left(new OrderResponse(404, "Specified buyer not found"));
         }
-        updateVehicleStatus(foundVehicle, VehicleStatus.ORDERED);
+        updateVehicleStatus(vehicle, VehicleStatus.ORDERED);
         OrderModel orderModel = new OrderModel(orderRequest.getDeposit(), orderRequest.getPaid(), OrderStatus.convertFromString(orderRequest.getStatus()),
-                VehicleModel.entityToModel(foundVehicle)
+                VehicleModel.entityToModel(vehicle)
                 , LocalDate.now());
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
