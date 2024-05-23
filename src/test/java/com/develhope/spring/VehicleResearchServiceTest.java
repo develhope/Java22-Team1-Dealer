@@ -103,6 +103,9 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
+        vehicleRepository.save(vehicle3);
         when(vehicleRepository.findByColor(anyString())).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
 
@@ -177,6 +180,10 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle4 = new VehicleEntity(4L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
+        vehicleRepository.save(vehicle3);
+        vehicleRepository.save(vehicle4);
 
         when(vehicleRepository.findByModel("Panda")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
@@ -255,6 +262,9 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
+        vehicleRepository.save(vehicle3);
         when(vehicleRepository.findByBrand("Fiat")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByBrand("Fiat");
@@ -331,6 +341,9 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Fiat", "Panda", 999, "Grey", 70,
                 "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
                 BigDecimal.valueOf(5), Collections.singletonList("Sunroof"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
+        vehicleRepository.save(vehicle3);
         when(vehicleRepository.findByTransmission("Manual")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByTransmission("Manual");
@@ -409,6 +422,9 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle3 = new VehicleEntity(3L, "Lamborghini", "Revuelto", (int) 6.4, "Red", 1015,
                 "Automatic", 2021, "Gasoline", BigDecimal.valueOf(517255),
                 BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicleRepository.save(vehicle1);
+        vehicleRepository.save(vehicle2);
+        vehicleRepository.save(vehicle3);
 
         when(vehicleRepository.findByPowerSupply("Gasoline")).thenReturn(Arrays.asList(vehicle1, vehicle3));
 
