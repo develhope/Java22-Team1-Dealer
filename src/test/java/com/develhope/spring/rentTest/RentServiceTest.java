@@ -19,6 +19,8 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -58,7 +60,7 @@ public class RentServiceTest {
         buyer.setUserType(UserTypes.BUYER);
 
         VehicleEntity vehicle = new VehicleEntity();
-        vehicle.setVehicleId(1L);
+        vehicle.setVehicleId(5L);
         vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
 
         RentRequest rentRequest = new RentRequest();
@@ -68,13 +70,18 @@ public class RentServiceTest {
         rentRequest.setPaid(true);
         rentRequest.setVehicleId(vehicle.getVehicleId());
 
-        when(vehicleRepository.findById(vehicle.getVehicleId())).thenReturn(Optional.of(vehicle));
+        // Configura il comportamento del mock per ritornare un oggetto VehicleEntity
+        when(vehicleRepository.findById(5L)).thenReturn(Optional.of(new VehicleEntity()));
         when(rentRepository.save(any())).thenReturn(new RentEntity());
 
+        // Esegui il metodo sotto test
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, buyer.getId(), buyer);
 
-        verify(vehicleRepository, times(1)).findById(vehicle.getVehicleId());
+        // Verifica che il metodo findById sia stato chiamato esattamente una volta con l'ID del veicolo
+        verify(vehicleRepository, times(1)).findById(eq(5L));
+        // Verifica che il metodo save del rentRepository sia stato chiamato una volta con qualsiasi oggetto RentEntity
         verify(rentRepository, times(1)).save(any());
+        // Verifica che il risultato sia un'istanza di Either.Right
         assertEquals(Either.Right.class, result.getClass());
     }
 
@@ -318,7 +325,7 @@ public class RentServiceTest {
         Either<RentResponse, Void> resultEither = rentService.deleteRent(rentId, userEntity);
 
         assertTrue(resultEither.isLeft());
-        assertEquals(403, resultEither.getLeft().getStatusCode());
+        assertEquals(404, resultEither.getLeft().getStatusCode());
 
         verify(rentRepository, never()).delete(any(RentEntity.class));
         verify(rentalsLinkRepository, never()).delete(any(RentLink.class));

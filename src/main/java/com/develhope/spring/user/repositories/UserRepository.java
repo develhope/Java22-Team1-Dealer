@@ -1,7 +1,7 @@
-package com.develhope.spring.User.repositories;
+package com.develhope.spring.user.repositories;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.entities.UserEntity;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

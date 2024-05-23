@@ -1,12 +1,12 @@
-package com.develhope.spring.User.services;
+package com.develhope.spring.user.services;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.DTO.UserDTO;
-import com.develhope.spring.User.entities.UserEntity;
-import com.develhope.spring.User.model.UserModel;
-import com.develhope.spring.User.repositories.UserRepository;
-import com.develhope.spring.User.request.UserRequest;
-import com.develhope.spring.User.response.UserResponse;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.DTO.UserDTO;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.model.UserModel;
+import com.develhope.spring.user.repositories.UserRepository;
+import com.develhope.spring.user.request.UserRequest;
+import com.develhope.spring.user.response.UserResponse;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

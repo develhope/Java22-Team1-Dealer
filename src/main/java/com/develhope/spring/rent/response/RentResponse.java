@@ -1,4 +1,4 @@
-package com.develhope.spring.rent.Response;
+package com.develhope.spring.rent.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

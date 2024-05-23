@@ -1,6 +1,6 @@
-package com.develhope.spring.User.DTO;
+package com.develhope.spring.user.DTO;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.Enum.UserTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
