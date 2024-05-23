@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
@@ -455,6 +456,70 @@ public class VehicleResearchServiceTest {
         assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
     }
 
-    //TODO findByDisplacement - findByPower
-    // - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
+    // Verifica il comportamento del metodo quando il valore minimo di cilindrata è maggiore del valore massimo.
+    @Test
+    public void testFindByDisplacement_InvalidRange() {
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(2000, 1000);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(400, errorResponse.getCode());
+        assertEquals("the minimum displacement cannot be higher than the maximum", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono al range di cilindrata specificato.
+    @Test
+    public void testFindByDisplacement_NoVehicles() {
+        when(vehicleRepository.findByDisplacementBetween(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(1000, 2000);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found in the specified range", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al range di cilindrata specificato.
+    @Test
+    public void testFindByDisplacement_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 1100, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 1500, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByDisplacementBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(1000, 2000);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde al range di cilindrata specificato.
+    @Test
+    public void testFindByDisplacement_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 1100, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByDisplacementBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDisplacement(1000, 1200);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    //TODO findByPower - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
 }
