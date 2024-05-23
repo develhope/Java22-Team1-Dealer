@@ -714,5 +714,142 @@ public class VehicleResearchServiceTest {
         assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
     }
 
-    //TODO findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
+    // Verifica il comportamento del metodo quando il valore minimo del prezzo scontato è maggiore del valore massimo.
+    @Test
+    public void testFindByDiscount_InvalidRange() {
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(BigDecimal.valueOf(5000), BigDecimal.valueOf(3000));
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(400, errorResponse.getCode());
+        assertEquals("the minimum discount price cannot be higher than the maximum", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono all'intervallo di prezzo scontato specificato.
+    @Test
+    public void testFindByDiscount_NoVehicles() {
+        when(vehicleRepository.findByDiscountBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(BigDecimal.valueOf(1000), BigDecimal.valueOf(2000));
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found in the specified range", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono all'intervallo di prezzo scontato specificato.
+    @Test
+    public void testFindByDiscount_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(1500), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByDiscountBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(BigDecimal.valueOf(1000), BigDecimal.valueOf(2000));
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde all'intervallo di prezzo scontato specificato.
+    @Test
+    public void testFindByDiscount_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByDiscountBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByDiscount(BigDecimal.valueOf(900), BigDecimal.valueOf(1100));
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono al valore booleano specificato.
+    @Test
+    public void testFindByIsNew_NoVehicles() {
+        when(vehicleRepository.findByIsNew(anyBoolean())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(true);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al valore booleano specificato.
+    @Test
+    public void testFindByIsNew_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(1500), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByIsNew(true)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(true);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde al valore booleano specificato.
+    @Test
+    public void testFindByIsNew_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByIsNew(true)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(true);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nuovi, ma ci sono veicoli usati nel repository.
+    @Test
+    public void testFindByIsNew_NoNewVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1000), Collections.singletonList("Air Conditioning"), false, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByIsNew(false)).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByIsNew(false);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    //TODO findByVehicleStatus - findByVehicleType
 }
