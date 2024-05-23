@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +22,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class VehicleResearchServiceTest {
@@ -174,7 +172,7 @@ public class VehicleResearchServiceTest {
         VehicleEntity vehicle4 = new VehicleEntity(4L, "Toyota", "Yaris", 1618, "Red",
                 280, "Manual", 2021, "Gasoline", BigDecimal.valueOf(52000), BigDecimal.valueOf(5),
                 Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3));
+        when(vehicleRepository.findAll()).thenReturn(Arrays.asList(vehicle1, vehicle2, vehicle3, vehicle4));
 
         Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByModel("Panda");
 
@@ -521,5 +519,200 @@ public class VehicleResearchServiceTest {
         assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
     }
 
-    //TODO findByPower - findByRegistrationYear - findByPrice - findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
+    // Verifica il comportamento del metodo quando il valore minimo di potenza è maggiore del valore massimo.
+    @Test
+    public void testFindByPower_InvalidRange() {
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(200, 100);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(400, errorResponse.getCode());
+        assertEquals("the minimum power cannot be higher than the maximum", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono al range di potenza specificato.
+    @Test
+    public void testFindByPower_NoVehicles() {
+        when(vehicleRepository.findByPowerBetween(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(100, 200);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found in the specified range", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono al range di potenza specificato.
+    @Test
+    public void testFindByPower_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByPowerBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(60, 100);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde al range di potenza specificato.
+    @Test
+    public void testFindByPower_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByPowerBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPower(80, 90);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando il valore minimo dell'anno di immatricolazione è maggiore del valore massimo.
+    @Test
+    public void testFindByRegistrationYear_InvalidRange() {
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(2021, 2020);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(400, errorResponse.getCode());
+        assertEquals("the minimum registration year cannot be higher than the maximum", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono all'intervallo di anni di immatricolazione specificato.
+    @Test
+    public void testFindByRegistrationYear_NoVehicles() {
+        when(vehicleRepository.findByRegistrationYearBetween(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(2010, 2020);
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found in the specified range", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono all'intervallo di anni di immatricolazione specificato.
+    @Test
+    public void testFindByRegistrationYear_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(15500),
+                BigDecimal.valueOf(5), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByRegistrationYearBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(2020, 2021);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde all'anno di immatricolazione specificato.
+    @Test
+    public void testFindByRegistrationYear_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(23900),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByRegistrationYearBetween(anyInt(), anyInt())).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByRegistrationYear(2021, 2021);
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando il valore minimo del prezzo è maggiore del valore massimo.
+    @Test
+    public void testFindByPrice_InvalidRange() {
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(BigDecimal.valueOf(30000), BigDecimal.valueOf(20000));
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(400, errorResponse.getCode());
+        assertEquals("the minimum price cannot be higher than the maximum", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando non ci sono veicoli nel repository che corrispondono all'intervallo di prezzo specificato.
+    @Test
+    public void testFindByPrice_NoVehicles() {
+        when(vehicleRepository.findByPriceBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(Collections.emptyList());
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(BigDecimal.valueOf(10000), BigDecimal.valueOf(20000));
+
+        assertTrue(result.isLeft());
+        VehicleErrorResponse errorResponse = result.getLeft();
+        assertEquals(404, errorResponse.getCode());
+        assertEquals("No vehicles found in the specified range", errorResponse.getMessage());
+    }
+
+    // Verifica il comportamento del metodo quando ci sono veicoli che corrispondono all'intervallo di prezzo specificato.
+    @Test
+    public void testFindByPrice_MatchingVehicles() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(15000),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        VehicleEntity vehicle2 = new VehicleEntity(2L, "Fiat", "Panda", 999, "Grey", 70,
+                "Manual", 2020, "Hybrid", BigDecimal.valueOf(18000),
+                BigDecimal.valueOf(5), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        vehicles.add(vehicle2);
+        when(vehicleRepository.findByPriceBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(BigDecimal.valueOf(10000), BigDecimal.valueOf(20000));
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(2, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.get(0).getVehicleId());
+        assertEquals(2L, vehicleDTOs.get(1).getVehicleId());
+    }
+
+    // Verifica il comportamento del metodo quando c'è un singolo veicolo che corrisponde all'intervallo di prezzo specificato.
+    @Test
+    public void testFindByPrice_SingleMatchingVehicle() {
+        List<VehicleEntity> vehicles = new ArrayList<>();
+        VehicleEntity vehicle1 = new VehicleEntity(1L, "Fiat", "Panda", 875, "Red", 85,
+                "Manual", 2021, "Gasoline", BigDecimal.valueOf(15000),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        vehicles.add(vehicle1);
+        when(vehicleRepository.findByPriceBetween(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(vehicles);
+
+        Either<VehicleErrorResponse, List<VehicleDTO>> result = vehicleResearchService.findByPrice(BigDecimal.valueOf(14000), BigDecimal.valueOf(16000));
+
+        assertTrue(result.isRight());
+        List<VehicleDTO> vehicleDTOs = result.getOrElse(Collections.emptyList());
+        assertEquals(1, vehicleDTOs.size());
+        assertEquals(1L, vehicleDTOs.getFirst().getVehicleId());
+    }
+
+    //TODO findByDiscount - findByIsNew - findByVehicleStatus - findByVehicleType
 }
