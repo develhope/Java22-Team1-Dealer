@@ -62,7 +62,7 @@ public class RentModel {
                 rentEntity.getEndDate(),
                 rentEntity.getDailyCost(),
                 rentEntity.getIsPaid() != null ? rentEntity.getIsPaid() : false,
-                rentEntity.getVehicleId(),
+                rentEntity.getVehicle(),
                 rentEntity.getTotalCost(),
                 rentEntity.getId()
         );

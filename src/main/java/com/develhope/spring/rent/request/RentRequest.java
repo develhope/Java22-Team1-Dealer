@@ -1,11 +1,13 @@
 package com.develhope.spring.rent.request;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor
 public class RentRequest {
 
     private LocalDate startDate;

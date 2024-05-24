@@ -1,33 +1,36 @@
 package com.develhope.spring.rentTest;
 
-import com.develhope.spring.rent.entities.RentLink;
-import com.develhope.spring.rent.model.RentModel;
-import com.develhope.spring.rent.repositories.RentalsLinkRepository;
-import com.develhope.spring.user.entities.Enum.UserTypes;
-import com.develhope.spring.user.entities.UserEntity;
-import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.rent.DTO.RentDTO;
 import com.develhope.spring.rent.entities.RentEntity;
+import com.develhope.spring.rent.entities.RentLink;
+import com.develhope.spring.rent.model.RentModel;
 import com.develhope.spring.rent.repositories.RentRepository;
+import com.develhope.spring.rent.repositories.RentalsLinkRepository;
 import com.develhope.spring.rent.request.RentRequest;
 import com.develhope.spring.rent.response.RentResponse;
 import com.develhope.spring.rent.services.RentService;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.entities.VehicleStatus;
+import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -135,7 +138,7 @@ public class RentServiceTest {
         savedRentEntity.setEndDate(rentRequest.getEndDate());
         savedRentEntity.setDailyCost(rentRequest.getDailyCost());
         savedRentEntity.setIsPaid(rentRequest.isPaid());
-        savedRentEntity.setVehicleId(vehicleEntity);
+        savedRentEntity.setVehicle(vehicleEntity);
         savedRentEntity.setTotalCost(BigDecimal.valueOf(150)); // Assuming totalCost
 
         when(rentRepository.save(any(RentEntity.class))).thenReturn(savedRentEntity);
@@ -226,6 +229,7 @@ public class RentServiceTest {
         existingRent.setEndDate(LocalDate.now().plusDays(3));
         existingRent.setDailyCost(BigDecimal.valueOf(50));
         existingRent.setIsPaid(true);
+        existingRent.setActive(true);
 
         LocalDate newStartDate = LocalDate.now().plusDays(1);
         LocalDate newEndDate = LocalDate.now().plusDays(5);
@@ -234,18 +238,14 @@ public class RentServiceTest {
         rentRequest.setStartDate(newStartDate);
         rentRequest.setEndDate(newEndDate);
 
-        Long userId = 123L;
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
+        UserEntity userEntity = new UserEntity(1L,"carlo", "armato", "333", "culo@ok", "bellapass", UserTypes.BUYER);
 
         RentLink rentLink = new RentLink(userEntity, existingRent);
         when(rentalsLinkRepository.findByRentId(existingRent.getId())).thenReturn(Optional.of(rentLink));
-
-        when(rentRepository.findById(existingRent.getId())).thenReturn(Optional.of(existingRent));
         when(rentRepository.save(any(RentEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(existingRent.getId(), rentRequest, userEntity);
+        System.out.println(result);
 
         assertTrue(result.isRight());
         RentDTO updatedRentDTO = result.get();
@@ -253,7 +253,6 @@ public class RentServiceTest {
         assertEquals(newEndDate, updatedRentDTO.getEndDate());
         assertEquals(existingRent.getId(), updatedRentDTO.getId());
 
-        verify(rentRepository, times(1)).findById(existingRent.getId());
         verify(rentRepository, times(1)).save(existingRent);
         verify(rentalsLinkRepository, times(1)).findByRentId(existingRent.getId());
     }
@@ -266,6 +265,7 @@ public class RentServiceTest {
         existingRent.setEndDate(LocalDate.now().plusDays(3));
         existingRent.setDailyCost(BigDecimal.valueOf(50));
         existingRent.setIsPaid(true);
+        existingRent.setActive(true);
 
         LocalDate newStartDate = LocalDate.now().plusDays(5);
         LocalDate newEndDate = LocalDate.now().plusDays(1);
@@ -274,15 +274,7 @@ public class RentServiceTest {
         rentRequest.setStartDate(newStartDate);
         rentRequest.setEndDate(newEndDate);
 
-        Long userId = 123L;
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-
-        RentLink rentLink = new RentLink(userEntity, existingRent);
-        when(rentalsLinkRepository.findByRentId(existingRent.getId())).thenReturn(Optional.of(rentLink));
-
-        when(rentRepository.findById(existingRent.getId())).thenReturn(Optional.of(existingRent));
+        UserEntity userEntity = new UserEntity(1L,"carlo", "armato", "333", "culo@ok", "bellapass", UserTypes.BUYER);
 
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(existingRent.getId(), rentRequest, userEntity);
 
@@ -290,10 +282,6 @@ public class RentServiceTest {
         RentResponse rentResponse = result.getLeft();
         assertEquals(400, rentResponse.getStatusCode());
         assertEquals("Start date must be before end date", rentResponse.getMessage());
-
-        verify(rentRepository, times(1)).findById(existingRent.getId());
-        verify(rentRepository, times(0)).save(any(RentEntity.class));
-        verify(rentalsLinkRepository, times(1)).findByRentId(existingRent.getId());
     }
 
     @Test
@@ -307,15 +295,10 @@ public class RentServiceTest {
         rentRequest.setStartDate(newStartDate);
         rentRequest.setEndDate(newEndDate);
 
-        Long userId = 123L;
-
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
+        userEntity.setId(123L);
 
-        RentLink rentLink = new RentLink(userEntity, new RentEntity());
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-
-        when(rentRepository.findById(rentId)).thenReturn(Optional.empty());
+        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.empty());
 
         Either<RentResponse, RentDTO> result = rentService.updateRentDates(rentId, rentRequest, userEntity);
 
@@ -324,33 +307,38 @@ public class RentServiceTest {
         assertEquals(404, rentResponse.getStatusCode());
         assertEquals("Rent not found", rentResponse.getMessage());
 
-        verify(rentRepository, times(1)).findById(rentId);
-        verify(rentRepository, times(0)).save(any(RentEntity.class));
+
         verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
     }
 
     @Test
     void deleteRent_Success() {
-        Long rentId = 1L;
+        RentEntity existingRent = new RentEntity();
+        existingRent.setId(1L);
+        existingRent.setStartDate(LocalDate.now());
+        existingRent.setEndDate(LocalDate.now().plusDays(3));
+        existingRent.setDailyCost(BigDecimal.valueOf(50));
+        existingRent.setIsPaid(true);
+        existingRent.setActive(true);
+        VehicleEntity vehicleEntity = new VehicleEntity(1L, "Lamborghini", "Revuelto", 6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
+        existingRent.setVehicle(vehicleEntity);
 
-        Long userId = 123L;
+        UserEntity userEntity = new UserEntity(1L, "carlo", "armato", "333", "culo@ok", "bellapass", UserTypes.BUYER);
 
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
+        RentLink rentLink = new RentLink(userEntity, existingRent);
 
-        RentLink rentLink = new RentLink(userEntity, new RentEntity());
-        when(rentalsLinkRepository.findByRentIdAndBuyerId(rentId, userId)).thenReturn(Optional.of(rentLink));
+        when(rentalsLinkRepository.findByRentId(existingRent.getId())).thenReturn(Optional.of(rentLink));
 
-        when(rentRepository.findById(rentId)).thenReturn(Optional.of(new RentEntity()));
-
-        Either<RentResponse, Void> resultEither = rentService.deleteRent(rentId, userEntity);
+        Either<RentResponse, Void> resultEither = rentService.deleteRent(existingRent.getId(), userEntity);
 
         assertTrue(resultEither.isRight());
 
-        verify(rentRepository, times(1)).findById(rentId);
-        verify(rentRepository, times(1)).delete(any(RentEntity.class));
-        verify(rentalsLinkRepository, times(1)).findByRentIdAndBuyerId(rentId, userId);
+        verify(rentRepository, times(1)).save(any(RentEntity.class));
+        verify(rentalsLinkRepository, times(1)).findByRentId(existingRent.getId());
         verify(rentalsLinkRepository, times(1)).delete(rentLink);
+        verify(vehicleRepository, times(1)).save(vehicleEntity);
     }
 
     @Test

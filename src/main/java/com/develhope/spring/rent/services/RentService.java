@@ -156,7 +156,7 @@ public class RentService {
         //trova il rentlink utilizzando il rentlinkid e lo userid
         Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
-            return Either.left(new RentResponse(404, "Rent link not found"));
+            return Either.left(new RentResponse(404, "Rent not found"));
         }
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
@@ -199,13 +199,16 @@ public class RentService {
         RentEntity rentEntity = rentLink.getRent();
 
         rentEntity.setActive(false);
-        rentEntity.setVehicleId(null);
+        VehicleEntity vehicle = rentEntity.getVehicle();
+        rentEntity.setVehicle(null);
         rentRepository.save(rentEntity);
 
         rentalsLinkRepository.delete(rentLink);
-        VehicleEntity vehicle = rentEntity.getVehicleId();
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
-        vehicleRepository.save(vehicle);
+
+        if (vehicle != null) {
+            vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(vehicle);
+        }
 
         return Either.right(null);
     }
@@ -262,10 +265,10 @@ public class RentService {
         }
 
         rentEntity.setActive(false);
-        rentEntity.setVehicleId(null);
+        rentEntity.setVehicle(null);
         rentRepository.save(rentEntity);
 
-        VehicleEntity vehicle = rentEntity.getVehicleId();
+        VehicleEntity vehicle = rentEntity.getVehicle();
         vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
         vehicleRepository.save(vehicle);
 
