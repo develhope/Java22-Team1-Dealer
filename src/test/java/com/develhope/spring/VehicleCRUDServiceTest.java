@@ -1,8 +1,8 @@
 package com.develhope.spring;
 
-import com.develhope.spring.User.entities.Enum.UserTypes;
-import com.develhope.spring.User.entities.UserEntity;
-import com.develhope.spring.User.repositories.UserRepository;
+import com.develhope.spring.user.entities.Enum.UserTypes;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.DTO.VehicleDTO;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.model.VehicleModel;
@@ -13,7 +13,10 @@ import com.develhope.spring.vehicles.services.VehicleCRUDService;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
