@@ -31,4 +31,25 @@ public class VehicleDTO {
     private Boolean isNew;
     private VehicleStatus vehicleStatus;
     private VehicleType vehicleType;
+
+    @Override
+    public String toString() {
+        return "VehicleDTO{" +
+                "vehicleId=" + vehicleId +
+                ", brand='" + brand + '\'' +
+                ", model='" + model + '\'' +
+                ", displacement=" + displacement +
+                ", color='" + color + '\'' +
+                ", power=" + power +
+                ", transmission='" + transmission + '\'' +
+                ", registrationYear=" + registrationYear +
+                ", powerSupply='" + powerSupply + '\'' +
+                ", price=" + price +
+                ", discount=" + discount +
+                ", accessories=" + accessories +
+                ", isNew=" + isNew +
+                ", vehicleStatus=" + vehicleStatus +
+                ", vehicleType=" + vehicleType +
+                '}';
+    }
 }

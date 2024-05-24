@@ -10,7 +10,7 @@ import com.develhope.spring.vehicles.entities.VehicleStatus;
 import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import com.develhope.spring.vehicles.request.VehicleRequest;
-import com.develhope.spring.vehicles.response.VehicleResponse;
+import com.develhope.spring.vehicles.response.VehicleErrorResponse;
 import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class VehicleCRUDService {
     @Autowired
     UserRepository userRepository;
 
-    public Either<VehicleResponse, VehicleDTO> createVehicle(UserEntity userEntity, VehicleRequest vehicleRequest) {
+    public Either<VehicleErrorResponse, VehicleDTO> createVehicle(UserEntity userEntity, VehicleRequest vehicleRequest) {
         Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.isPresent()) {
             if (userOptional.get().getUserType() == UserTypes.ADMIN) {
@@ -44,33 +44,33 @@ public class VehicleCRUDService {
                 VehicleModel resultModel = VehicleModel.entityToModel(result);
                 return Either.right(VehicleModel.modelToDTO(resultModel));
             } else {
-                return Either.left(new VehicleResponse(400, "only admin can create a vehicle"));
+                return Either.left(new VehicleErrorResponse(400, "only admin can create a vehicle"));
             }
         } else {
-            return Either.left(new VehicleResponse(404, "user with id " + userEntity.getId() + "not found"));
+            return Either.left(new VehicleErrorResponse(404, "user with id " + userEntity.getId() + "not found"));
         }
     }
 
-    public Either<VehicleResponse, VehicleDTO> getSingleVehicle(UserEntity userEntity, Long vehicleId) {
+    public Either<VehicleErrorResponse, VehicleDTO> getSingleVehicle(UserEntity userEntity, Long vehicleId) {
         Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "user with id" + userEntity.getId() + "not found"));
+            return Either.left(new VehicleErrorResponse(404, "user with id" + userEntity.getId() + "not found"));
         }
         if (userOptional.get().getUserType() != UserTypes.BUYER && userOptional.get().getUserType() != UserTypes.SELLER) {
-            return Either.left(new VehicleResponse(400, "only buyer and seller can get the vehicle"));
+            return Either.left(new VehicleErrorResponse(400, "only buyer and seller can get the vehicle"));
         }
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
         if (vehicleEntity.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "vehicle with id " + vehicleId + "not found"));
+            return Either.left(new VehicleErrorResponse(404, "vehicle with id " + vehicleId + "not found"));
         }
         VehicleModel vehicleModel = VehicleModel.entityToModel(vehicleEntity.get());
         return Either.right(VehicleModel.modelToDTO(vehicleModel));
     }
 
-    public Either<VehicleResponse, List<VehicleDTO>> getAllVehicle() {
+    public Either<VehicleErrorResponse, List<VehicleDTO>> getAllVehicle() {
         List<VehicleEntity> vehicleEntity = vehicleRepository.findAll();
         if (vehicleEntity.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "no cars list found"));
+            return Either.left(new VehicleErrorResponse(404, "no cars list found"));
         }
         List<VehicleModel> vehicleModels = vehicleEntity.stream()
                 .map(VehicleModel::entityToModel)
@@ -83,14 +83,14 @@ public class VehicleCRUDService {
         return Either.right(vehicleDTOs);
     }
 
-    public Either<VehicleResponse, VehicleDTO> updateVehicle(UserEntity userEntity, Long vehicleId, VehicleRequest request) {
+    public Either<VehicleErrorResponse, VehicleDTO> updateVehicle(UserEntity userEntity, Long vehicleId, VehicleRequest request) {
         Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.get().getUserType() != UserTypes.ADMIN) {
-            return Either.left(new VehicleResponse(403, "This user does not have the permission"));
+            return Either.left(new VehicleErrorResponse(403, "This user does not have the permission"));
         }
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
         if (vehicleEntity.isEmpty()) {
-            return Either.left(new VehicleResponse(404, "No vehicle found"));
+            return Either.left(new VehicleErrorResponse(404, "No vehicle found"));
         }
 
         vehicleEntity.get().setBrand(request.getBrand() == null ? vehicleEntity.get().getBrand() : request.getBrand());
@@ -114,12 +114,12 @@ public class VehicleCRUDService {
     }
 
 
-    public VehicleResponse deleteVehicle(UserEntity userEntity, Long vehicleId) {
+    public VehicleErrorResponse deleteVehicle(UserEntity userEntity, Long vehicleId) {
         Optional<UserEntity> userOptional = userRepository.findById(userEntity.getId());
         if (userOptional.get().getUserType() != UserTypes.ADMIN) {
-            return new VehicleResponse(403, "this user does not have the permission");
+            return new VehicleErrorResponse(403, "this user does not have the permission");
         }
-        Either<VehicleResponse, VehicleDTO> foundVehicle = getSingleVehicle(userEntity, vehicleId);
+        Either<VehicleErrorResponse, VehicleDTO> foundVehicle = getSingleVehicle(userEntity, vehicleId);
         if (foundVehicle.isLeft()) {
             return foundVehicle.getLeft();
         }
@@ -127,9 +127,9 @@ public class VehicleCRUDService {
 
         try {
             vehicleRepository.delete(vehicleEntity.get());
-            return new VehicleResponse(200, "Purchase deleted successfully");
+            return new VehicleErrorResponse(200, "Purchase deleted successfully");
         } catch (Exception e) {
-            return new VehicleResponse(500, "Internal server error");
+            return new VehicleErrorResponse(500, "Internal server error");
         }
     }
 
