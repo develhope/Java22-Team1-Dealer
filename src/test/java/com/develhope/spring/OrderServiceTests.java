@@ -98,33 +98,29 @@ public class OrderServiceTests {
 
     @Test
     public void testCreateOrderInvalidInput() {
-        // Act
         Either<OrderResponse, OrderDTO> result = orderService.create(new UserEntity(), null, null);
+        System.out.println(result);
 
-        // Assert
         assertTrue(result.isLeft());
         assertEquals(400, result.getLeft().getCode());
     }
 
     @Test
     public void testGetSingleOrderNotFound() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(null);
 
-        // Act
         Either<OrderResponse, OrderDTO> result = orderService.getSingle(userEntity, 1L);
+        System.out.println(result);
 
-        // Assert
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
     }
 
     @Test
     public void testGetSingleOrderSuccess() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setUserType(UserTypes.BUYER);
@@ -134,51 +130,50 @@ public class OrderServiceTests {
 
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setOrderId(1L);
+        orderEntity.setVehicle(new VehicleEntity(3L, "Lamborghini", "Revuelto",  6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.ORDERABLE, VehicleType.CAR));
         ordersLink.setOrder(orderEntity);
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
 
-        // Act
         Either<OrderResponse, OrderDTO> result = orderService.getSingle(userEntity, 1L);
 
-        // Assert
         assertTrue(result.isRight());
         assertEquals(1L, result.get().getOrderId());
     }
 
     @Test
     public void testGetAllOrdersNotFound() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
         when(ordersLinkRepository.findByBuyer_Id(1L)).thenReturn(Collections.emptyList());
 
-        // Act
         Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(userEntity);
 
-        // Assert
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
     }
 
     @Test
     public void testGetAllOrdersSuccess() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
         OrdersLinkEntity ordersLink = new OrdersLinkEntity();
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setOrderId(1L);
+        orderEntity.setVehicle(new VehicleEntity(3L, "Lamborghini", "Revuelto",  6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.ORDERABLE, VehicleType.CAR));
+
         ordersLink.setOrder(orderEntity);
 
         when(ordersLinkRepository.findByBuyer_Id(1L)).thenReturn(List.of(ordersLink));
 
-        // Act
         Either<OrderResponse, List<OrderDTO>> result = orderService.getAll(userEntity);
 
-        // Assert
         assertTrue(result.isRight());
         assertEquals(1, result.get().size());
         assertEquals(1L, result.get().get(0).getOrderId());
