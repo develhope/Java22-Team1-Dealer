@@ -38,7 +38,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTests {
-
     @Mock
     private OrderRepository orderRepository;
 
@@ -86,7 +85,6 @@ public class OrderServiceTests {
         when(orderRepository.saveAndFlush(any(OrderEntity.class))).thenReturn(orderEntity);
         when(ordersLinkRepository.save(any(OrdersLinkEntity.class))).thenReturn(new OrdersLinkEntity());
 
-
         Either<OrderResponse, OrderDTO> result = orderService.create(seller, buyer.getId(), orderRequest);
         System.out.println(result);
 
@@ -97,8 +95,74 @@ public class OrderServiceTests {
     }
 
     @Test
+    public void testCreateOrderNonExistentVehicle() {
+        UserEntity seller = new UserEntity(1L, "pietro", "tornasole", "+31",
+                "culobello@si.of", "igattini", UserTypes.SELLER);
+
+        UserEntity buyer = new UserEntity(2L, "carlo", "santini", "+22", "sis", "icagnolini", UserTypes.BUYER);
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setVehicleId(99L); // Non-existent vehicle ID
+        orderRequest.setDeposit(BigDecimal.valueOf(100));
+        orderRequest.setPaid(false);
+        orderRequest.setStatus("ORDERED");
+
+        when(vehicleRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Either<OrderResponse, OrderDTO> result = orderService.create(seller, buyer.getId(), orderRequest);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+    }
+
+    @Test
+    public void testCreateOrderNonOrderableVehicle() {
+        UserEntity seller = new UserEntity(1L, "pietro", "tornasole", "+31",
+                "culobello@si.of", "igattini", UserTypes.SELLER);
+
+        UserEntity buyer = new UserEntity(2L, "carlo", "santini", "+22", "sis", "icagnolini", UserTypes.BUYER);
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setVehicleId(3L);
+        orderRequest.setDeposit(BigDecimal.valueOf(100));
+        orderRequest.setPaid(false);
+        orderRequest.setStatus("ORDERED");
+
+        VehicleEntity vehicle = new VehicleEntity(3L, "Lamborghini", "Revuelto",  6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.SOLD, VehicleType.CAR); // Non-orderable status
+
+        when(vehicleRepository.findById(3L)).thenReturn(Optional.of(vehicle));
+
+        Either<OrderResponse, OrderDTO> result = orderService.create(seller, buyer.getId(), orderRequest);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(403, result.getLeft().getCode());
+    }
+
+    @Test
     public void testCreateOrderInvalidInput() {
         Either<OrderResponse, OrderDTO> result = orderService.create(new UserEntity(), null, null);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(400, result.getLeft().getCode());
+    }
+
+    @Test
+    public void testCreateOrderInvalidDeposit() {
+        UserEntity seller = new UserEntity(1L, "pietro", "tornasole", "+31",
+                "culobello@si.of", "igattini", UserTypes.SELLER);
+
+        UserEntity buyer = new UserEntity(2L, "carlo", "santini", "+22", "sis", "icagnolini", UserTypes.BUYER);
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setVehicleId(3L);
+        orderRequest.setDeposit(BigDecimal.valueOf(-10));
+
+        Either<OrderResponse, OrderDTO> result = orderService.create(seller, buyer.getId(), orderRequest);
         System.out.println(result);
 
         assertTrue(result.isLeft());
@@ -118,6 +182,32 @@ public class OrderServiceTests {
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
     }
+
+    @Test
+    public void testGetSingleUnauthorizedUser() {
+        UserEntity notAuthorized = new UserEntity();
+        notAuthorized.setId(2L);
+        notAuthorized.setUserType(UserTypes.BUYER);
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderId(1L);
+
+        OrdersLinkEntity ordersLink = new OrdersLinkEntity();
+        ordersLink.setBuyer(userEntity);
+        ordersLink.setOrder(orderEntity);
+
+        when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
+
+        Either<OrderResponse, OrderDTO> result = orderService.getSingle(notAuthorized, 1L);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+    }
+
 
     @Test
     public void testGetSingleOrderSuccess() {
@@ -181,7 +271,6 @@ public class OrderServiceTests {
 
     @Test
     public void testUpdateOrderNotFound() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
@@ -190,17 +279,68 @@ public class OrderServiceTests {
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(null);
 
-        // Act
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, 1L, orderRequest);
 
-        // Assert
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+    }
+    @Test
+    public void testUpdateOrderInvalidOrderRequest() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, 1L, null);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(400, result.getLeft().getCode());
+    }
+
+    @Test
+    public void testUpdateUnauthorizedUser() {
+        UserEntity notAuthorized = new UserEntity();
+        notAuthorized.setId(2L);
+        notAuthorized.setUserType(UserTypes.BUYER);
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderId(1L);
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setStatus("Ordered");
+
+        OrdersLinkEntity ordersLink = new OrdersLinkEntity();
+        ordersLink.setBuyer(userEntity);
+        ordersLink.setOrder(orderEntity);
+
+        when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
+
+        Either<OrderResponse, OrderDTO> result = orderService.update(notAuthorized, 1L, orderRequest);
+        System.out.println(result);
+
         assertTrue(result.isLeft());
         assertEquals(404, result.getLeft().getCode());
     }
 
     @Test
+    public void testUpdateOrderInvalidOrderId() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setStatus("ORDERED");
+
+        Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, null, orderRequest);
+        System.out.println(result);
+
+        assertTrue(result.isLeft());
+        assertEquals(400, result.getLeft().getCode());
+    }
+
+    @Test
     public void testUpdateOrderSuccess() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
         userEntity.setUserType(UserTypes.BUYER);
@@ -213,53 +353,90 @@ public class OrderServiceTests {
 
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setOrderId(1L);
+        orderEntity.setVehicle(new VehicleEntity(3L, "Lamborghini", "Revuelto",  6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.ORDERABLE, VehicleType.CAR));
+
         ordersLink.setOrder(orderEntity);
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
         when(orderRepository.saveAndFlush(any(OrderEntity.class))).thenReturn(orderEntity);
 
-        // Act
         Either<OrderResponse, OrderDTO> result = orderService.update(userEntity, 1L, orderRequest);
 
-        // Assert
         assertTrue(result.isRight());
         assertEquals(1L, result.get().getOrderId());
     }
 
     @Test
     public void testDeleteOrderNotFound() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(null);
 
-        // Act
         OrderResponse result = orderService.deleteOrder(userEntity, 1L);
 
-        // Assert
         assertEquals(404, result.getCode());
     }
 
     @Test
     public void testDeleteOrderSuccess() {
-        // Arrange
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
+        userEntity.setUserType(UserTypes.BUYER);
 
         OrdersLinkEntity ordersLink = new OrdersLinkEntity();
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setOrderId(1L);
+        orderEntity.setVehicle(new VehicleEntity(3L, "Lamborghini", "Revuelto",  6, "Blue", 1015,
+                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
+                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.ORDERABLE, VehicleType.CAR));
+
+        ordersLink.setOrder(orderEntity);
+        ordersLink.setBuyer(userEntity);
+
+        when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
+
+        OrderResponse result = orderService.deleteOrder(userEntity, 1L);
+
+        assertEquals(200, result.getCode());
+        verify(ordersLinkRepository, times(1)).delete(any(OrdersLinkEntity.class));
+        verify(vehicleRepository, times(1)).save(any(VehicleEntity.class));
+    }
+
+    @Test
+    public void testDeleteUnauthorizedUser() {
+        UserEntity notAuthorized = new UserEntity();
+        notAuthorized.setId(2L);
+        notAuthorized.setUserType(UserTypes.BUYER);
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderId(1L);
+
+        OrdersLinkEntity ordersLink = new OrdersLinkEntity();
+        ordersLink.setBuyer(userEntity);
         ordersLink.setOrder(orderEntity);
 
         when(ordersLinkRepository.findByOrder_OrderId(1L)).thenReturn(ordersLink);
 
-        // Act
-        OrderResponse result = orderService.deleteOrder(userEntity, 1L);
+        OrderResponse result = orderService.deleteOrder(notAuthorized, 1L);
+        System.out.println(result);
 
-        // Assert
-        assertEquals(200, result.getCode());
-        verify(ordersLinkRepository, times(1)).delete(any(OrdersLinkEntity.class));
-        verify(vehicleRepository, times(1)).save(any(VehicleEntity.class));
+        assertEquals(404, result.getCode());
+        assertEquals("Order with id " + 1L + " not found or does not belong to specified user", result.getMessage());
+    }
+    @Test
+    public void testDeleteOrderInvalidOrderId() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        OrderResponse result = orderService.deleteOrder(userEntity, null);
+        System.out.println(result);
+
+        assertEquals(400, result.getCode());
     }
 }
