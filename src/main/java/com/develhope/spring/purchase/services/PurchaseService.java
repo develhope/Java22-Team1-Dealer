@@ -145,21 +145,19 @@ public class PurchaseService {
             return singlePurchaseResult.getLeft();
         }
 
-        Optional<PurchaseEntity> purchaseEntity = purchaseRepository.findById(purchaseId);
-        if (purchaseEntity.isEmpty()) {
-            return new PurchaseResponse(404, "Purchase with id " + purchaseId + " not found");
-        }
+        PurchaseEntity purchaseEntity = purchaseRepository.findById(purchaseId).get();
 
         try {
-            VehicleEntity vehicleEntity = purchaseEntity.get().getVehicle();
+            VehicleEntity vehicleEntity = purchaseEntity.getVehicle();
             vehicleEntity.setVehicleStatus(VehicleStatus.PURCHASABLE);
             vehicleRepository.save(vehicleEntity);
 
             purchasesLinkRepository.delete(purchasesLinkRepository.findByPurchase_PurchaseId(purchaseId));
-            purchaseEntity.get().setIsPaid(false);
-            purchaseEntity.get().setVehicle(null);
-
+            purchaseEntity.setIsPaid(false);
+            purchaseEntity.setVehicle(null);
+            purchaseRepository.save(purchaseEntity);
             return new PurchaseResponse(200, "Purchase deleted successfully");
+
         } catch (Exception e) {
             return new PurchaseResponse(500, "Internal server error");
         }

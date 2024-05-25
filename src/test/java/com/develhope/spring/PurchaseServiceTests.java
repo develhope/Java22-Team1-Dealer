@@ -259,4 +259,17 @@ public class PurchaseServiceTests {
         assertEquals(404, result.getLeft().getCode());
         assertEquals("Purchases not found", result.getLeft().getMessage());
     }
+
+    @Test
+    public void updateSuccessful(){}
+
+    @Test
+    public void updateVehicleNotFound() {}
+
+    @Test
+    public void deleteSuccessful(){}
+
+    @Test
+    public void deleteInternalError(){}
+
 }
