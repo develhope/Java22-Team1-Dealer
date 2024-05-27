@@ -85,6 +85,7 @@ public class PurchaseServiceTests {
         System.out.println(result);
 
         assertTrue(result.isRight());
+        assertEquals(vehicle.getVehicleId(), result.get().getVehicle().getVehicleId());
 
         verify(vehicleRepository, times(1)).save(vehicle);
         verify(purchaseRepository, times(1)).save(any(PurchaseEntity.class));
