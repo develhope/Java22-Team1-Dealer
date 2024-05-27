@@ -56,8 +56,6 @@ public class PurchaseService {
             return Either.left(new PurchaseResponse(404, "Specified buyer not found"));
         }
 
-        vehicleEntity.get().setVehicleStatus(VehicleStatus.SOLD);
-        vehicleRepository.save(vehicleEntity.get());
 
         PurchaseModel purchaseModel = new PurchaseModel(
                 purchaseRequest.getIsPaid(),
@@ -65,6 +63,8 @@ public class PurchaseService {
                 LocalDate.now()
         );
         PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+
+        updateVehicleStatus(savedEntity.getVehicle(), VehicleStatus.SOLD);
 
         purchasesLinkRepository.save(new PurchasesLinkEntity(buyer, savedEntity, buyer.getId().equals(seller.getId()) ? null : seller));
 
@@ -79,6 +79,11 @@ public class PurchaseService {
         } else {
             return seller;
         }
+    }
+
+    private void updateVehicleStatus(VehicleEntity vehicle, VehicleStatus vehicleStatus) {
+        vehicle.setVehicleStatus(vehicleStatus);
+        vehicleRepository.save(vehicle);
     }
 
     public Either<PurchaseResponse, PurchaseDTO> getSingle(UserEntity userEntity, Long purchaseId) {
@@ -123,18 +128,23 @@ public class PurchaseService {
             return Either.left(singlePurchase.getLeft());
         }
 
-        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(updatedPurchaseRequest.getVehicleId());
-        if (vehicleEntity.isEmpty()) {
-            return Either.left(new PurchaseResponse(404, "Vehicle not found with such Id"));
-        }
-
         PurchaseDTO purchaseDTO = singlePurchase.get();
+
         purchaseDTO.setIsPaid(updatedPurchaseRequest.getIsPaid() != null ? updatedPurchaseRequest.getIsPaid() : purchaseDTO.getIsPaid());
-        purchaseDTO.setVehicle(VehicleModel.modelToDTO(VehicleModel.entityToModel(vehicleEntity.get())));
+
+        if(updatedPurchaseRequest.getVehicleId() != null) {
+            Optional<VehicleEntity> newVehicle = vehicleRepository.findById(updatedPurchaseRequest.getVehicleId());
+            if(newVehicle.isPresent()) {
+                purchaseDTO.getVehicle().setVehicleStatus(VehicleStatus.PURCHASABLE);
+                purchaseDTO.setVehicle(VehicleModel.modelToDTO(VehicleModel.entityToModel(newVehicle.get())));
+                updateVehicleStatus(VehicleModel.modelToEntity(VehicleModel.DTOtoModel(purchaseDTO.getVehicle())), VehicleStatus.SOLD);
+            } else {
+                return Either.left(new PurchaseResponse(404, "Vehicle not found"));
+            }
+        }
 
         PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(PurchaseModel.dtoToModel(purchaseDTO)));
         PurchaseModel savedModel = PurchaseModel.entityToModel(savedPurchase);
-
         return Either.right(PurchaseModel.modelToDto(savedModel));
     }
 
@@ -145,19 +155,17 @@ public class PurchaseService {
             return singlePurchaseResult.getLeft();
         }
 
-        PurchaseEntity purchaseEntity = purchaseRepository.findById(purchaseId).get();
+        PurchaseEntity purchaseEntity = PurchaseModel.modelToEntity(PurchaseModel.dtoToModel(singlePurchaseResult.get()));
 
         try {
             VehicleEntity vehicleEntity = purchaseEntity.getVehicle();
-            vehicleEntity.setVehicleStatus(VehicleStatus.PURCHASABLE);
-            vehicleRepository.save(vehicleEntity);
+            updateVehicleStatus(vehicleEntity, VehicleStatus.PURCHASABLE);
 
             purchasesLinkRepository.delete(purchasesLinkRepository.findByPurchase_PurchaseId(purchaseId));
             purchaseEntity.setIsPaid(false);
             purchaseEntity.setVehicle(null);
             purchaseRepository.save(purchaseEntity);
             return new PurchaseResponse(200, "Purchase deleted successfully");
-
         } catch (Exception e) {
             return new PurchaseResponse(500, "Internal server error");
         }

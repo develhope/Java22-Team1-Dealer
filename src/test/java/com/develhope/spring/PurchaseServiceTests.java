@@ -16,12 +16,11 @@ import com.develhope.spring.vehicles.entities.VehicleStatus;
 import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import io.vavr.control.Either;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -29,8 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,11 +49,6 @@ public class PurchaseServiceTests {
 
     @InjectMocks
     private PurchaseService purchaseService;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     public void createPurchaseSuccess() {
@@ -262,15 +255,165 @@ public class PurchaseServiceTests {
     }
 
     @Test
-    public void updateSuccessful(){}
+    public void updateSuccessful1(){
+        UserEntity buyer = new UserEntity();
+        buyer.setId(2L);
+        buyer.setUserType(UserTypes.BUYER);
+
+        VehicleEntity oldVehicle = new VehicleEntity();
+        oldVehicle.setVehicleId(2L);
+        oldVehicle.setVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        VehicleEntity newVehicle = new VehicleEntity();
+        newVehicle.setVehicleId(3L);
+        newVehicle.setVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        PurchaseEntity beforeUpdateEntity = new PurchaseEntity();
+        beforeUpdateEntity.setPurchaseId(1L);
+        beforeUpdateEntity.setVehicle(oldVehicle);
+
+        PurchaseEntity afterUpdateEntity = new PurchaseEntity();
+        afterUpdateEntity.setPurchaseId(1L);
+        afterUpdateEntity.setVehicle(newVehicle);
+
+        PurchaseRequest purchaseRequest = new PurchaseRequest();
+        purchaseRequest.setVehicleId(newVehicle.getVehicleId());
+
+        PurchasesLinkEntity purchasesLink = new PurchasesLinkEntity();
+        purchasesLink.setBuyer(buyer);
+        purchasesLink.setPurchase(beforeUpdateEntity);
+
+        when(purchaseRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateEntity));
+        when(purchasesLinkRepository.findByBuyer_Id(2L)).thenReturn(List.of(purchasesLink));
+        when(vehicleRepository.findById(newVehicle.getVehicleId())).thenReturn(Optional.of(newVehicle));
+        when(purchaseRepository.save(any(PurchaseEntity.class))).thenReturn(afterUpdateEntity);
+
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.update(buyer, beforeUpdateEntity.getPurchaseId(), purchaseRequest);
+
+        assertTrue(result.isRight());
+        assertEquals(3L, result.get().getVehicle().getVehicleId());
+
+        verify(purchaseRepository, times(1)).findById(1L);
+        verify(purchasesLinkRepository, times(1)).findByBuyer_Id(2L);
+        verify(vehicleRepository, times(1)).findById(3L);
+        verify(purchaseRepository, times(1)).save(any(PurchaseEntity.class));
+    }
 
     @Test
-    public void updateVehicleNotFound() {}
+    public void updateVehicleNotFound() {
+        UserEntity buyer = new UserEntity();
+        buyer.setId(2L);
+        buyer.setUserType(UserTypes.BUYER);
+
+        VehicleEntity oldVehicle = new VehicleEntity();
+        oldVehicle.setVehicleId(2L);
+        oldVehicle.setVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        VehicleEntity newVehicle = new VehicleEntity();
+        newVehicle.setVehicleId(3L);
+        newVehicle.setVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        PurchaseEntity beforeUpdateEntity = new PurchaseEntity();
+        beforeUpdateEntity.setPurchaseId(1L);
+        beforeUpdateEntity.setVehicle(oldVehicle);
+
+        PurchaseRequest purchaseRequest = new PurchaseRequest();
+        purchaseRequest.setVehicleId(newVehicle.getVehicleId());
+
+        PurchasesLinkEntity purchasesLink = new PurchasesLinkEntity();
+        purchasesLink.setBuyer(buyer);
+        purchasesLink.setPurchase(beforeUpdateEntity);
+
+        when(purchaseRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateEntity));
+        when(purchasesLinkRepository.findByBuyer_Id(2L)).thenReturn(List.of(purchasesLink));
+        when(vehicleRepository.findById(newVehicle.getVehicleId())).thenReturn(Optional.empty());
+
+        Either<PurchaseResponse, PurchaseDTO> result = purchaseService.update(buyer, beforeUpdateEntity.getPurchaseId(), purchaseRequest);
+
+        assertTrue(result.isLeft());
+        assertEquals(404, result.getLeft().getCode());
+        assertEquals("Vehicle not found", result.getLeft().getMessage());
+
+        verify(purchaseRepository, times(1)).findById(1L);
+        verify(purchasesLinkRepository, times(1)).findByBuyer_Id(2L);
+        verify(vehicleRepository, times(1)).findById(3L);
+    }
 
     @Test
-    public void deleteSuccessful(){}
+    public void deleteSuccessful(){
+        UserEntity buyer = new UserEntity();
+        buyer.setId(2L);
+        buyer.setUserType(UserTypes.BUYER);
+
+        VehicleEntity vehicle = new VehicleEntity();
+        vehicle.setVehicleId(2L);
+        vehicle.setVehicleStatus(VehicleStatus.PURCHASABLE);
+
+        PurchaseEntity purchase = new PurchaseEntity();
+        purchase.setPurchaseId(1L);
+        purchase.setVehicle(vehicle);
+
+        PurchasesLinkEntity purchasesLink = new PurchasesLinkEntity();
+        purchasesLink.setBuyer(buyer);
+        purchasesLink.setPurchase(purchase);
+
+        when(purchaseRepository.findById(1L)).thenReturn(Optional.of(purchase));
+        when(purchasesLinkRepository.findByBuyer_Id(2L)).thenReturn(List.of(purchasesLink));
+        when(purchasesLinkRepository.findByPurchase_PurchaseId(1L)).thenReturn(purchasesLink);
+
+        PurchaseResponse result = purchaseService.delete(buyer, purchase.getPurchaseId());
+
+        assertEquals(200, result.getCode());
+        assertEquals("Purchase deleted successfully", result.getMessage());
+
+        ArgumentCaptor<VehicleEntity> vehicleCaptor = ArgumentCaptor.forClass(VehicleEntity.class);
+        verify(vehicleRepository).save(vehicleCaptor.capture());
+        assertEquals(VehicleStatus.PURCHASABLE, vehicleCaptor.getValue().getVehicleStatus());
+        verify(purchasesLinkRepository, times(1)).delete(purchasesLink);
+
+        ArgumentCaptor<PurchaseEntity> purchaseCaptor = ArgumentCaptor.forClass(PurchaseEntity.class);
+        verify(purchaseRepository).save(purchaseCaptor.capture());
+        assertFalse(purchaseCaptor.getValue().getIsPaid());
+        assertNull(purchaseCaptor.getValue().getVehicle());
+    }
 
     @Test
-    public void deleteInternalError(){}
+    public void deleteInternalError(){
+        final Long BUYER_ID = 2L;
+        final Long PURCHASE_ID = 1L;
+        final Long VEHICLE_ID = 3L;
+
+        UserEntity buyer = new UserEntity();
+        buyer.setId(BUYER_ID);
+        buyer.setUserType(UserTypes.BUYER);
+
+        VehicleEntity vehicle = new VehicleEntity();
+        vehicle.setVehicleId(VEHICLE_ID);
+
+        PurchaseEntity purchaseEntity = new PurchaseEntity();
+        purchaseEntity.setPurchaseId(PURCHASE_ID);
+        purchaseEntity.setVehicle(vehicle);
+        purchaseEntity.setIsPaid(true);
+
+        PurchasesLinkEntity purchasesLink = new PurchasesLinkEntity();
+        purchasesLink.setBuyer(buyer);
+        purchasesLink.setPurchase(purchaseEntity);
+
+        when(purchaseRepository.findById(PURCHASE_ID)).thenReturn(Optional.of(purchaseEntity));
+        when(purchasesLinkRepository.findByBuyer_Id(BUYER_ID)).thenReturn(List.of(purchasesLink));
+        when(purchasesLinkRepository.findByPurchase_PurchaseId(PURCHASE_ID)).thenReturn(purchasesLink);
+        doThrow(new RuntimeException("Database error")).when(purchasesLinkRepository).delete(any(PurchasesLinkEntity.class));
+
+        PurchaseResponse response = purchaseService.delete(buyer, PURCHASE_ID);
+
+        assertEquals(500, response.getCode());
+        assertEquals("Internal server error", response.getMessage());
+
+        ArgumentCaptor<VehicleEntity> vehicleCaptor = ArgumentCaptor.forClass(VehicleEntity.class);
+        verify(vehicleRepository).save(vehicleCaptor.capture());
+        assertEquals(VehicleStatus.PURCHASABLE, vehicleCaptor.getValue().getVehicleStatus());
+
+        verify(purchasesLinkRepository, times(1)).delete(purchasesLink);
+    }
 
 }
