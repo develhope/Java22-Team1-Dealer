@@ -1,7 +1,7 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.Vehicles.Entities.DTO.VehicleDTO;
-import com.develhope.spring.order.Entities.enums.OrderStatus;
+import com.develhope.spring.vehicles.DTO.VehicleDTO;
+import com.develhope.spring.order.entities.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

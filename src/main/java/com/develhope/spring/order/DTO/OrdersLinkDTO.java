@@ -1,6 +1,6 @@
 package com.develhope.spring.order.DTO;
 
-import com.develhope.spring.User.Entities.UserDTO;
+import com.develhope.spring.user.DTO.UserDTO;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
