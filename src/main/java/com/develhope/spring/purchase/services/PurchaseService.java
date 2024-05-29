@@ -132,15 +132,10 @@ public class PurchaseService {
 
         purchaseDTO.setIsPaid(updatedPurchaseRequest.getIsPaid() != null ? updatedPurchaseRequest.getIsPaid() : purchaseDTO.getIsPaid());
 
-        if(updatedPurchaseRequest.getVehicleId() != null) {
-            Optional<VehicleEntity> newVehicle = vehicleRepository.findById(updatedPurchaseRequest.getVehicleId());
-            if(newVehicle.isPresent()) {
-                purchaseDTO.getVehicle().setVehicleStatus(VehicleStatus.PURCHASABLE);
-                purchaseDTO.setVehicle(VehicleModel.modelToDTO(VehicleModel.entityToModel(newVehicle.get())));
-                updateVehicleStatus(VehicleModel.modelToEntity(VehicleModel.DTOtoModel(purchaseDTO.getVehicle())), VehicleStatus.SOLD);
-            } else {
-                return Either.left(new PurchaseResponse(404, "Vehicle not found"));
-            }
+        if (updatedPurchaseRequest.getVehicleId() != null) {
+            vehicleRepository.findById(updatedPurchaseRequest.getVehicleId())
+                    .map(vehicleEntity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(vehicleEntity)))
+                    .ifPresent(purchaseDTO::setVehicle);
         }
 
         PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(PurchaseModel.dtoToModel(purchaseDTO)));
