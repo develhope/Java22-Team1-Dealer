@@ -1,5 +1,6 @@
 package com.develhope.spring.order.service;
 
+import com.develhope.spring.dealershipstatistics.service.DealershipStatisticsService;
 import com.develhope.spring.user.entities.Enum.UserTypes;
 import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.user.repositories.UserRepository;
@@ -37,6 +38,8 @@ public class OrderService {
 
     @Autowired
     OrdersLinkRepository ordersLinkRepository;
+    @Autowired
+    DealershipStatisticsService dealershipStatisticsService;
 
     @Transactional
     public Either<OrderResponse, OrderDTO> create(UserEntity seller, @Nullable Long buyerId, OrderRequest orderRequest) {
@@ -60,6 +63,7 @@ public class OrderService {
                 , LocalDate.now());
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(orderModel));
+        dealershipStatisticsService.updateOrderStatistics(savedEntity.getVehicle());
         ordersLinkRepository.save(new OrdersLinkEntity(buyer, savedEntity, buyer.getId().equals(seller.getId()) ? null : seller));
 
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
@@ -111,6 +115,13 @@ public class OrderService {
         updateOrderDetails(orderDTO, orderRequest);
 
         OrderEntity savedEntity = orderRepository.saveAndFlush(OrderModel.modelToEntity(OrderModel.dtoToModel(orderDTO)));
+
+        if (!savedEntity.getVehicle().getVehicleId().equals(foundOrder.get().getVehicle().getVehicleId())) {
+            VehicleEntity oldVehicle = VehicleModel.modelToEntity(VehicleModel.DTOtoModel(foundOrder.get().getVehicle()));
+            dealershipStatisticsService.removeOrderStatistics(oldVehicle);
+            dealershipStatisticsService.updateOrderStatistics(savedEntity.getVehicle());
+        }
+
         OrderModel savedModel = OrderModel.entityToModel(savedEntity);
 
         if (savedModel.getStatus() == OrderStatus.DELIVERED) {

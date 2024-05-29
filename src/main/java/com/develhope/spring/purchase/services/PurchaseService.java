@@ -1,5 +1,6 @@
 package com.develhope.spring.purchase.services;
 
+import com.develhope.spring.dealershipstatistics.service.DealershipStatisticsService;
 import com.develhope.spring.purchase.DTO.PurchaseDTO;
 import com.develhope.spring.purchase.model.PurchaseModel;
 import com.develhope.spring.purchase.entities.PurchaseEntity;
@@ -35,6 +36,8 @@ public class PurchaseService {
     VehicleRepository vehicleRepository;
     @Autowired
     PurchasesLinkRepository purchasesLinkRepository;
+    @Autowired
+    DealershipStatisticsService dealershipStatisticsService;
 
     @Transactional
     public Either<PurchaseResponse, PurchaseDTO> create(UserEntity seller, @Nullable Long buyerId, PurchaseRequest purchaseRequest) {
@@ -56,13 +59,13 @@ public class PurchaseService {
             return Either.left(new PurchaseResponse(404, "Specified buyer not found"));
         }
 
-
         PurchaseModel purchaseModel = new PurchaseModel(
                 purchaseRequest.getIsPaid(),
                 VehicleModel.entityToModel(vehicleEntity.get()),
                 LocalDate.now()
         );
         PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
+        dealershipStatisticsService.updatePurchaseStatistics(savedEntity.getVehicle(), savedEntity.getVehicle().getPrice());
 
         updateVehicleStatus(savedEntity.getVehicle(), VehicleStatus.SOLD);
 
@@ -139,6 +142,13 @@ public class PurchaseService {
         }
 
         PurchaseEntity savedPurchase = purchaseRepository.save(PurchaseModel.modelToEntity(PurchaseModel.dtoToModel(purchaseDTO)));
+
+        if (!savedPurchase.getVehicle().getVehicleId().equals(purchaseDTO.getVehicle().getVehicleId())) {
+            VehicleEntity oldVehicle = VehicleModel.modelToEntity(VehicleModel.DTOtoModel(purchaseDTO.getVehicle()));
+            dealershipStatisticsService.removePurchaseStatistics(oldVehicle);
+            dealershipStatisticsService.updateOrderStatistics(savedPurchase.getVehicle());
+        }
+
         PurchaseModel savedModel = PurchaseModel.entityToModel(savedPurchase);
         return Either.right(PurchaseModel.modelToDto(savedModel));
     }

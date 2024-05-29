@@ -1,8 +1,9 @@
 package com.develhope.spring.dealershipstatistics.controllers;
 
-import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.dealershipstatistics.entities.StatisticsDTO;
 import com.develhope.spring.dealershipstatistics.service.DealershipStatisticsService;
+import com.develhope.spring.user.entities.UserEntity;
+import com.develhope.spring.vehicles.entities.VehicleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,5 +61,25 @@ public class DealershipStatisticsController {
     public ResponseEntity<?> getDealerShipRevenueByTimePeriod(@AuthenticationPrincipal UserEntity user, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         BigDecimal result = dealershipStatisticsService.getDealershipRevenueByTimePeriod(user, startDate, endDate);
         return result == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/most-sold-vehicles")
+    public Map<String, Long> getMostSoldVehicles() {
+        return dealershipStatisticsService.getMostSoldVehicles();
+    }
+
+    @GetMapping("/highest-sale-price-vehicle")
+    public VehicleEntity getHighestSalePriceVehicle() {
+        return dealershipStatisticsService.getHighestSalePriceVehicle();
+    }
+
+    @GetMapping("/most-searched-vehicles")
+    public Map<String, Integer> getMostSearchedVehicles() {
+        return dealershipStatisticsService.getMostSearchedVehicles();
+    }
+
+    @GetMapping("/most-ordered-vehicles")
+    public Map<String, Long> getMostOrderedVehicles() {
+        return dealershipStatisticsService.getMostOrderedVehicles();
     }
 }

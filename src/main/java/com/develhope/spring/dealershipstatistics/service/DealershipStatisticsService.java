@@ -20,6 +20,7 @@ import com.develhope.spring.order.model.OrderModel;
 import com.develhope.spring.order.repositories.OrderRepository;
 import com.develhope.spring.order.repositories.OrdersLinkRepository;
 import jakarta.annotation.Nullable;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,19 +36,14 @@ import java.util.Optional;
 public class DealershipStatisticsService {
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private OrdersLinkRepository ordersLinkRepository;
-
     @Autowired
     private PurchasesLinkRepository purchasesLinkRepository;
-
     @Autowired
     private RentalsLinkRepository rentalsLinkRepository;
-
     @Autowired
     private VehicleRepository vehicleRepository;
-
     @Autowired
     private PurchaseRepository purchaseRepository;
     @Autowired
@@ -55,7 +51,45 @@ public class DealershipStatisticsService {
     @Autowired
     private RentRepository rentRepository;
 
-    // TODO VEICOLO PIU VENDUTO, VENDUTO PIU ALTO, PIU RICERCATO ,ORDINATO
+    @Getter
+    private Map<String, Long> mostOrderedVehicles = new HashMap<>();
+    @Getter
+    private Map<String, Long> mostSoldVehicles = new HashMap<>();
+    @Getter
+    private Map<String, Integer> mostSearchedVehicles = new HashMap<>();
+    @Getter
+    private VehicleEntity highestSalePriceVehicle;
+    @Getter
+    private BigDecimal highestSalePrice = BigDecimal.ZERO;
+
+    public void updateOrderStatistics(VehicleEntity vehicle) {
+        String vehicleKey = vehicle.getBrand() + " " + vehicle.getModel();
+        mostOrderedVehicles.put(vehicleKey, mostOrderedVehicles.getOrDefault(vehicleKey, 0L) + 1);
+    }
+
+    public void removeOrderStatistics(VehicleEntity vehicle) {
+        String vehicleKey = vehicle.getBrand() + " " + vehicle.getModel();
+        mostOrderedVehicles.put(vehicleKey, mostOrderedVehicles.get(vehicleKey) - 1);
+    }
+
+    public void updatePurchaseStatistics(VehicleEntity vehicle, BigDecimal salePrice) {
+        String vehicleKey = vehicle.getBrand() + " " + vehicle.getModel();
+        mostSoldVehicles.put(vehicleKey, mostSoldVehicles.getOrDefault(vehicleKey, 0L) + 1);
+        if (salePrice.compareTo(highestSalePrice) > 0) {
+            highestSalePrice = salePrice;
+            highestSalePriceVehicle = vehicle;
+        }
+    }
+
+    public void removePurchaseStatistics(VehicleEntity vehicle) {
+        String vehicleKey = vehicle.getBrand() + " " + vehicle.getModel();
+        mostSoldVehicles.put(vehicleKey, mostSoldVehicles.get(vehicleKey) - 1);
+    }
+
+    public void updateSearchStatistics(String brand, String model) {
+        String vehicleKey = brand + " " + model;
+        mostSearchedVehicles.put(vehicleKey, mostSearchedVehicles.getOrDefault(vehicleKey, 0) + 1);
+    }
 
     public ResponseEntity<?> getRentsNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
