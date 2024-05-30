@@ -1,6 +1,5 @@
 package com.develhope.spring.dealershipstatistics.controllers;
 
-import com.develhope.spring.dealershipstatistics.entities.StatisticsDTO;
 import com.develhope.spring.dealershipstatistics.service.DealershipStatisticsService;
 import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
@@ -36,8 +35,7 @@ public class DealershipStatisticsController {
 
     @GetMapping("/getAllDealershipStatistics")
     public ResponseEntity<?> getAllDealershipStatistics(@AuthenticationPrincipal UserEntity user) {
-        StatisticsDTO statisticsDTO = dealershipStatisticsService.getAllDelearshipStatistics(user);
-        return statisticsDTO == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(statisticsDTO);
+        return dealershipStatisticsService.getAllDelearshipStatistics(user);
     }
 
     @GetMapping("/getVehicleCountByType")

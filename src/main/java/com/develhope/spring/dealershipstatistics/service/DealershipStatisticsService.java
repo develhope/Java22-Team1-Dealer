@@ -1,11 +1,19 @@
 package com.develhope.spring.dealershipstatistics.service;
 
-import com.develhope.spring.purchase.model.PurchaseModel;
+import com.develhope.spring.dealershipstatistics.entities.StatisticsDTO;
+import com.develhope.spring.order.DTO.OrderDTO;
+import com.develhope.spring.order.entities.OrdersLinkEntity;
+import com.develhope.spring.order.model.OrderModel;
+import com.develhope.spring.order.repositories.OrderRepository;
+import com.develhope.spring.order.repositories.OrdersLinkRepository;
+import com.develhope.spring.purchase.DTO.PurchaseDTO;
 import com.develhope.spring.purchase.entities.PurchasesLinkEntity;
+import com.develhope.spring.purchase.model.PurchaseModel;
 import com.develhope.spring.purchase.repositories.PurchaseRepository;
 import com.develhope.spring.purchase.repositories.PurchasesLinkRepository;
-import com.develhope.spring.rent.model.RentModel;
+import com.develhope.spring.rent.DTO.RentDTO;
 import com.develhope.spring.rent.entities.RentLink;
+import com.develhope.spring.rent.model.RentModel;
 import com.develhope.spring.rent.repositories.RentRepository;
 import com.develhope.spring.rent.repositories.RentalsLinkRepository;
 import com.develhope.spring.user.entities.Enum.UserTypes;
@@ -14,14 +22,10 @@ import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
-import com.develhope.spring.dealershipstatistics.entities.StatisticsDTO;
-import com.develhope.spring.order.entities.OrdersLinkEntity;
-import com.develhope.spring.order.model.OrderModel;
-import com.develhope.spring.order.repositories.OrderRepository;
-import com.develhope.spring.order.repositories.OrdersLinkRepository;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DealershipStatisticsService {
@@ -93,66 +98,115 @@ public class DealershipStatisticsService {
 
     public ResponseEntity<?> getRentsNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
-            Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            List<RentLink> rentLinkList = rentalsLinkRepository.findAllBySeller_Id(targetId);
-            return ResponseEntity.ok(rentLinkList.size());
+            return handleAdminRentsRequest(targetId);
+        } else if (user.getUserType() == UserTypes.SELLER || user.getUserType() == UserTypes.BUYER) {
+            return handleUserRentsRequest(user);
         } else {
-            List<RentLink> rentLinkList = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
-            return ResponseEntity.ok(rentLinkList.size());
+            return new ResponseEntity<>("User type not authorized.", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    private ResponseEntity<?> handleAdminRentsRequest(@Nullable Long targetId) {
+        if (targetId == null) {
+            return ResponseEntity.badRequest().body("Target ID is required for admin requests.");
+        }
+        Optional<UserEntity> userOptional = userRepository.findById(targetId);
+        if (userOptional.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        List<RentLink> rentLinkList = rentalsLinkRepository.findAllBySeller_Id(targetId);
+        return ResponseEntity.ok(rentLinkList.size());
+    }
+
+    private ResponseEntity<?> handleUserRentsRequest(UserEntity user) {
+        List<RentLink> rentLinkList = rentalsLinkRepository.findAllByBuyer_Id(user.getId());
+        return ResponseEntity.ok(rentLinkList.size());
     }
 
     public ResponseEntity<?> getPurchasesNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
-            Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
-            return ResponseEntity.ok(purchasesList.size());
+            return handleAdminPurchasesRequest(targetId);
+        } else if (user.getUserType() == UserTypes.SELLER || user.getUserType() == UserTypes.BUYER) {
+            return handleUserPurchasesRequest(user);
         } else {
-            List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findByBuyer_Id(user.getId()); //TODO fixare nel repository la query
-            return ResponseEntity.ok(purchasesList.size());
+            return new ResponseEntity<>("User type not authorized.", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    public ResponseEntity<?> getOrdersNumberOfUser(UserEntity user,@Nullable Long targetId) {
+    private ResponseEntity<?> handleAdminPurchasesRequest(@Nullable Long targetId) {
+        if (targetId == null) {
+            return ResponseEntity.badRequest().body("Target ID is required for admin requests.");
+        }
+        Optional<UserEntity> userOptional = userRepository.findById(targetId);
+        if (userOptional.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findAllBySeller_Id(targetId);
+        return ResponseEntity.ok(purchasesList.size());
+    }
+
+    private ResponseEntity<?> handleUserPurchasesRequest(UserEntity user) {
+        List<PurchasesLinkEntity> purchasesList = purchasesLinkRepository.findByBuyer_Id(user.getId());
+        return ResponseEntity.ok(purchasesList.size());
+    }
+
+    public ResponseEntity<?> getOrdersNumberOfUser(UserEntity user, @Nullable Long targetId) {
         if (user.getUserType() == UserTypes.ADMIN) {
-            Optional<UserEntity> userOptional = userRepository.findById(targetId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId); //TODO fixare nel repository la query
-            return ResponseEntity.ok(ordersList.size());
+            return handleAdminOrdersRequest(targetId);
+        } else if (user.getUserType() == UserTypes.SELLER || user.getUserType() == UserTypes.BUYER) {
+            return handleUserOrdersRequest(user);
         } else {
-            List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId()); //TODO fixare nel repository la query
-            return ResponseEntity.ok(ordersList.size());
+            return new ResponseEntity<>("User type not authorized.", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    public StatisticsDTO getAllDelearshipStatistics(UserEntity user) {
-        if (user.getUserType() == UserTypes.ADMIN) {
+    private ResponseEntity<?> handleAdminOrdersRequest(@Nullable Long targetId) {
+        if (targetId == null) {
+            return ResponseEntity.badRequest().body("Target ID is required for admin requests.");
+        }
+        Optional<UserEntity> userOptional = userRepository.findById(targetId);
+        if (userOptional.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllBySeller_Id(targetId);
+        return ResponseEntity.ok(ordersList.size());
+    }
 
+    private ResponseEntity<?> handleUserOrdersRequest(UserEntity user) {
+        List<OrdersLinkEntity> ordersList = ordersLinkRepository.findAllByBuyer_Id(user.getId());
+        return ResponseEntity.ok(ordersList.size());
+    }
+
+    public ResponseEntity<?> getAllDelearshipStatistics(UserEntity user) {
+        if (user.getUserType() == UserTypes.ADMIN) {
             List<OrdersLinkEntity> orderList = ordersLinkRepository.findAll();
             List<RentLink> rentLinkList = rentalsLinkRepository.findAll();
             List<PurchasesLinkEntity> purchasesLinkList = purchasesLinkRepository.findAll();
-            return new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orderList.stream().map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder()))).toList(),
-                    purchasesLinkList.stream().map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase()))).toList(),
-                    rentLinkList.stream().map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent()))).toList());
+
+            List<OrderDTO> orders = orderList.stream()
+                    .map(orderLink -> OrderModel.modelToDto(OrderModel.entityToModel(orderLink.getOrder())))
+                    .collect(Collectors.toList());
+
+            List<PurchaseDTO> purchases = purchasesLinkList.stream()
+                    .map(purchasesLink -> PurchaseModel.modelToDto(PurchaseModel.entityToModel(purchasesLink.getPurchase())))
+                    .collect(Collectors.toList());
+
+            List<RentDTO> rents = rentLinkList.stream()
+                    .map(rentLink -> RentModel.modelToDTO(RentModel.entityToModel(rentLink.getRent())))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(new StatisticsDTO(orderList.size(), purchasesLinkList.size(), rentLinkList.size(), orders, purchases, rents));
         }
-        return null;
+        return new ResponseEntity<>("Only admins can access dealership statistics.", HttpStatus.UNAUTHORIZED);
     }
+
     public Map<VehicleType, Integer> getVehicleCountByType() {
         List<VehicleEntity> vehicles = vehicleRepository.findAll();
         Map<VehicleType, Integer> vehicleCountByType = new HashMap<>();
 
-        for (VehicleEntity vehicle : vehicles) {
-            VehicleType vehicleType = vehicle.getVehicleType();
-            vehicleCountByType.put(vehicleType, vehicleCountByType.getOrDefault(vehicleType, 0) + 1);
-        }
+        vehicles.forEach(vehicleEntity -> vehicleCountByType.put(
+                vehicleEntity.getVehicleType(), vehicleCountByType.getOrDefault(vehicleEntity.getVehicleType(), 0) + 1
+        ));
 
         return vehicleCountByType;
     }
