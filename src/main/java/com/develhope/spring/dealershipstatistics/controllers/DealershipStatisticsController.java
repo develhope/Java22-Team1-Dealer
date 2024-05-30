@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -45,38 +44,36 @@ public class DealershipStatisticsController {
 
     @GetMapping("/admin/getSellerSaleByPeriod/{sellerId}")
     public ResponseEntity<?> getSellerSaleByPeriod(@AuthenticationPrincipal UserEntity user, @PathVariable Long sellerId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        Map<UserEntity, Integer> sellerStats = dealershipStatisticsService.getSellerSalesByTimePeriod(user, sellerId, startDate, endDate);
-        return sellerStats == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(sellerStats);
+        return dealershipStatisticsService.getSellerSalesByTimePeriod(user, sellerId, startDate, endDate);
     }
 
     @GetMapping("/admin/getSellerRevenueByTimePeriod/{sellerId}")
     public ResponseEntity<?> getSellerRevenueByTimePeriod(@AuthenticationPrincipal UserEntity user, @PathVariable Long sellerId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        Map<UserEntity, BigDecimal> sellerStats = dealershipStatisticsService.getSellerRevenueByTimePeriod(user, sellerId, startDate, endDate);
-        return sellerStats == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(sellerStats);
+        return dealershipStatisticsService.getSellerRevenueByTimePeriod(user, sellerId, startDate, endDate);
     }
 
     @GetMapping("/admin/getDealerShipRevenueByTimePeriod")
     public ResponseEntity<?> getDealerShipRevenueByTimePeriod(@AuthenticationPrincipal UserEntity user, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        BigDecimal result = dealershipStatisticsService.getDealershipRevenueByTimePeriod(user, startDate, endDate);
-        return result == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(result);
+        return dealershipStatisticsService.getDealershipRevenueByTimePeriod(user, startDate, endDate);
+
     }
 
-    @GetMapping("/most-sold-vehicles")
+    @GetMapping("/mostSoldVehicles")
     public Map<String, Long> getMostSoldVehicles() {
         return dealershipStatisticsService.getMostSoldVehicles();
     }
 
-    @GetMapping("/highest-sale-price-vehicle")
+    @GetMapping("/highestSalePriceVehicle")
     public VehicleEntity getHighestSalePriceVehicle() {
         return dealershipStatisticsService.getHighestSalePriceVehicle();
     }
 
-    @GetMapping("/most-searched-vehicles")
+    @GetMapping("/mostSearchedVehicles")
     public Map<String, Integer> getMostSearchedVehicles() {
         return dealershipStatisticsService.getMostSearchedVehicles();
     }
 
-    @GetMapping("/most-ordered-vehicles")
+    @GetMapping("/mostOrderedVehicles")
     public Map<String, Long> getMostOrderedVehicles() {
         return dealershipStatisticsService.getMostOrderedVehicles();
     }

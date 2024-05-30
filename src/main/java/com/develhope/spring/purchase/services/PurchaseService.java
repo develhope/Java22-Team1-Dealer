@@ -65,7 +65,7 @@ public class PurchaseService {
                 LocalDate.now()
         );
         PurchaseEntity savedEntity = purchaseRepository.save(PurchaseModel.modelToEntity(purchaseModel));
-        dealershipStatisticsService.updatePurchaseStatistics(savedEntity.getVehicle(), savedEntity.getVehicle().getPrice());
+        dealershipStatisticsService.updatePurchaseStatistics(savedEntity.getVehicle());
 
         updateVehicleStatus(savedEntity.getVehicle(), VehicleStatus.SOLD);
 
@@ -146,7 +146,7 @@ public class PurchaseService {
         if (!savedPurchase.getVehicle().getVehicleId().equals(purchaseDTO.getVehicle().getVehicleId())) {
             VehicleEntity oldVehicle = VehicleModel.modelToEntity(VehicleModel.DTOtoModel(purchaseDTO.getVehicle()));
             dealershipStatisticsService.removePurchaseStatistics(oldVehicle);
-            dealershipStatisticsService.updateOrderStatistics(savedPurchase.getVehicle());
+            dealershipStatisticsService.updatePurchaseStatistics(savedPurchase.getVehicle());
         }
 
         PurchaseModel savedModel = PurchaseModel.entityToModel(savedPurchase);

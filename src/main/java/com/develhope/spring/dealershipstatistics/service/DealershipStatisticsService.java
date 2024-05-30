@@ -77,7 +77,8 @@ public class DealershipStatisticsService {
         mostOrderedVehicles.put(vehicleKey, mostOrderedVehicles.get(vehicleKey) - 1);
     }
 
-    public void updatePurchaseStatistics(VehicleEntity vehicle, BigDecimal salePrice) {
+    public void updatePurchaseStatistics(VehicleEntity vehicle) {
+        BigDecimal salePrice = vehicle.getPrice();
         String vehicleKey = vehicle.getBrand() + " " + vehicle.getModel();
         mostSoldVehicles.put(vehicleKey, mostSoldVehicles.getOrDefault(vehicleKey, 0L) + 1);
         if (salePrice.compareTo(highestSalePrice) > 0) {
@@ -201,89 +202,96 @@ public class DealershipStatisticsService {
     }
 
     public Map<VehicleType, Integer> getVehicleCountByType() {
-        List<VehicleEntity> vehicles = vehicleRepository.findAll();
-        Map<VehicleType, Integer> vehicleCountByType = new HashMap<>();
-
-        vehicles.forEach(vehicleEntity -> vehicleCountByType.put(
-                vehicleEntity.getVehicleType(), vehicleCountByType.getOrDefault(vehicleEntity.getVehicleType(), 0) + 1
-        ));
-
-        return vehicleCountByType;
+        return vehicleRepository.findAll().stream()
+                .collect(Collectors.groupingBy(VehicleEntity::getVehicleType, Collectors.summingInt(v -> 1)));
     }
 
-    public Map<UserEntity, Integer> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            List<PurchasesLinkEntity> sellerSales = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate);
-            return Map.of(sellerSales.getFirst().getSeller(), sellerSales.size());
-        } else {
-            return null;
+    public ResponseEntity<?> getSellerSalesByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() != UserTypes.ADMIN) {
+            return new ResponseEntity<>("Only admins can access this information.", HttpStatus.NOT_FOUND);
         }
+
+        List<PurchasesLinkEntity> sellerSales = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate);
+        if (sellerSales.isEmpty()) {
+            return new ResponseEntity<>("User type not authorized.", HttpStatus.NOT_FOUND);
+        }
+
+        UserEntity seller = sellerSales.getFirst().getSeller();
+        return ResponseEntity.ok(Map.of(seller, sellerSales.size()));
     }
 
-    public Map<UserEntity, BigDecimal> getSellerRevenueByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            Optional<UserEntity> foundSeller = userRepository.findById(sellerId);
-            if (foundSeller.isEmpty() || foundSeller.get().getUserType() != UserTypes.SELLER) {
-                return null;
-            }
-            BigDecimal sum = BigDecimal.ZERO;
-            BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate).stream()
-                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerSalesRevenue);
 
-            BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBySellerIdBetweenDates(sellerId, startDate, endDate).stream().map(rentLink ->
-                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerRentsRevenue);
-
-            BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBySelleridBetweenDates(sellerId, startDate, endDate).stream().map(
-                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
-            ).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerOrdersRevenue);
-
-
-            return Map.of(
-                    foundSeller.get(),
-                    sum
-            );
-        } else {
-            return null;
+    public ResponseEntity<?> getSellerRevenueByTimePeriod(UserEntity user, Long sellerId, LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() != UserTypes.ADMIN) {
+            return new ResponseEntity<>("Only admins can access this information.", HttpStatus.NOT_FOUND);
         }
+
+        UserEntity seller = userRepository.findById(sellerId)
+                .filter(u -> u.getUserType() == UserTypes.SELLER)
+                .orElse(null);
+
+        if (seller == null) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        BigDecimal totalRevenue = calculateTotalRevenue(sellerId, startDate, endDate);
+
+        return ResponseEntity.ok(Map.of(seller, totalRevenue));
     }
 
-    public BigDecimal getDealershipRevenueByTimePeriod(UserEntity user,LocalDate startDate, LocalDate endDate) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            BigDecimal sum = BigDecimal.ZERO;
-            BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
-                    .map(sale -> sale.getPurchase().getVehicle().getPrice())
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerSalesRevenue);
+    private BigDecimal calculateTotalRevenue(Long sellerId, LocalDate startDate, LocalDate endDate) {
+        BigDecimal sellerSalesRevenue = purchasesLinkRepository.findAllBySellerIdInBetweenDates(sellerId, startDate, endDate).stream()
+                .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(rentLink ->
-                    rentLink.getRent().getTotalCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerRentsRevenue);
+        BigDecimal sellerRentsRevenue = rentalsLinkRepository.findAllBySellerIdBetweenDates(sellerId, startDate, endDate).stream()
+                .map(rentLink -> rentLink.getRent().getTotalCost())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream().map(
-                    ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit()
-            ).reduce(BigDecimal.ZERO, BigDecimal::add);
-            sum = sum.add(sellerOrdersRevenue);
+        BigDecimal sellerOrdersRevenue = ordersLinkRepository.findAllBySelleridBetweenDates(sellerId, startDate, endDate).stream()
+                .map(ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            return sum;
-        } else {
-            return null;
-        }
+        return sellerSalesRevenue.add(sellerRentsRevenue).add(sellerOrdersRevenue);
     }
-    public BigDecimal getDealershipRevenue(UserEntity user) {
-        if (user.getUserType() == UserTypes.ADMIN) {
-            BigDecimal sellerSalesRevenue = purchaseRepository.getFullPurchasePriceCount();
-            BigDecimal sellerRentsRevenue = rentRepository.getTotalCostSum();
-            BigDecimal sellerOrdersRevenue = orderRepository.getDepositOrderSum();
-            BigDecimal sellerOrdersRevenue1 = orderRepository.getFullPaidOrderSum();
 
-            return BigDecimal.ZERO.add(sellerSalesRevenue).add(sellerRentsRevenue).add(sellerOrdersRevenue).add(sellerOrdersRevenue1);
-        } else {
-            return null;
+    public ResponseEntity<?> getDealershipRevenueByTimePeriod(UserEntity user, LocalDate startDate, LocalDate endDate) {
+        if (user.getUserType() != UserTypes.ADMIN) {
+            return new ResponseEntity<>("Only admins can access this information.", HttpStatus.NOT_FOUND);
         }
+
+        BigDecimal totalRevenue = calculateTotalRevenueForDealership(startDate, endDate);
+
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    private BigDecimal calculateTotalRevenueForDealership(LocalDate startDate, LocalDate endDate) {
+        BigDecimal salesRevenue = purchasesLinkRepository.findAllInBetweenDates(startDate, endDate).stream()
+                .map(sale -> sale.getPurchase().getVehicle().getPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal rentsRevenue = rentalsLinkRepository.findAllBetweenDates(startDate, endDate).stream()
+                .map(rentLink -> rentLink.getRent().getTotalCost())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal ordersRevenue = ordersLinkRepository.findAllBetweenDates(startDate, endDate).stream()
+                .map(ordersLink -> ordersLink.getOrder().getIsPaid() ? ordersLink.getOrder().getVehicle().getPrice() : ordersLink.getOrder().getDeposit())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return salesRevenue.add(rentsRevenue).add(ordersRevenue);
+    }
+
+    public ResponseEntity<?> getDealershipRevenue(UserEntity user) {
+        if (user.getUserType() != UserTypes.ADMIN) {
+            return new ResponseEntity<>("Only admins can access this information.", HttpStatus.NOT_FOUND);
+        }
+
+        BigDecimal salesRevenue = purchaseRepository.getFullPurchasePriceCount();
+        BigDecimal rentsRevenue = rentRepository.getTotalCostSum();
+        BigDecimal ordersDepositRevenue = orderRepository.getDepositOrderSum();
+        BigDecimal ordersPaidRevenue = orderRepository.getFullPaidOrderSum();
+
+        return ResponseEntity.ok(salesRevenue.add(rentsRevenue).add(ordersDepositRevenue).add(ordersPaidRevenue));
     }
 
     public Map<String, Object> getDealershipStatistics() {
