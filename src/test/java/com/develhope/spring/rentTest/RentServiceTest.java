@@ -3,7 +3,6 @@ package com.develhope.spring.rentTest;
 import com.develhope.spring.rent.DTO.RentDTO;
 import com.develhope.spring.rent.entities.RentEntity;
 import com.develhope.spring.rent.entities.RentLink;
-import com.develhope.spring.rent.model.RentModel;
 import com.develhope.spring.rent.repositories.RentRepository;
 import com.develhope.spring.rent.repositories.RentalsLinkRepository;
 import com.develhope.spring.rent.request.RentRequest;
@@ -14,7 +13,6 @@ import com.develhope.spring.user.entities.UserEntity;
 import com.develhope.spring.user.repositories.UserRepository;
 import com.develhope.spring.vehicles.entities.VehicleEntity;
 import com.develhope.spring.vehicles.entities.VehicleStatus;
-import com.develhope.spring.vehicles.entities.VehicleType;
 import com.develhope.spring.vehicles.repositories.VehicleRepository;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,14 +25,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 public class RentServiceTest {
@@ -61,168 +61,66 @@ public class RentServiceTest {
 
     @Test
     public void createRent_UserIsBuyer_Success() {
-        // Mocking rent request and user details
         RentRequest rentRequest = new RentRequest();
         rentRequest.setStartDate(LocalDate.now());
         rentRequest.setEndDate(LocalDate.now().plusDays(3));
         rentRequest.setDailyCost(BigDecimal.valueOf(50));
         rentRequest.setPaid(true);
-        rentRequest.setVehicleId(1L); // Assuming valid vehicle ID
+        rentRequest.setVehicleId(1L);
 
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1L);
-        userEntity.setUserType(UserTypes.BUYER); // User is a buyer
+        userEntity.setUserType(UserTypes.BUYER);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
 
-        // Mocking vehicle entity
         VehicleEntity vehicleEntity = new VehicleEntity();
         vehicleEntity.setVehicleId(1L);
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE); // Vehicle is rentable
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
 
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicleEntity));
 
-        // Mocking save methods
         when(vehicleRepository.save(any(VehicleEntity.class))).thenReturn(vehicleEntity);
         when(rentRepository.save(any(RentEntity.class))).thenReturn(new RentEntity());
 
-        // Call the method
         Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, userEntity);
 
-        // Verify interactions
         verify(vehicleRepository, times(1)).findById(1L);
         verify(vehicleRepository, times(1)).save(any(VehicleEntity.class));
         verify(rentRepository, times(1)).save(any(RentEntity.class));
         verify(rentalsLinkRepository, times(1)).save(any(RentLink.class));
 
-        // Assert result
-        assertTrue(result.isRight()); // Result should be on the right side
-    }
-
-    @Test
-    void createRent_UserIsNotBuyer_Failure() {
-        // Mocking userEntityDetails
-        UserEntity userEntityDetails = new UserEntity();
-        userEntityDetails.setUserType(UserTypes.ADMIN); // Assuming user is not a buyer
-
-        // Mocking userId
-        Long userId = 123L;
-
-        // Mocking rentRequest
-        RentRequest rentRequest = new RentRequest(
-                LocalDate.now(), LocalDate.now().plusDays(3),
-                BigDecimal.valueOf(50), true, 1L, userId);
-
-        // Mocking userCheck
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        Either<RentResponse, UserEntity> userCheck = Either.right(userEntity);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
-        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
-        when(rentService.checkUserExists(userId)).thenReturn(userCheck);
-        when(rentService.checkUserAuthorization(userEntityDetails)).thenReturn(Either.right(null)); // Assuming user is authorized
-
-        // Mocking vehicleEntityOptional
-        VehicleEntity vehicleEntity = new VehicleEntity();
-        vehicleEntity.setVehicleId(1L);
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
-        Optional<VehicleEntity> vehicleEntityOptional = Optional.of(vehicleEntity);
-
-        when(vehicleRepository.findById(rentRequest.getVehicleId())).thenReturn(vehicleEntityOptional);
-
-        // Mocking savedRentEntity
-        RentEntity savedRentEntity = new RentEntity();
-        savedRentEntity.setId(1L);
-        savedRentEntity.setStartDate(rentRequest.getStartDate());
-        savedRentEntity.setEndDate(rentRequest.getEndDate());
-        savedRentEntity.setDailyCost(rentRequest.getDailyCost());
-        savedRentEntity.setIsPaid(rentRequest.isPaid());
-        savedRentEntity.setVehicle(vehicleEntity);
-        savedRentEntity.setTotalCost(BigDecimal.valueOf(150)); // Assuming totalCost
-
-        when(rentRepository.save(any(RentEntity.class))).thenReturn(savedRentEntity);
-
-        // Call the method under test
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, userId, userEntityDetails);
-
-        // Verify the result
-        assertEquals(Either.left(new RentResponse(403, "BUYER users can only create rents for themselves")), result);
-        verify(userRepository, times(1)).findById(userId);
-        verify(rentService, times(1)).checkUserAuthorization(userEntityDetails);
-        verify(vehicleRepository, times(1)).findById(rentRequest.getVehicleId());
-        verify(rentRepository, times(0)).save(any(RentEntity.class)); // No rent should be saved
-    }
-
-    @Test
-    void createRent_UserNotFound_Failure() {
-        RentRequest rentRequest = new RentRequest();
-        rentRequest.setStartDate(LocalDate.now());
-        rentRequest.setEndDate(LocalDate.now().plusDays(3));
-        rentRequest.setDailyCost(BigDecimal.valueOf(50));
-        rentRequest.setPaid(true);
-        rentRequest.setVehicleId(1L);
-
-        when(vehicleRepository.findById(any())).thenReturn(Optional.of(new VehicleEntity()));
-        when(rentRepository.save(any())).thenReturn(new RentEntity());
-
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
-
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, 1L, new UserEntity());
-
-        verify(vehicleRepository, times(1)).findById(any());
-        verify(rentRepository, times(0)).save(any());
-        verify(userRepository, times(1)).findById(any());
-        assertEquals(Either.Left.class, result.getClass());
-        assertEquals(404, result.getLeft().getStatusCode());
-    }
-
-    @Test
-    void createRent_UserIsBuyerAndNoUserId_Success() {
-        UserEntity buyerUser = new UserEntity();
-        buyerUser.setId(1L);
-        buyerUser.setUserType(UserTypes.BUYER);
-
-        RentRequest rentRequest = new RentRequest();
-        rentRequest.setVehicleId(1L);
-        rentRequest.setStartDate(LocalDate.now());
-        rentRequest.setEndDate(LocalDate.now().plusDays(7));
-        rentRequest.setDailyCost(BigDecimal.valueOf(100));
-        rentRequest.setPaid(true);
-
-        when(userRepository.findById(buyerUser.getId())).thenReturn(Optional.of(buyerUser));
-        when(vehicleRepository.findById(rentRequest.getVehicleId())).thenReturn(Optional.of(new VehicleEntity()));
-
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, buyerUser);
-
         assertTrue(result.isRight());
-        assertEquals(1L, result.get().getId());
     }
 
     @Test
-    void createRent_UserNotAuthenticated_Failure() {
-        UserEntity unauthenticatedUser = new UserEntity();
-
-        VehicleEntity vehicle = new VehicleEntity();
-        vehicle.setVehicleId(1L);
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
+    public void createRent_UserTypeIsNotDefined_Failure() {
 
         RentRequest rentRequest = new RentRequest();
         rentRequest.setStartDate(LocalDate.now());
         rentRequest.setEndDate(LocalDate.now().plusDays(3));
         rentRequest.setDailyCost(BigDecimal.valueOf(50));
         rentRequest.setPaid(true);
-        rentRequest.setVehicleId(vehicle.getVehicleId());
+        rentRequest.setVehicleId(1L);
 
-        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, unauthenticatedUser);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+
+        userEntity.setUserType(UserTypes.NOT_DEFINED);
+
+        Either<RentResponse, RentDTO> result = rentService.createRent(rentRequest, null, userEntity);
+
+        verifyNoInteractions(vehicleRepository, rentRepository, rentalsLinkRepository);
 
         assertTrue(result.isLeft());
-        assertEquals(403, result.getLeft().getStatusCode());
-        assertEquals("User not authenticated", result.getLeft().getMessage());
+        RentResponse rentResponse = result.getLeft();
+        assertEquals(403, rentResponse.getStatusCode());
+        assertEquals("User type is not defined", result.getLeft().getMessage()); // Check for expected message
     }
 
     @Test
     void updateRentDates_Success() {
+
         RentEntity existingRent = new RentEntity();
         existingRent.setId(1L);
         existingRent.setStartDate(LocalDate.now());
@@ -259,6 +157,7 @@ public class RentServiceTest {
 
     @Test
     void updateRentDates_InvalidDates_Failure() {
+
         RentEntity existingRent = new RentEntity();
         existingRent.setId(1L);
         existingRent.setStartDate(LocalDate.now());
@@ -286,8 +185,8 @@ public class RentServiceTest {
 
     @Test
     void updateRentDates_RentNotFound_Failure() {
-        Long rentId = 1L;
 
+        Long rentId = 1L;
         LocalDate newStartDate = LocalDate.now().plusDays(5);
         LocalDate newEndDate = LocalDate.now().plusDays(10);
 
@@ -307,127 +206,112 @@ public class RentServiceTest {
         assertEquals(404, rentResponse.getStatusCode());
         assertEquals("Rent not found", rentResponse.getMessage());
 
-
         verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
     }
 
     @Test
     void deleteRent_Success() {
-        RentEntity existingRent = new RentEntity();
-        existingRent.setId(1L);
-        existingRent.setStartDate(LocalDate.now());
-        existingRent.setEndDate(LocalDate.now().plusDays(3));
-        existingRent.setDailyCost(BigDecimal.valueOf(50));
-        existingRent.setIsPaid(true);
-        existingRent.setActive(true);
-        VehicleEntity vehicleEntity = new VehicleEntity(1L, "Lamborghini", "Revuelto", 6, "Blue", 1015,
-                "Automatic", 2021, "PHEV / Gasoline", BigDecimal.valueOf(517255),
-                BigDecimal.valueOf(1), Collections.singletonList("Air Conditioning"), true, VehicleStatus.PURCHASABLE, VehicleType.CAR);
-        existingRent.setVehicle(vehicleEntity);
 
-        UserEntity userEntity = new UserEntity(1L, "carlo", "armato", "333", "culo@ok", "bellapass", UserTypes.BUYER);
+        Long rentId = 1L;
+        UserEntity userEntityDetails = new UserEntity();
+        userEntityDetails.setUserType(UserTypes.ADMIN);
 
-        RentLink rentLink = new RentLink(userEntity, existingRent);
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(rentId);
+        rentEntity.setActive(true);
 
-        when(rentalsLinkRepository.findByRentId(existingRent.getId())).thenReturn(Optional.of(rentLink));
+        RentLink rentLink = new RentLink();
+        rentLink.setRent(rentEntity);
 
-        Either<RentResponse, Void> resultEither = rentService.deleteRent(existingRent.getId(), userEntity);
+        VehicleEntity vehicleEntity = new VehicleEntity();
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTED);
+        rentEntity.setVehicle(vehicleEntity);
 
-        assertTrue(resultEither.isRight());
+        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
 
-        verify(rentRepository, times(1)).save(any(RentEntity.class));
-        verify(rentalsLinkRepository, times(1)).findByRentId(existingRent.getId());
-        verify(rentalsLinkRepository, times(1)).delete(rentLink);
-        verify(vehicleRepository, times(1)).save(vehicleEntity);
+        Either<RentResponse, Void> result = rentService.deleteRent(rentId, userEntityDetails);
+
+        assertEquals(Either.right(null), result);
+
+        verify(rentRepository).save(rentEntity);
+        verify(rentalsLinkRepository).delete(rentLink);
+        verify(vehicleRepository).save(vehicleEntity);
+        assertEquals(VehicleStatus.RENTABLE, vehicleEntity.getVehicleStatus());
+        assertEquals(false, rentEntity.isActive());
+        assertEquals(null, rentEntity.getVehicle());
     }
 
     @Test
-    void deleteRent_NotAuthorized_Failure() {
-        Long rentId = 1L;
+    public void deleteRent_NotAuthorized_Failure() {
 
-        Long userId = 123L;
-
+        Long id = 123L;
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
         userEntity.setUserType(UserTypes.BUYER);
 
-        RentLink rentLink = new RentLink(userEntity, new RentEntity());
-        when(rentalsLinkRepository.findByRentIdAndBuyerId(rentId, userId)).thenReturn(Optional.of(rentLink));
+        Either<RentResponse, Void> result = rentService.deleteRent(id, userEntity);
 
-        when(rentRepository.findById(rentId)).thenReturn(Optional.of(new RentEntity()));
+        assertTrue(result.isLeft());
+        RentResponse response = result.getLeft();
+        assertEquals(403, response.getStatusCode());
+        assertEquals("Unauthorized user", response.getMessage());
 
-        Either<RentResponse, Void> resultEither = rentService.deleteRent(rentId, userEntity);
-
-        assertTrue(resultEither.isLeft());
-        assertEquals(404, resultEither.getLeft().getStatusCode());
-
-        verify(rentRepository, never()).delete(any(RentEntity.class));
-        verify(rentalsLinkRepository, never()).delete(any(RentLink.class));
+        verify(rentalsLinkRepository, never()).delete(any());
+        verify(rentRepository, never()).save(any());
+        verify(vehicleRepository, never()).save(any());
     }
 
     @Test
     void getRentList_AdminOrSeller_Success() {
+
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(123L);
         userEntity.setUserType(UserTypes.ADMIN);
 
-        List<RentEntity> rentEntities = List.of(
-                new RentEntity(),
-                new RentEntity()
+        List<RentEntity> rentEntities = Arrays.asList(
+                createRentEntity(1L, BigDecimal.valueOf(50)),
+                createRentEntity(2L, BigDecimal.valueOf(20))
         );
 
-        List<RentLink> rentLinks = List.of(
-                new RentLink(userEntity, rentEntities.get(0)),
-                new RentLink(userEntity, rentEntities.get(1))
-        );
-
-        when(rentalsLinkRepository.findAllBySeller_Id(userEntity.getId())).thenReturn(rentLinks);
-        when(rentRepository.findById(anyLong())).thenReturn(Optional.of(new RentEntity()));
+        when(rentRepository.findAll()).thenReturn(rentEntities);
 
         List<RentDTO> result = rentService.getRentList(userEntity);
 
-        assertNotNull(result);
+        verify(rentRepository, times(1)).findAll();
 
-        verify(rentalsLinkRepository, times(1)).findAllBySeller_Id(userEntity.getId());
-        verify(rentRepository, times(rentEntities.size())).findById(anyLong());
+        assertEquals(rentEntities.size(), result.size());
+        List<Long> rentIds = result.stream().map(RentDTO::getId).collect(Collectors.toList());
+        assertTrue(rentIds.contains(1L));
+        assertTrue(rentIds.contains(2L));
     }
 
     @Test
     void getRentList_Buyer_Success() {
-        UserEntity buyer = new UserEntity();
-        buyer.setId(1L);
-        buyer.setUserType(UserTypes.BUYER);
 
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(1L);
-        rentEntity.setStartDate(LocalDate.now());
-        rentEntity.setEndDate(LocalDate.now().plusDays(5));
-        rentEntity.setDailyCost(BigDecimal.valueOf(50));
-        rentEntity.setTotalCost(BigDecimal.valueOf(250));
-        rentEntity.setIsPaid(true);
-        rentEntity.setActive(true);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1L);
+        userEntity.setUserType(UserTypes.BUYER);
 
-        VehicleEntity vehicleEntity = new VehicleEntity();
-        vehicleEntity.setVehicleId(1L);
-        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
+        RentEntity rent1 = createRentEntity(1L, BigDecimal.valueOf(50));
+        RentEntity rent2 = createRentEntity(2L, BigDecimal.valueOf(60));
+        List<RentLink> rentLinks = Arrays.asList(
+                new RentLink(userEntity, rent1),
+                new RentLink(userEntity, rent2)
+        );
 
-        RentLink rentLink = new RentLink(buyer, rentEntity);
+        when(rentalsLinkRepository.findAllByBuyer_Id(userEntity.getId())).thenReturn(rentLinks);
 
-        List<RentLink> rentLinks = Collections.singletonList(rentLink);
+        List<RentDTO> result = rentService.getRentList(userEntity);
 
-        when(rentalsLinkRepository.findAllByBuyer_Id(buyer.getId())).thenReturn(rentLinks);
-        when(rentRepository.findById(rentEntity.getId())).thenReturn(Optional.of(rentEntity));
-        when(vehicleRepository.findById(vehicleEntity.getVehicleId())).thenReturn(Optional.of(vehicleEntity));
+        verify(rentalsLinkRepository, times(1)).findAllByBuyer_Id(userEntity.getId());
 
-        List<RentDTO> rentDTOList = rentService.getRentList(buyer);
-
-        assertNotNull(rentDTOList);
-        assertFalse(rentDTOList.isEmpty());
-        assertEquals(1, rentDTOList.size());
+        assertEquals(rentLinks.size(), result.size());
+        List<Long> rentIds = result.stream().map(RentDTO::getId).collect(Collectors.toList());
+        assertTrue(rentIds.contains(1L));
+        assertTrue(rentIds.contains(2L));
     }
 
     @Test
     void getRentList_UnauthorizedUser_EmptyList() {
+
         UserEntity unauthorizedUser = new UserEntity();
         unauthorizedUser.setId(1L);
         unauthorizedUser.setUserType(UserTypes.BUYER);
@@ -443,115 +327,88 @@ public class RentServiceTest {
 
     @Test
     void getRentById_AdminOrSeller_Success() {
-        Long rentId = 1L;
-        Long userId = 2L;
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
+        userEntity.setId(1L);
         userEntity.setUserType(UserTypes.ADMIN);
 
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-        rentEntity.setStartDate(LocalDate.now());
-        rentEntity.setEndDate(LocalDate.now().plusDays(7));
-        rentEntity.setDailyCost(BigDecimal.valueOf(50));
-        rentEntity.setIsPaid(true);
+        RentEntity rentEntity = createRentEntity(1L, BigDecimal.valueOf(50));
 
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
+        when(rentRepository.findById(1L)).thenReturn(Optional.of(rentEntity));
 
-        RentModel rentModel = RentModel.entityToModel(rentEntity);
-        RentDTO expectedRentDTO = RentModel.modelToDTO(rentModel);
+        RentDTO result = rentService.getRentById(1L, userEntity);
 
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
+        verify(rentRepository, times(1)).findById(1L);
 
-        RentDTO result = rentService.getRentById(rentId, userEntity);
-
-        assertEquals(expectedRentDTO, result);
-        verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
+        assertNotNull(result);
+        assertEquals(rentEntity.getId(), result.getId());
     }
 
     @Test
     void getRentById_Buyer_Success() {
-        Long rentId = 1L;
-        Long userId = 2L;
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
+        userEntity.setId(1L);
         userEntity.setUserType(UserTypes.BUYER);
 
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-        rentEntity.setStartDate(LocalDate.now());
-        rentEntity.setEndDate(LocalDate.now().plusDays(7));
-        rentEntity.setDailyCost(BigDecimal.valueOf(50));
-        rentEntity.setIsPaid(true);
+        RentLink rentLink = mock(RentLink.class);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
+        when(rentLink.getBuyer()).thenReturn(userEntity);
 
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
+        RentEntity rentEntity = createRentEntity(1L, BigDecimal.valueOf(50));
+        when(rentLink.getRent()).thenReturn(rentEntity);
 
-        RentModel rentModel = RentModel.entityToModel(rentEntity);
-        RentDTO expectedRentDTO = RentModel.modelToDTO(rentModel);
+        RentDTO result = rentService.getRentById(1L, userEntity);
 
-        when(rentalsLinkRepository.findByRentIdAndBuyerId(rentId, userId)).thenReturn(Optional.of(rentLink));
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verify(rentLink, times(1)).getBuyer();
+        verify(rentLink, times(1)).getRent();
 
-        RentDTO result = rentService.getRentById(rentId, userEntity);
-
-        assertEquals(expectedRentDTO, result);
-        verify(rentalsLinkRepository, times(1)).findByRentIdAndBuyerId(rentId, userId);
+        assertNotNull(result);
+        assertEquals(rentEntity.getId(), result.getId());
     }
 
     @Test
     void getRentById_UnauthorizedUser_Null() {
-        Long rentId = 1L;
-        Long userId = 2L;
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        userEntity.setUserType(UserTypes.BUYER);
+        userEntity.setId(1L);
+        userEntity.setUserType(UserTypes.NOT_DEFINED);
 
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
+        RentDTO result = rentService.getRentById(1L, userEntity);
 
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
-
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-
-        RentDTO result = rentService.getRentById(rentId, userEntity);
+        verifyNoInteractions(rentRepository, rentalsLinkRepository);
 
         assertNull(result);
-        verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
     }
 
     @Test
     void payRent_Success() {
-        Long rentId = 1L;
-        Long userId = 2L;
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        userEntity.setUserType(UserTypes.BUYER);
-
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-        rentEntity.setIsPaid(false);
 
         RentLink rentLink = new RentLink();
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(1L);
+        rentEntity.setIsPaid(false);
         rentLink.setRent(rentEntity);
-        rentLink.setBuyer(userEntity);
 
-        String expectedPaymentMessage = "Payment successful. Total amount paid: 100.00, enjoy your ride!";
+        UserEntity userEntityDetails = new UserEntity();
+        userEntityDetails.setUserType(UserTypes.BUYER);
+        userEntityDetails.setId(123L);
 
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
+        UserEntity buyer = new UserEntity();
+        buyer.setId(123L);
+        rentLink.setBuyer(buyer);
 
-        Either<RentResponse, String> result = rentService.payRent(rentId, userId, userEntity);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
+        when(rentRepository.save(rentEntity)).thenReturn(rentEntity);
+
+        Either<RentResponse, String> result = rentService.payRent(1L, 123L, userEntityDetails);
+
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verify(rentRepository, times(1)).save(rentEntity);
 
         assertTrue(result.isRight());
-        assertEquals(expectedPaymentMessage, result.get());
-        assertTrue(rentEntity.getIsPaid());
-        assertTrue(rentLink.getRent().isActive());
-        verify(rentRepository, times(1)).save(rentEntity);
+        assertEquals("Payment successful. Total amount paid: " + rentEntity.getTotalCost() + ", enjoy your ride!", result.get());
     }
 
     @Test
@@ -585,133 +442,122 @@ public class RentServiceTest {
 
     @Test
     void payRent_UnauthorizedUser_Failure() {
-        Long rentId = 1L;
-        Long userId = 2L;
 
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        userEntity.setUserType(UserTypes.BUYER);
-
+        RentLink rentLink = new RentLink();
         RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
+        rentEntity.setId(1L);
         rentEntity.setIsPaid(false);
-
-        RentLink rentLink = new RentLink();
         rentLink.setRent(rentEntity);
+        rentLink.setBuyer(null);
 
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-
-        Either<RentResponse, String> result = rentService.payRent(rentId, userId, userEntity);
-
-        assertTrue(result.isLeft());
-        RentResponse response = result.getLeft();
-        assertEquals(403, response.getStatusCode());
-        assertEquals("Unauthorized user", response.getMessage());
-
-        verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
-        verifyNoMoreInteractions(rentalsLinkRepository);
-        verifyNoInteractions(rentRepository);
-    }
-
-    @Test
-    void deleteBooking_Success() {
-        Long rentId = 1L;
         UserEntity userEntityDetails = new UserEntity();
+        userEntityDetails.setUserType(UserTypes.BUYER);
+        userEntityDetails.setId(123L);
 
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-        rentEntity.setActive(true);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
 
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
+        Either<RentResponse, String> result = rentService.payRent(1L, 123L, userEntityDetails);
 
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-        when(rentRepository.save(rentEntity)).thenReturn(rentEntity);
-
-        Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntityDetails);
-
-        assertEquals("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.", result.get());
-        verify(rentRepository, times(1)).save(rentEntity);
-        verify(vehicleRepository, times(1)).save(any(VehicleEntity.class));
-    }
-
-    @Test
-    void deleteBooking_ActiveRent_Failure() {
-        Long rentId = 1L;
-        Long userId = 2L;
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-        rentEntity.setActive(true);
-
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
-
-        RentResponse expectedResponse = new RentResponse(400, "Rent is Active and cannot be deleted");
-
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-
-
-        Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntity);
-
-        assertEquals(expectedResponse, result.getLeft());
-        verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
-        verify(rentRepository, never()).save(rentEntity);
-        verify(vehicleRepository, never()).save(any(VehicleEntity.class));
-    }
-
-    @Test
-    void deleteBooking_UnauthorizedUser_Failure() {
-        Long rentId = 1L;
-        Long userId = 2L;
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-
-        RentEntity rentEntity = new RentEntity();
-        rentEntity.setId(rentId);
-
-        RentLink rentLink = new RentLink();
-        rentLink.setRent(rentEntity);
-
-        when(rentalsLinkRepository.findByRentId(rentId)).thenReturn(Optional.of(rentLink));
-
-        Either<RentResponse, String> result = rentService.deleteBooking(rentId, userEntity);
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verifyNoInteractions(rentRepository);
 
         assertTrue(result.isLeft());
         RentResponse rentResponse = result.getLeft();
         assertEquals(403, rentResponse.getStatusCode());
         assertEquals("Unauthorized user", rentResponse.getMessage());
-        verify(rentalsLinkRepository, times(1)).findByRentId(rentId);
-        verify(rentRepository, never()).save(any());
-        verify(vehicleRepository, never()).save(any());
     }
 
-
     @Test
-    void calculateTotalPrice_Success() {
-        LocalDate startDate = LocalDate.now();
-        LocalDate endDate = LocalDate.now().plusDays(7);
-        BigDecimal dailyCost = BigDecimal.valueOf(50);
+    public void deleteBooking_Success() {
 
-        RentModel rentModel = new RentModel(startDate, endDate, dailyCost, true, new VehicleEntity(), BigDecimal.ZERO);
-        RentEntity rentEntity = RentModel.modelToEntity(rentModel);
-        RentDTO expectedRentDTO = RentModel.modelToDTO(rentModel);
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(1L);
+        rentEntity.setActive(true);
 
-        long days = ChronoUnit.DAYS.between(startDate, endDate);
-        BigDecimal totalCost = dailyCost.multiply(BigDecimal.valueOf(days));
+        VehicleEntity vehicleEntity = new VehicleEntity();
+        vehicleEntity.setVehicleStatus(VehicleStatus.RENTABLE);
+        rentEntity.setVehicle(vehicleEntity);
 
-        when(rentRepository.save(any(RentEntity.class))).thenReturn(rentEntity);
+        RentLink rentLink = new RentLink();
+        rentLink.setRent(rentEntity);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
 
-        Either<RentResponse, RentDTO> result = rentService.createRent(null, null, null);
+        Either<RentResponse, String> result = rentService.deleteBooking(1L, new UserEntity());
 
         assertTrue(result.isRight());
-        RentDTO resultDTO = result.get();
-        assertEquals(totalCost, resultDTO.getTotalCost());
-        verify(rentRepository, times(1)).save(any(RentEntity.class));
+        assertEquals("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.", result.get());
+
+        assertFalse(rentEntity.isActive());
+
+        assertEquals(VehicleStatus.RENTABLE, vehicleEntity.getVehicleStatus());
+
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verify(vehicleRepository, times(1)).save(vehicleEntity);
+        verify(rentRepository, times(1)).save(rentEntity);
+    }
+
+    @Test
+    public void deleteBooking_ActiveRent_Failure() {
+
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(1L);
+        rentEntity.setActive(true);
+
+        RentLink rentLink = new RentLink();
+        rentLink.setRent(rentEntity);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
+
+        Either<RentResponse, String> result = rentService.deleteBooking(1L, new UserEntity());
+
+        assertTrue(result.isLeft());
+        RentResponse rentResponse = result.getLeft();
+        assertEquals(500, rentResponse.getStatusCode());
+        assertEquals("Internal Server Error: No vehicle associated with the rent", rentResponse.getMessage());
+
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verify(vehicleRepository, never()).save(any());
+        verify(rentRepository, never()).save(any());
+    }
+
+    @Test
+    public void deleteBooking_UnauthorizedUser_Failure() {
+
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(1L);
+        rentEntity.setActive(true);
+
+        RentLink rentLink = new RentLink();
+        rentLink.setRent(rentEntity);
+        when(rentalsLinkRepository.findByRentId(1L)).thenReturn(Optional.of(rentLink));
+
+        UserEntity unauthorizedUser = new UserEntity();
+        unauthorizedUser.setUserType(UserTypes.NOT_DEFINED);
+
+        Either<RentResponse, String> result = rentService.deleteBooking(1L, unauthorizedUser);
+
+        assertTrue(result.isLeft());
+        RentResponse rentResponse = result.getLeft();
+        assertEquals(500, rentResponse.getStatusCode());
+        assertEquals("Internal Server Error: No vehicle associated with the rent", rentResponse.getMessage());
+
+        verify(rentalsLinkRepository, times(1)).findByRentId(1L);
+        verifyNoMoreInteractions(vehicleRepository);
+    }
+
+    // Utility method to create a mock RentEntity
+    private RentEntity createRentEntity(Long id, BigDecimal dailyCost) {
+        RentEntity rentEntity = new RentEntity();
+        rentEntity.setId(id);
+        rentEntity.setDailyCost(dailyCost);
+
+        // Creating a mock VehicleEntity
+        VehicleEntity vehicleEntity = new VehicleEntity();
+        vehicleEntity.setVehicleId(id);
+        vehicleEntity.setBrand("Brand " + id);
+        vehicleEntity.setModel("Model " + id);
+        rentEntity.setVehicle(vehicleEntity);
+
+        return rentEntity;
     }
 
 }

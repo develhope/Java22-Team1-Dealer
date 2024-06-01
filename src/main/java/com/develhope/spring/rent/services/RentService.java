@@ -45,6 +45,11 @@ public class RentService {
 
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
+        // Check if user type is NOT_DEFINED
+        if (userEntityDetails.getUserType() == UserTypes.NOT_DEFINED) {
+            return Either.left(new RentResponse(403, "User type is not defined"));
+        }
+
         if (userEntityDetails.getUserType().equals(UserTypes.BUYER)) {
             if (userId == null) {
                 userId = userEntityDetails.getId();
@@ -55,11 +60,17 @@ public class RentService {
             return Either.left(new RentResponse(403, "Unauthorized user type"));
         }
 
+
         Either<RentResponse, UserEntity> userCheck = checkUserExists(userId);
         if (userCheck.isLeft()) {
             return Either.left(userCheck.getLeft());
         }
         UserEntity userEntity = userCheck.get();
+
+        // Additional check for user not found
+        if (userEntity == null) {
+            return Either.left(new RentResponse(404, "User not found"));
+        }
 
         Either<RentResponse, Void> authorizationCheck = checkUserAuthorization(userEntityDetails);
         if (authorizationCheck.isLeft()) {
@@ -185,7 +196,7 @@ public class RentService {
     }
 
     public Either<RentResponse, Void> deleteRent(Long id, UserEntity userEntityDetails) {
-        Either<RentResponse, Void> authorizationCheck = checkUserAuthorization(userEntityDetails);
+        Either<RentResponse, Void> authorizationCheck = checkUserAuthorizationBuyerNotAuthorized(userEntityDetails);
         if (authorizationCheck.isLeft()) {
             return Either.left(authorizationCheck.getLeft());
         }
@@ -226,10 +237,11 @@ public class RentService {
             return Either.left(new RentResponse(400, "Rent already paid"));
         }
 
-        // Enhanced authorization check with detailed logging
         boolean isAuthorized = userEntityDetails.getUserType() == UserTypes.ADMIN ||
                 userEntityDetails.getUserType() == UserTypes.SELLER ||
-                (userEntityDetails.getUserType() == UserTypes.BUYER && userId.equals(rentLink.getBuyer().getId()));
+                (userEntityDetails.getUserType() == UserTypes.BUYER &&
+                        rentLink.getBuyer() != null &&
+                        userId.equals(rentLink.getBuyer().getId()));
 
         System.out.println("User Authorization: " + isAuthorized + " for User ID: " + userId + " with UserType: " + userEntityDetails.getUserType());
         if (!isAuthorized) {
@@ -265,12 +277,16 @@ public class RentService {
         }
 
         rentEntity.setActive(false);
+        // Controllo se il veicolo è associato alla prenotazione
+        if (rentEntity.getVehicle() != null) {
+            // Imposto lo stato del veicolo come RENTABLE
+            rentEntity.getVehicle().setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(rentEntity.getVehicle());
+        } else {
+            return Either.left(new RentResponse(500, "Internal Server Error: No vehicle associated with the rent"));
+        }
         rentEntity.setVehicle(null);
         rentRepository.save(rentEntity);
-
-        VehicleEntity vehicle = rentEntity.getVehicle();
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
-        vehicleRepository.save(vehicle);
 
         return Either.right("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.");
     }
@@ -282,6 +298,13 @@ public class RentService {
 
     public Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
+            return Either.left(new RentResponse(403, "Unauthorized user"));
+        }
+        return Either.right(null);
+    }
+
+    public Either<RentResponse, Void> checkUserAuthorizationBuyerNotAuthorized(UserEntity userEntityDetails) {
+        if (userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         return Either.right(null);
