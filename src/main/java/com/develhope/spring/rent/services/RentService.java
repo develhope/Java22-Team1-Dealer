@@ -45,6 +45,11 @@ public class RentService {
 
 
     public Either<RentResponse, RentDTO> createRent(RentRequest rentRequest, Long userId, UserEntity userEntityDetails) {
+        // Check if user type is NOT_DEFINED
+        if (userEntityDetails.getUserType() == UserTypes.NOT_DEFINED) {
+            return Either.left(new RentResponse(403, "User type is not defined"));
+        }
+
         if (userEntityDetails.getUserType().equals(UserTypes.BUYER)) {
             if (userId == null) {
                 userId = userEntityDetails.getId();
@@ -55,11 +60,17 @@ public class RentService {
             return Either.left(new RentResponse(403, "Unauthorized user type"));
         }
 
+
         Either<RentResponse, UserEntity> userCheck = checkUserExists(userId);
         if (userCheck.isLeft()) {
             return Either.left(userCheck.getLeft());
         }
         UserEntity userEntity = userCheck.get();
+
+        // Additional check for user not found
+        if (userEntity == null) {
+            return Either.left(new RentResponse(404, "User not found"));
+        }
 
         Either<RentResponse, Void> authorizationCheck = checkUserAuthorization(userEntityDetails);
         if (authorizationCheck.isLeft()) {
@@ -156,7 +167,7 @@ public class RentService {
         //trova il rentlink utilizzando il rentlinkid e lo userid
         Optional<RentLink> rentLinkOptional = rentalsLinkRepository.findByRentId(id);
         if (rentLinkOptional.isEmpty()) {
-            return Either.left(new RentResponse(404, "Rent link not found"));
+            return Either.left(new RentResponse(404, "Rent not found"));
         }
         RentLink rentLink = rentLinkOptional.get();
         RentEntity rentEntity = rentLink.getRent();
@@ -185,7 +196,7 @@ public class RentService {
     }
 
     public Either<RentResponse, Void> deleteRent(Long id, UserEntity userEntityDetails) {
-        Either<RentResponse, Void> authorizationCheck = checkUserAuthorization(userEntityDetails);
+        Either<RentResponse, Void> authorizationCheck = checkUserAuthorizationBuyerNotAuthorized(userEntityDetails);
         if (authorizationCheck.isLeft()) {
             return Either.left(authorizationCheck.getLeft());
         }
@@ -199,13 +210,16 @@ public class RentService {
         RentEntity rentEntity = rentLink.getRent();
 
         rentEntity.setActive(false);
-        rentEntity.setVehicleId(null);
+        VehicleEntity vehicle = rentEntity.getVehicle();
+        rentEntity.setVehicle(null);
         rentRepository.save(rentEntity);
 
         rentalsLinkRepository.delete(rentLink);
-        VehicleEntity vehicle = rentEntity.getVehicleId();
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
-        vehicleRepository.save(vehicle);
+
+        if (vehicle != null) {
+            vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(vehicle);
+        }
 
         return Either.right(null);
     }
@@ -223,10 +237,11 @@ public class RentService {
             return Either.left(new RentResponse(400, "Rent already paid"));
         }
 
-        // Enhanced authorization check with detailed logging
         boolean isAuthorized = userEntityDetails.getUserType() == UserTypes.ADMIN ||
                 userEntityDetails.getUserType() == UserTypes.SELLER ||
-                (userEntityDetails.getUserType() == UserTypes.BUYER && userId.equals(rentLink.getBuyer().getId()));
+                (userEntityDetails.getUserType() == UserTypes.BUYER &&
+                        rentLink.getBuyer() != null &&
+                        userId.equals(rentLink.getBuyer().getId()));
 
         System.out.println("User Authorization: " + isAuthorized + " for User ID: " + userId + " with UserType: " + userEntityDetails.getUserType());
         if (!isAuthorized) {
@@ -262,36 +277,47 @@ public class RentService {
         }
 
         rentEntity.setActive(false);
-        rentEntity.setVehicleId(null);
+        // Controllo se il veicolo è associato alla prenotazione
+        if (rentEntity.getVehicle() != null) {
+            // Imposto lo stato del veicolo come RENTABLE
+            rentEntity.getVehicle().setVehicleStatus(VehicleStatus.RENTABLE);
+            vehicleRepository.save(rentEntity.getVehicle());
+        } else {
+            return Either.left(new RentResponse(500, "Internal Server Error: No vehicle associated with the rent"));
+        }
+        rentEntity.setVehicle(null);
         rentRepository.save(rentEntity);
-
-        VehicleEntity vehicle = rentEntity.getVehicleId();
-        vehicle.setVehicleStatus(VehicleStatus.RENTABLE);
-        vehicleRepository.save(vehicle);
 
         return Either.right("Rent booking successfully set to inactive and vehicle status updated to RENTABLE.");
     }
 
-    private Either<RentResponse, UserEntity> checkUserExists(Long userId) {
+    public Either<RentResponse, UserEntity> checkUserExists(Long userId) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
         return userOptional.<Either<RentResponse, UserEntity>>map(Either::right).orElseGet(() -> Either.left(new RentResponse(403, "User not found")));
     }
 
-    private Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
+    public Either<RentResponse, Void> checkUserAuthorization(UserEntity userEntityDetails) {
         if (userEntityDetails.getUserType() != UserTypes.BUYER && userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
             return Either.left(new RentResponse(403, "Unauthorized user"));
         }
         return Either.right(null);
     }
 
-    private Either<RentResponse, Boolean> checkRentIsActive(RentEntity rentEntity) {
+    public Either<RentResponse, Void> checkUserAuthorizationBuyerNotAuthorized(UserEntity userEntityDetails) {
+        if (userEntityDetails.getUserType() != UserTypes.SELLER && userEntityDetails.getUserType() != UserTypes.ADMIN) {
+            return Either.left(new RentResponse(403, "Unauthorized user"));
+        }
+        return Either.right(null);
+    }
+
+    public Either<RentResponse, Boolean> checkRentIsActive(RentEntity rentEntity) {
         if (rentEntity.isActive()) {
             return Either.left(new RentResponse(400, "Rent is not active"));
         }
         return Either.right(true);
     }
 
-    private void updateRentEntityDates(RentRequest rentRequest, RentEntity rentEntity) {
+    public void updateRentEntityDates(RentRequest rentRequest, RentEntity rentEntity) {
         rentEntity.setStartDate(rentRequest.getStartDate());
         rentEntity.setEndDate(rentRequest.getEndDate());
         rentEntity.setTotalCost(rentEntity.calculateTotalCost());

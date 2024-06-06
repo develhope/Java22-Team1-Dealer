@@ -123,10 +123,11 @@ public class OrderService {
     private void updateOrderDetails(OrderDTO orderDTO, OrderRequest orderRequest) {
         orderDTO.setPaid(orderRequest.getPaid() == null ? orderDTO.getPaid() : orderRequest.getPaid());
         orderDTO.setStatus(orderRequest.getStatus() == null ? orderDTO.getStatus() : OrderStatus.convertFromString(orderRequest.getStatus()));
-        orderDTO.setVehicle(orderRequest.getVehicleId() != null ?
-                vehicleRepository.findById(orderRequest.getVehicleId()).map(
-                        vehicleEntity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(vehicleEntity))
-                ).orElse(orderDTO.getVehicle()) : orderDTO.getVehicle());
+        if (orderRequest.getVehicleId() != null) {
+            vehicleRepository.findById(orderRequest.getVehicleId())
+                    .map(vehicleEntity -> VehicleModel.modelToDTO(VehicleModel.entityToModel(vehicleEntity)))
+                    .ifPresent(orderDTO::setVehicle);
+        }
     }
 
     private void updateVehicleStatus(VehicleEntity vehicle, VehicleStatus vehicleStatus) {

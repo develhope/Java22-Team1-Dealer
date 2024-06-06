@@ -58,7 +58,7 @@ public class DealershipStatisticsService {
     // TODO VEICOLO PIU VENDUTO, VENDUTO PIU ALTO, PIU RICERCATO ,ORDINATO
 
     public ResponseEntity<?> getRentsNumberOfUser(UserEntity user, @Nullable Long targetId) {
-        if (user.getUserType() == UserTypes.ADMIN) {
+        if (user.getUserType() == UserTypes.ADMIN || targetId != null) {
             Optional<UserEntity> userOptional = userRepository.findById(targetId);
             if (userOptional.isEmpty()) {
                 return ResponseEntity.notFound().build();
